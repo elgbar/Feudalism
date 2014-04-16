@@ -1,0 +1,17 @@
+command /shop_armour:
+	permission: op
+	trigger:
+		spawn a priest
+		
+command /donator <player> <boolean>:
+	executable by: console
+	trigger:
+		set {feu.donator.%arg-1%} to arg-2
+		message "<gold>%arg-1%<green> donator status is now set to: <gold>%arg-2%!" to op
+		message "<green>your donation status is not set to: <gold>%arg-2%" to arg-1
+
+command /lvl <integer> <player=%player%>:
+	permission: op
+	trigger:
+		set {feu.lvl.%arg-2%} to arg-1
+		message "The Feudalism level of player %arg-2% is now %arg-1%!"
