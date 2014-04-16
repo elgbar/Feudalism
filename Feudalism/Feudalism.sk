@@ -4,7 +4,7 @@ on first join:
 	set {feu.type.set.%player%} to false
 	set {feu.isSlave.%player%} to true
 	set {feu.title.%player%} to "Slave"
-	
+
 on level change:
 	add 1 to {feu.lvl.%player%}
 	message "You are now Level %{feu.lvl.%player%}%!"
