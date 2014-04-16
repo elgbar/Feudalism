@@ -1,0 +1,46 @@
+on first join:
+	if name of player is equal to {allplayers::*}:
+		stop
+	else:
+		add "%name of player%" to {allplayers::*}
+		
+	set {feu.lvl.%player%} to 0
+	set {feu.joinClan.%player%} to false
+	set {feu.type.set.%player%} to false
+	set {feu.isSlave.%player%} to true
+	set {feu.donator.%player%} to false
+	set {feu.title.%player%} to "Slave"
+	
+on level change:
+	add 1 to {feu.lvl.%player%}
+	message "You are now Level %{feu.lvl.%player%}%!"
+	if {feu.lvl.%player%} is 1:
+		Message "You are now a free man! And have permission to walk everywhere!"
+		set {feu.isSlave.%player%} to false
+		set {feu.title.%player%} to "Freed slave"
+	else if {feu.lvl.%player%} is 5:
+		Message "You Now have enough experience to start battling! With other players!"
+		set {feu.title.%player%} to "Gladiator"
+	else if {feu.lvl.%player%} is 15:
+		Message "You are now strong enough to have a Zombie companion"
+		set {feu.title.%player%} to "Zombie Master"
+		if {feu.joinClan.%player%} is true:
+			Message "The spell is now available to purchase in the magic shop!"
+		else:
+			message "Since you yet have to join a clan, no companion will fight at your side!"
+	else if {feu.lvl.%player%} is 100:
+		Message "You are... well beast"
+		
+on chat:
+	if {feu.lvl.%player%} is 0:
+		cancel event
+		Message "<red>You are not permitted to talk! Complete the tutorial to do so!"
+	else if player is op:
+		cancel event
+		broadcast "[<red>Staff<white>] <gold>%player's display name%<white>: %message%" to the player's world
+	else if {feu.donator.%player%} is true:
+		cancel event
+		broadcast "[<yellow>%{feu.title.%player%}%<white>] <gold>%player's display name%<white>: %message%" to the player's world
+	else:
+		cancel event
+		broadcast "[<yellow>%{feu.title.%player%}%<white>] %player's display name%: %message%" to the player's world
