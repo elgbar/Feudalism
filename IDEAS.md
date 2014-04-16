@@ -18,6 +18,7 @@ Items:
       
       hunting bow (lvl 1, nul, startItem)
       crossbow (lvl 1, infinity I, common)
+      
   Armour:
     Blueprint (material, level, enchantment, rarity)
     
