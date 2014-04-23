@@ -47,14 +47,13 @@ on chat:
 
 #This is a skriptPlus Event
 on any movement:
-	if player is op:
-		#some how this makes op go above the limit, whiles none-ops cant
-	else if player is not op:
-		#this makes non-op player no enable to go above y 89
-		if the player's y-coordinate is between 88 and 89:
-			if player's location is not equal to {feu.limit.%player%}:
-				set {feu.limit.%player%} to player's location
-			
-		else if player's y-coordinate is greater than 89:
-			teleport player to {feu.limit.%player%}
+	#if player is op:
+		#some how this makes op go above the limit, whiles none-ops cant (doesnt work yet)
+	#player isn't op
+		#this makes non-op player no enable to go above y 89 (doesnt work yet)
+	if the player's y-coordinate is between 88 and 89:
+		if player's location is not equal to {feu.limit.%player%}:
+			set {feu.limit.%player%} to player's location
+	if player's y-coordinate is greater than 90:
+		teleport player to {feu.limit.%player%}
 		
