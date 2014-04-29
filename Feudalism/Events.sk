@@ -14,14 +14,14 @@ on first join:
 on level change:
 	add 1 to {feu.lvl.%player%}
 	message "You are now Level %{feu.lvl.%player%}%!"
-	if {feu.lvl.%player%} is 1:
+	if {feu.lvl.%player%} is between 1 and 4:
 		Message "You are now a free man! And have permission to walk everywhere!"
 		set {feu.isSlave.%player%} to false
 		set {feu.title.%player%} to "Freed slave"
-	else if {feu.lvl.%player%} is 5:
+	else if {feu.lvl.%player%} is between 5 and 14:
 		Message "You Now have enough experience to start battling! With other players!"
 		set {feu.title.%player%} to "Gladiator"
-	else if {feu.lvl.%player%} is 15:
+	else if {feu.lvl.%player%} is between 15 and 99:
 		Message "You are now strong enough to have a Zombie companion"
 		set {feu.title.%player%} to "Zombie Master"
 		if {feu.joinClan.%player%} is true:
