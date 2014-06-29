@@ -1,0 +1,100 @@
+on mine:
+	if block is wood:
+		cancel event
+		set block to air
+		drop oak wood at player's location
+	else if block is iron ore:
+		#setter den blocken du akkuratt minet til cobblestone og setter noen lokale arugmenter som skal få den tilbake til jern (se every 5 seconds)
+		cancel event
+		set block to cobblestone
+		set {_feu.place} to the block's location
+		#broadcast "%{_feu.place}%"
+		set {feu.timer.iron.%{_feu.place}%} to now
+		#broadcast "%{feu.timer.iron.%{_feu.place}%}%"
+		add the block's location to {feu.coord.iron::*}# to the block's location
+		#broadcast "%{feu.coord.iron::*}%"
+		drop iron ore at player's location
+	else if block is coal ore:
+		cancel event
+		set block to cobblestone
+		set {_feu.place} to the block's location
+		set {feu.timer.coal.%{_feu.place}%} to now
+		add the block's location to {feu.coord.coal::*}
+		drop a coal at player's location	
+	else if block is diamond ore:
+		cancel event
+		set block to cobblestone
+		set {_feu.place} to the block's location
+		set {feu.timer.diamond.%{_feu.place}%} to now
+		add the block's location to {feu.coord.diamond::*}
+		drop a diamond at player's location
+	else:
+		if player doesn't have permission "feu.dig":
+			if block isn't any leaves, planks, any glass, any glass pane, crafting table, any door, any button or stone:
+				cancel event
+		
+on place:
+	#skriv her hvilken blokker en spiller skal kunne plassere
+	if player doesn't have permission "feu.place":
+		if block isn't wood, plank, gravel, dirt, any glass, any glass pane, crafting table, any door, any button, any stairs, any slabs or stone:
+			cancel event
+
+#setter en cobblestone blokk tilbake til jern malm etter ett minutt
+every 2 seconds:	
+	#broadcast "10 seconds"
+	loop {feu.coord.iron::*}:
+		set {_waited} to difference between {feu.timer.iron.%loop-value%} and now
+		#broadcast "%{_waited}%"
+		delete {feu.timer.iron.%loop-value%}
+		if {_waited} is greater than 1 minute:
+			delete {_waited}
+			set {_shift} to loop-value
+			remove loop-value from {feu.coord.iron::*}
+			block at {_shift} is cobblestone
+			set block at {_shift} to iron ore
+			delete {_shift}
+	loop {feu.coord.coal::*}:
+		set {_waited} to difference between {feu.timer.coal.%loop-value%} and now
+		#broadcast "%{_waited}%"
+		delete {feu.timer.coal.%loop-value%}
+		if {_waited} is greater than 1 minute:
+			delete {_waited}
+			set {_shift} to loop-value
+			remove loop-value from {feu.coord.coal::*}
+			block at {_shift} is cobblestone
+			set block at {_shift} to coal ore
+			delete {_shift}
+	loop {feu.coord.diamond::*}:
+		set {_waited} to difference between {feu.timer.diamond.%loop-value%} and now
+		#broadcast "%{_waited}%"
+		delete {feu.timer.diamond.%loop-value%}
+		if {_waited} is greater than 1 minute:
+			delete {_waited}
+			set {_shift} to loop-value
+			remove loop-value from {feu.coord.diamond::*}
+			block at {_shift} is cobblestone
+			set block at {_shift} to diamond ore
+			delete {_shift}				
+#dette kræsjet servern... kanskje se på det igjen?
+on skript stop:
+	loop {feu.coord.iron::*}:	
+		set {_shift} to loop-value
+		remove loop-value from {feu.coord.iron::*}
+		block at {_shift} is cobblestone
+		set block at {_shift} to iron ore
+		delete {_shift}
+	broadcast "iron reset"
+	loop {feu.coord.coal::*}:		
+		set {_shift} to loop-value
+		remove loop-value from {feu.coord.coal::*}
+		block at {_shift} is cobblestone
+		set block at {_shift} to coal ore
+		delete {_shift}		
+	broadcast "coal reset"
+	loop {feu.coord.diamond::*}:		
+		set {_shift} to loop-value
+		remove loop-value from {feu.coord.diamond::*}
+		block at {_shift} is cobblestone
+		set block at {_shift} to diamond ore
+		delete {_shift}		
+	broadcast "diamond reset"
