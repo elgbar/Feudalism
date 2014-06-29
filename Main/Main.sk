@@ -13,21 +13,21 @@ on mine:
 		#broadcast "%{feu.timer.iron.%{_feu.place}%}%"
 		add the block's location to {feu.coord.iron::*}# to the block's location
 		#broadcast "%{feu.coord.iron::*}%"
-		drop iron ore at player's location
+		give a iron ore to the player
 	else if block is coal ore:
 		cancel event
 		set block to cobblestone
 		set {_feu.place} to the block's location
 		set {feu.timer.coal.%{_feu.place}%} to now
 		add the block's location to {feu.coord.coal::*}
-		drop a coal at player's location	
+		give a coal to the player	
 	else if block is diamond ore:
 		cancel event
 		set block to cobblestone
 		set {_feu.place} to the block's location
 		set {feu.timer.diamond.%{_feu.place}%} to now
 		add the block's location to {feu.coord.diamond::*}
-		drop a diamond at player's location
+		give a diamond to the player
 	else:
 		if player doesn't have permission "feu.dig":
 			if block isn't any leaves, planks, any glass, any glass pane, crafting table, any door, any button or stone:
@@ -44,37 +44,38 @@ every 2 seconds:
 	#broadcast "10 seconds"
 	loop {feu.coord.iron::*}:
 		set {_waited} to difference between {feu.timer.iron.%loop-value%} and now
-		#broadcast "%{_waited}%"
-		delete {feu.timer.iron.%loop-value%}
+		broadcast "iron: %{_waited}%"
 		if {_waited} is greater than 1 minute:
 			delete {_waited}
 			set {_shift} to loop-value
 			remove loop-value from {feu.coord.iron::*}
+			delete {feu.timer.iron.%loop-value%}
 			block at {_shift} is cobblestone
 			set block at {_shift} to iron ore
 			delete {_shift}
 	loop {feu.coord.coal::*}:
 		set {_waited} to difference between {feu.timer.coal.%loop-value%} and now
-		#broadcast "%{_waited}%"
-		delete {feu.timer.coal.%loop-value%}
+		broadcast "coal: %{_waited}%"
 		if {_waited} is greater than 1 minute:
 			delete {_waited}
 			set {_shift} to loop-value
 			remove loop-value from {feu.coord.coal::*}
+			delete {feu.timer.coal.%loop-value%}
 			block at {_shift} is cobblestone
 			set block at {_shift} to coal ore
 			delete {_shift}
 	loop {feu.coord.diamond::*}:
 		set {_waited} to difference between {feu.timer.diamond.%loop-value%} and now
-		#broadcast "%{_waited}%"
-		delete {feu.timer.diamond.%loop-value%}
+		broadcast "diamond: %{_waited}%"
 		if {_waited} is greater than 1 minute:
 			delete {_waited}
 			set {_shift} to loop-value
 			remove loop-value from {feu.coord.diamond::*}
+			delete {feu.timer.diamond.%loop-value%}	
 			block at {_shift} is cobblestone
 			set block at {_shift} to diamond ore
-			delete {_shift}				
+			delete {_shift}
+					
 #dette kræsjet servern... kanskje se på det igjen?
 on skript stop:
 	loop {feu.coord.iron::*}:	
@@ -98,31 +99,3 @@ on skript stop:
 		set block at {_shift} to diamond ore
 		delete {_shift}		
 	broadcast "diamond reset"
-	
-on weather change:
-	cancel event
-		
-on any movement:
-	if player doesn't have the permission "feu.limit":
-		#message "1"
-		#this makes player without the "feu.limit" permission cant pass the 90 y mark
-		if the player's y-coordinate is between 88 and 89:	
-			#message "2"
-			#reduce lag by only setting where to teleport to players between y 88 and 89
-			if {feu.limit.time.%name of player%} doesn't exist:
-				set {feu.limit.time.%name of player%} to now
-			set {_waited.%player%} to difference between {feu.limit.time.%name of player%} and now
-			#debug:
-			#message "%{_waited.%player%}%"
-			#message "%{feu.limit.time.%name of player%}%"
-			if {_waited.%player%} is greater than 2 seconds:
-				#reduce lag even more by only setting the tp location every two secounds
-				set {feu.limit.%name of player%} to player's location
-				set {feu.limit.time.%name of player%} to now
-				#just some debug stuff
-				#message "%{feu.limit.%name of player%}%"
-				#message "%{feu.limit.time.%name of player%}%"
-		if player's y-coordinate is greater than 90:
-			#teleports the player to below 89 
-			teleport player to {feu.limit.%name of player%}
-			
