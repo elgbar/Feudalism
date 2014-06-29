@@ -44,7 +44,7 @@ every 2 seconds:
 	#broadcast "10 seconds"
 	loop {feu.coord.iron::*}:
 		set {_waited} to difference between {feu.timer.iron.%loop-value%} and now
-		broadcast "iron: %{_waited}%"
+		#broadcast "iron: %{_waited}%"
 		if {_waited} is greater than 1 minute:
 			delete {_waited}
 			set {_shift} to loop-value
@@ -55,7 +55,7 @@ every 2 seconds:
 			delete {_shift}
 	loop {feu.coord.coal::*}:
 		set {_waited} to difference between {feu.timer.coal.%loop-value%} and now
-		broadcast "coal: %{_waited}%"
+		#broadcast "coal: %{_waited}%"
 		if {_waited} is greater than 1 minute:
 			delete {_waited}
 			set {_shift} to loop-value
@@ -66,7 +66,7 @@ every 2 seconds:
 			delete {_shift}
 	loop {feu.coord.diamond::*}:
 		set {_waited} to difference between {feu.timer.diamond.%loop-value%} and now
-		broadcast "diamond: %{_waited}%"
+		#broadcast "diamond: %{_waited}%"
 		if {_waited} is greater than 1 minute:
 			delete {_waited}
 			set {_shift} to loop-value
