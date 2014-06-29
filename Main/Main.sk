@@ -98,3 +98,31 @@ on skript stop:
 		set block at {_shift} to diamond ore
 		delete {_shift}		
 	broadcast "diamond reset"
+	
+on weather change:
+	cancel event
+		
+on any movement:
+	if player doesn't have the permission "feu.limit":
+		#message "1"
+		#this makes player without the "feu.limit" permission cant pass the 90 y mark
+		if the player's y-coordinate is between 88 and 89:	
+			#message "2"
+			#reduce lag by only setting where to teleport to players between y 88 and 89
+			if {feu.limit.time.%name of player%} doesn't exist:
+				set {feu.limit.time.%name of player%} to now
+			set {_waited.%player%} to difference between {feu.limit.time.%name of player%} and now
+			#debug:
+			#message "%{_waited.%player%}%"
+			#message "%{feu.limit.time.%name of player%}%"
+			if {_waited.%player%} is greater than 2 seconds:
+				#reduce lag even more by only setting the tp location every two secounds
+				set {feu.limit.%name of player%} to player's location
+				set {feu.limit.time.%name of player%} to now
+				#just some debug stuff
+				#message "%{feu.limit.%name of player%}%"
+				#message "%{feu.limit.time.%name of player%}%"
+		if player's y-coordinate is greater than 90:
+			#teleports the player to below 89 
+			teleport player to {feu.limit.%name of player%}
+			
