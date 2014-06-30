@@ -102,3 +102,4 @@ on right click:
 	else:
 		message "<red>Timed out! Try to place the sponge again!"
 		#message "%{_awaited.%player%}%"
+		
