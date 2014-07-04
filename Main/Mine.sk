@@ -1,0 +1,228 @@
+options:
+	allowedBlocks: wood, any plank, any glass, any glass pane, crafting table, any door, any button, any stairs, any slabs, any furnace, chest, fence, cobble or torch
+	#see last in the "on break" event
+	
+on break:
+	if block is spruce wood:
+		cancel event
+		#prevents the block from dropping anything
+		set block to air
+		#removes the block
+		set {_feu.place} to the block's location
+		#remember the blocks location
+		set {feu.timer.spruce.%{_feu.place}%} to now
+		#so we know what block we talk about when it checks for the block to be reset
+		add the block's location to {feu.coord.spruce::*}
+		#add the blocks location to a array so we can loop to check if it's time to reset the block
+		give oak wood to the player
+		#and finally give the mined block to the player (not drop, so the one who mined the block gets the block)
+	else if block is iron ore:
+		cancel event
+		set block to stone
+		set {_feu.place} to the block's location
+		set {feu.timer.iron.%{_feu.place}%} to now
+		add the block's location to {feu.coord.iron::*}
+		give a iron ore to the player
+	else if block is coal ore:
+		cancel event
+		set block to stone
+		set {_feu.place} to the block's location
+		set {feu.timer.coal.%{_feu.place}%} to now
+		add the block's location to {feu.coord.coal::*}
+		give a coal to the player	
+	else if block is diamond ore:
+		cancel event
+		set block to stone
+		set {_feu.place} to the block's location
+		set {feu.timer.diamond.%{_feu.place}%} to now
+		add the block's location to {feu.coord.diamond::*}
+		give a diamond to the player
+	else if block is gravel:
+		cancel event
+		set block to air
+		set {_feu.place} to the block's location
+		set {feu.timer.stone.%{_feu.place}%} to now
+		add the block's location to {feu.coord.stone::*}
+		if {feu.chance.stone.%player%} doesn't exist:
+			set {feu.chance.stone.%player%} to 0
+		if {feu.chance.stone.%player%} is 0:
+			#needs to complete a quest (or something) to actually mine for stone
+			drop gravel
+			message "<red>I have no idea what i'm doing..."
+			#tells the playing what they are doing
+			stop
+		else if chance of {feu.chance.stone.%player%}%:#% <-- prevents flooding when using skript language file
+			#if it is your lucky day, you get some cobble
+			give player cobblestone
+		else:
+			drop gravel
+			#if it's not, it drops gravel
+	#else if block is mossy cobble:
+		#set block to air
+	else:
+		if player doesn't have permission "feu.dig":
+		#those with permission can break any block
+			if block is cobble stairs or any leaves:
+			#denies breaking ^
+				cancel event
+				stop
+			else if block isn't {@allowedBlocks}:
+				#allow breaking ^
+				cancel event
+
+on place:
+	if player doesn't have permission "feu.place":
+	#those with permission can place any block
+		if block is cobblestone stairs:
+			#denies placing ^
+			cancel event
+			stop
+		else if block isn't {@allowedBlocks}:
+		#allow placing ^
+			cancel event
+
+
+every 2 seconds:	
+	#broadcast "10 seconds"
+	loop {feu.coord.iron::*}:
+		#loops the mined blcoks
+		set {_waited} to difference between {feu.timer.iron.%loop-value%} and now
+		#set a temp variable to know if it't time to act
+		#broadcast "iron: %{_waited}%"
+		if {_waited} is greater than 4 real minutes:
+			#check if it's time
+			delete {_waited}
+			delete {feu.timer.iron.%loop-value%}
+			#delete an unwanted variables
+			block at loop-value is stone
+			#check if the block is right (so admins can remove the block if they which)
+			set block at loop-value to iron ore
+			#resets the block back to previous block
+			remove loop-value from {feu.coord.iron::*}
+	loop {feu.coord.coal::*}:
+		set {_waited} to difference between {feu.timer.coal.%loop-value%} and now
+		#broadcast "coal: %{_waited}%"
+		if {_waited} is greater than 2 real minute:
+			delete {_waited}
+			delete {feu.timer.coal.%loop-value%}
+			block at loop-value is stone
+			set block at loop-value to coal ore
+			remove loop-value from {feu.coord.coal::*}
+	loop {feu.coord.diamond::*}:
+		set {_waited} to difference between {feu.timer.diamond.%loop-value%} and now
+		#broadcast "diamond: %{_waited}%"
+		if {_waited} is greater than 20 real minutes:
+			delete {_waited}
+			delete {feu.timer.diamond.%loop-value%}
+			block at loop-value is stone
+			set block at loop-value to diamond ore
+			remove loop-value from {feu.coord.diamond::*}
+	loop {feu.coord.spruce::*}:
+		set {_waited} to difference between {feu.timer.spruce.%loop-value%} and now
+		#broadcast "spruce: %{_waited}%"
+		if {_waited} is greater than 5 real minutes:
+			delete {_waited}
+			delete {feu.timer.spruce.%loop-value%}
+			block at loop-value isn't stone
+			set block at loop-value to spruce wood
+			remove loop-value from {feu.coord.spruce::*}
+	loop {feu.coord.stone::*}:
+		set {_waited} to difference between {feu.timer.stone.%loop-value%} and now
+		#broadcast "stone: %{_waited}%"
+		if {_waited} is greater than 2 real minutes:
+			delete {_waited}
+			delete {feu.timer.stone.%loop-value%}
+			if block at loop-value isn't stone:
+			#^same as always
+				if block below loop-value is air:
+					#checks if it is necessary to fix the physics bug
+					#That being if a gravel block is spawned in air it will fall, making the gravel field smaller and smaller
+					set block below loop-value to stone
+					#fix the bug by setting a block beneath
+					set block at loop-value to gravel
+					#actually spawning the block
+					wait 2 ticks
+					#by doing this the block will stay in air (see at the bottom of the file why)
+					if block below loop-value isn't gravel:
+						#just to double check if we don't removes a gravel block, safety first!
+						set block below loop-value to air
+				else:
+					set block at loop-value to gravel
+			remove loop-value from {feu.coord.stone::*}			
+
+on skript stop:
+	#This event is called whenever skript is unloaded, on reload or server shutdown.
+	#The same happens here as above
+	#This is done due to temporary variables are deleted on a server restart or reload
+	#If this didn't exist if a block is still in its none mineable form it would stay so forever (unless a admin fixed it)
+	#If it does happen admins can use the /fix command
+	loop {feu.coord.iron::*}:
+		delete {feu.timer.stone.%loop-value%}
+		block at loop-value is stone
+		set block at loop-value to iron ore
+		remove loop-value from {feu.coord.stone::*}
+	#broadcast "iron reset"
+	loop {feu.coord.coal::*}:		
+		delete {feu.timer.coal.%loop-value%}
+		block at loop-value is stone
+		set block at loop-value to coal ore
+		remove loop-value from {feu.coord.coal::*}
+	#broadcast "coal reset"
+	loop {feu.coord.diamond::*}:		
+		delete {feu.timer.diamond.%loop-value%}
+		block at loop-value is stone
+		set block at loop-value to diamond ore
+		remove loop-value from {feu.coord.diamond::*}
+	#broadcast "diamond reset"
+	loop {feu.coord.spruce::*}:		
+		delete {feu.timer.spruce.%loop-value%}
+		block at loop-value isn't stone
+		set block at loop-value to spruce wood
+		remove loop-value from {feu.coord.spruce::*}	
+	#broadcast "spruce reset"
+	loop {feu.coord.stone::*}:		
+		delete {feu.timer.stone.%loop-value%}
+		block at loop-value isn't stone
+		set block at loop-value to gravel
+		remove loop-value from {feu.coord.stone::*}
+	#broadcast "stone reset"
+		
+command /mine <integer> [<player=%player%>]:
+	description: set the percent (from 0 to 100) of the mining of gravel
+	permission: feu.mine.commands
+	trigger:
+		if arg-1 is less than 0:
+			message "<red>I'm afraid I cannot go that low"
+		else if arg-1 is greater than 100:
+			message "<red>IT'S OVER 9000(-8900). too high!"
+		else:
+			set {feu.chance.stone.%arg-2%} to arg-1
+			message "<green>%arg-2%'s chance at mining stone from gravel is now:<gold> %arg-1%"
+			
+options:
+	#easier to edit, also taking up less space
+	blocks: spruce wood, air, coal ore, iron ore or diamond ore
+	corruptBlocks: mossy cobblestone, spruce wood, coal ore, iron ore, diamond ore or air
+	
+		
+command /fix <item>:
+	permission: feu.fix
+	usage: /fix <spruce wood, air, coal ore, iron ore or diamond ore>
+	trigger:
+		if arg-1 is {@blocks}:
+		#check if the block is correct
+			if the block below the player is {@corruptBlocks}:
+			#check is the player is standing upon a "corruptBlock"
+				set the block below the player to arg-1
+			else:
+				Message "<red>Cannot fix the block below you!"
+				Message "<gold>Valid block to stand on:<red> {@corruptBlocks}"
+				#say what's wrong
+		else:
+			Message "<red>That's not an allowed block to fix!"
+			Message "<gold>valid choices: <red>{@blocks}"
+
+on physics:
+	block is gravel
+	cancel event
+	#prevent gravel from falling (doesn't work when placed or spawned (see on mine: gravel"))

@@ -1,0 +1,12 @@
+command /fhelp:
+	trigger:
+		broadcast "TODO: add a help screen, credit, how to play (tutorial), buycraft page, kiste skal lage denne"
+		
+
+on weather change:
+	cancel event
+	
+on spread:
+	block is dirt or grass
+	cancel event
+	

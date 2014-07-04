@@ -1,0 +1,3 @@
+on right click on entity:
+	entity is a villager
+	broadcast "TODO: merchants, quest npcs, all other villagers (saying random stuff)"
