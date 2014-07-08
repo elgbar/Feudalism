@@ -2,27 +2,27 @@ every 1 second:
 	#broadcast "looping health update"
 	loop all players:
 		if loop-player doesn't have permission "feu.health":
-		#time in the loop-player's world is between 0 and
 			if the time in the loop-player's world is between 05:30 and 18:30:
 				#broadcast "day"
 				if sunlight level at the loop-player is less than 7:
 					#broadcast "less"
-					if the loop-player's maximum health is 10:
-						set {oldHealth.%loop-player%} to the loop-player's health
-						set the maximum health of the loop-player to 5
-						#broadcast "0:5"
 					if blocklight level at the loop-player is greater than 7:
 						if the loop-player's maximum health is 5:
 							set the maximum health of the loop-player to 10
 							if loop-player's health is less than 5:
-								set {newHealth.%loop-player%} to loop-player's health
-								add {oldHealth.%loop-player%} to {newHealth.%loop-player%}
-								remove 5 from {newHealth.%loop-player%}
-								if {newHealth.%loop-player%} is less than 0.5:
-									set {newHealth.%loop-player%} to 0.5							
-								set loop-player's health to {newHealth.%loop-player%}
+								if {oldHealth.%loop-player%} is greater than 5:
+									set {newHealth.%loop-player%} to loop-player's health
+									add {oldHealth.%loop-player%} to {newHealth.%loop-player%}
+									remove 5 from {newHealth.%loop-player%}
+									if {newHealth.%loop-player%} is less than 0.5:
+										set {newHealth.%loop-player%} to 0.5							
+									set loop-player's health to {newHealth.%loop-player%}
+									delete {newHealth.%loop-player%}
+								else if {oldHealth.%loop-player%} is {newHealth.%loop-player%}:
+									stop								
 							else if the loop-player's health is less than {oldHealth.%loop-player%}:
 								set loop-player's health to {oldHealth.%loop-player%}
+								delete {oldHealth.%loop-player%}
 							#broadcast "1:10"
 					else:
 						if the loop-player's maximum health is 10:
@@ -34,15 +34,20 @@ every 1 second:
 					if the loop-player's maximum health is 5:
 						set the maximum health of the loop-player to 10
 						if loop-player's health is less than 5:
-							set {newHealth.%loop-player%} to loop-player's health
-							add {oldHealth.%loop-player%} to {newHealth.%loop-player%}
-							remove 5 from {newHealth.%loop-player%}
-							if {newHealth.%loop-player%} is less than 0.5:
-								set {newHealth.%loop-player%} to 0.5
-							set loop-player's health to {newHealth.%loop-player%}
+							if {oldHealth.%loop-player%} is greater than 5:
+								set {newHealth.%loop-player%} to loop-player's health
+								add {oldHealth.%loop-player%} to {newHealth.%loop-player%}
+								remove 5 from {newHealth.%loop-player%}
+								if {newHealth.%loop-player%} is less than 0.5:
+									set {newHealth.%loop-player%} to 0.5							
+								set loop-player's health to {newHealth.%loop-player%}
+								delete {newHealth.%loop-player%}
+							else if {oldHealth.%loop-player%} is {newHealth.%loop-player%}:
+								stop								
 						else if the loop-player's health is less than {oldHealth.%loop-player%}:
 							set loop-player's health to {oldHealth.%loop-player%}
-						#broadcast "3:10"
+							delete {oldHealth.%loop-player%}
+					#broadcast "3:10"
 			else:
 				#broadcast "night"
 				if blocklight level at the loop-player is less than 7:
@@ -54,13 +59,20 @@ every 1 second:
 					if the loop-player's maximum health is 5:
 						set the maximum health of the loop-player to 10
 						if loop-player's health is less than 5:
-							set {newHealth.%loop-player%} to loop-player's health
-							add {oldHealth.%loop-player%} to {newHealth.%loop-player%}
-							#broadcast "%{newHealth.%loop-player%}%"
-							remove 5 from {newHealth.%loop-player%}
-							if {newHealth.%loop-player%} is less than 0.5:
-								set {newHealth.%loop-player%} to 0.5
-							set loop-player's health to {newHealth.%loop-player%}
+							if {oldHealth.%loop-player%} is greater than 5:
+								set {newHealth.%loop-player%} to loop-player's health
+								add {oldHealth.%loop-player%} to {newHealth.%loop-player%}
+								remove 5 from {newHealth.%loop-player%}
+								if {newHealth.%loop-player%} is less than 0.5:
+									set {newHealth.%loop-player%} to 0.5							
+								set loop-player's health to {newHealth.%loop-player%}
+								delete {newHealth.%loop-player%}
+							else if {oldHealth.%loop-player%} is {newHealth.%loop-player%}:
+								stop								
 						else if the loop-player's health is less than {oldHealth.%loop-player%}:
 							set loop-player's health to {oldHealth.%loop-player%}
-						#broadcast "5:10"
+							delete {oldHealth.%loop-player%}
+					#broadcast "5:10"
+		else if loop-player's maximum health is less than 10:
+			set loop-player's maximum health to 10
+			

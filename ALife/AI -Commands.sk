@@ -1,0 +1,180 @@
+options:
+	debug: true
+	#set to true to get more info
+	
+	
+command /setspawnpointNPC <text>:
+	aliases: ssai
+	usage: /ssai <name of spawnpoint>
+	permission:	AL
+	trigger:
+		add 1 to {AL.count.spawnPoints}
+		#add the player's location to {AI.spawnPoint::*}
+		set {AL.spawnPoint.%{AL.count.spawnPoints}%} to location of the player
+		set {AL.spawnPoint.name.%{AL.count.spawnPoints}%} to arg-1
+		message "&aSpawnpoint nr <gold>%{AL.count.spawnPoints}% is set!"
+		message "Spawnpoint name is set to %{AL.spawnPoint.name.%{AL.count.spawnPoints}%}%"
+		
+	
+command /editor [<text="help">] [<text="help">] [<text>] [<text>] [<text>]:
+	description: this is a tool to create or remove Factions within the Minecraft ALife AI engine, do don't use it if have no idea what you're doing :)
+	usage: /editor <help|faction|spawnNPC>
+	permission: AL.creator
+	aliases: /ef
+	trigger:
+		if arg-1 is "help":
+			message "<gold>+----- <green>MALife ingame editor <gold>-----+"
+			message "+Faction: edit factions"
+			message "+spawnNPC: spawn a MALife NPC"
+			message "+Help: Help screen for the MALife ingame editor"	
+			stop	
+		else if arg-1 is "Faction":
+			if arg-2 is "add":
+				if arg-3 exists:
+					if arg-4 doesn't exist:
+						loop {AL.factions::*}:
+							if {AL.factions::%loop-index%} is "%arg-3%":
+								add 1 to {_loop}
+						if {_loop} doesn't exist:
+							add "%arg-3%" to {AL.factions::*}
+							message "<green>A new Faction was created with the name: <gold>%arg-3%"
+							stop
+						else:
+							Message "<red>That name is already taken!"
+					else:
+						message "<red>You cannot have a space in the faction name!"
+				else:
+					message "usage: /editor faction add <faction name>"
+				
+			else if arg-2 is "remove":
+				if arg-3 exists:
+					remove "%arg-3%" from {AL.factions::*}
+					message "<green>The faction <gold>%arg-3%<green> have now been removed"
+				else:
+					message "usage: /editor faction remove <faction name>"
+				
+			else if arg-2 is "list":
+				if {AL.factions::*} exists:
+					message "Faction name: %{AL.factions::*}%"
+				else:
+					message "You need to add a faction first!"
+			else if arg-2 is "help":
+				message "<gold>+----- <green>MALife ingame Faction editor <gold>-----+"
+				message "+Help: Help screen for the MALife ingame editor"	
+				message "+add: add a faction"
+				message "+remove: remove a faction"
+				message "+list: list all factions"
+				message "+clear: removes <b>all<r> factions!"
+			else if arg-2 is "clear":
+				player is op
+				#player's name is "kh498"
+				if {clear.%player%} doesn't exist:
+					set {clear.%player%} to now
+					message "<red>Warning: This <b>WILL<r><red> break the plugin!"
+					message "<red>Are you sure you want to delete all factions?"
+					message "<red>To confirm run the command again within 30 seconds"
+				else:
+					set {_waited} to difference between {clear.%player%} and now
+					if {_waited} is less than 30 seconds:
+						clear {AL.factions::*}
+						delete {clear.%player%}
+						message "<red>It is now done."
+						message "<red>No more factions!"
+					else:
+						message "<green>The nukes have been disarmed!"
+						message "<yellow>run the command again"
+						message "<red>to remove all factions"
+						delete {clear.%player%}
+		else if arg-1 is "spawnNPC":
+			if arg-2 is "help":
+				message "<gold>+----- <green>MALife ingame NPC spawner <gold>-----+"
+				message "+&aHelp<r>: Help screen for the MALife ingame editor"
+				message "+--- &aArgument 1 <gold>Size<r> ---+"
+				message "+&aGroup<r>: spawn the NPC in a group of three"
+				message "+&aLone<r>: spawn the NPC alone"
+				message "+--- &aArgument 2 <gold>Rank <r>---+"
+				message "+&aNewbie<r>: Lowest rank, no armour except a leather helmet (with faction colour), wooden or stone sword"
+				message "+&aRegular<r>: Leather armour (with faction colour), stone to iron sword"
+				message "+&aMaster<r>: Iron armour with leather helmet (with faction colour), iron sword"
+				message "+&aExpert<r>: Highest rank, diamond armour with leather helmet (with faction colour), diamond sword"
+				message "+--- &aArgument 3 <gold>Faction <r>---+"
+				message "+Use <gold>/editor faction list<r> to list the factions"
+				stop
+			else if arg-2 is "group" or "3":
+				set {_AL.size} to 3				
+			else if arg-2 is "lone" or "1":
+				set {_AL.size} to 1
+			else:
+				message "<red>That's not a valid number!"
+				message "<yellow>Valid numbers: <gold>group(3) or lone(1)"
+				stop
+			if arg-3 doesn't exist:
+				set {_AL.rank} to 2
+				message "<yellow>The second argument wasn't set (rank)!"			
+			else if arg-3 is "newbie" or "1":
+				set {_AL.rank} to 1
+			else if arg-3 is "regular" or "2":
+				set {_AL.rank} to 2
+			else if arg-3 is "master" or "3":
+				set {_AL.rank} to 3
+			else if arg-3 is "expert" or "4":
+				set {_AL.rank} to 4
+			else:
+				message "<red>That isn't a valid rank!"
+				message "<yellow>valid ranks: <gold>newbie, regular, master and expert"
+				stop
+			if arg-4 doesn't exist:
+				set {_AL.Faction} to "loner"
+				message "<yellow>The third argument wasn't set (Faction)!"	
+			else if arg-4 exists:
+				loop {AL.factions::*}:
+					if {AL.factions::%loop-index%} is "%arg-4%":
+						add 1 to {_loop}
+				if {_loop} is 1:
+					set {_AL.Faction} to "%arg-4%" 
+				else if {_loop} doesn't exist:
+					message "<red>That faction doesn't exist!"
+					message "<yellow>use <gold>/editor faction list<yellow> to list the factions"
+					stop
+				else:
+					message "<red>ERROR: Two or more factions of the same name exists!"
+					stop
+			message "<green>The group size is set to: <gold>%{_AL.size}%"
+			message "<green>The rank is set to:<gold> %{_AL.rank}%"
+			message "<green>The faction is set to:<gold> %{_AL.faction}%"
+			Message "<green>The command completed successfully!"
+			set {_loop} to 1
+			while {_loop} isn't 0:
+				add 1 to {_loopNR}
+				set {_loop} to {_loopNR}
+				remove {_AL.size} from {_loop}
+				#message "l: %{_loop}%, nr %{_loopNR}%"
+				spawn a villager above location of targeted block
+				set {_AL.ran1name} to a random integer between 1 and 35
+				set {_AL.ran2name} to a random integer between 1 and 24
+				set name of last spawned villager to "%{AL.firstName::%{_AL.ran1name}%}%_%{AL.lastName::%{_AL.ran2name}%}%"
+				set {_name} to "%{AL.firstName::%{_AL.ran1name}%}%_%{AL.lastName::%{_AL.ran2name}%}%"
+				#just to make it easier to read ^
+				add "%{_name}%" to {AL.NPC::*}
+				set {AL.faction.%{_name}%} to "%{_AL.Faction}%"
+				set {AL.mood.%{_name}%} to "happy"
+				set {AL.commandSpawned.%{_name}%} to true
+				set {AL.rank.%{_name}%} to "%{_AL.rank}%"
+				if {_loopNR} is 1:
+					set {AL.faction.group.Leader.%{_name}%} to true
+				else: 
+					set {AL.faction.group.Leader.%{_name}%} to false
+				if {@debug} is true:
+					message "%{_loopNR}% (%{_name}%) - _ran1name: %{_AL.ran1name}%"
+					message "%{_loopNR}% (%{_name}%) - _ran2name: %{_AL.ran2name}%"
+					message "%{_loopNR}% (%{_name}%) - _name: %{_name}%"
+					message "%{_loopNR}% (%{_name}%) - name(array): %{AL.NPC::%{_name}%}%"
+					message "%{_loopNR}% (%{_name}%) - rank: %{AL.rank.%{_name}%}%"					
+					message "%{_loopNR}% (%{_name}%) - mood: %{AL.mood.%{_name}%}%"
+					message "%{_loopNR}% (%{_name}%) - commandSpawned: %{AL.commandSpawned.%{_name}%}%"
+					message "%{_loopNR}% (%{_name}%) - Faction: %{AL.faction.%{_name}%}%"
+					message "%{_loopNR}% (%{_name}%) - GroupLeader: %{AL.faction.group.Leader.%{_name}%}%"
+		else:
+			message "usage: /editor <help|faction> <add|remove|list> <text>"	
+			stop
+			

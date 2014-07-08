@@ -4,7 +4,7 @@ command /fhelp:
 		
 
 on weather change:
-	cancel event
+	set weather to sun
 	
 on spread:
 	block is dirt or grass

@@ -1,0 +1,10 @@
+on script load:
+	#if {AL.firstName::*} doesn't exist:
+	set {AL.firstName::*} to "Phil", "Carl", "Maxi", "Henrik", "Carol", "Jessika", "Ai", "Earle", "Rosio", "Andre", "Isaiah", "Tuan", "Ian", "Joan", "John", "James", "Leon", "Will", "Leo", "Leif", "Lou", "Clinton", "Edd", "Eddie", "Toby", "Jamie", "Aray", "Tomas", "Tobias", "Wilfred", "judson", "jung", "Carie", "Emma", "kara" and "Lea"
+	#if {AL.lastName::*} doesn't exist:
+	set {AL.lastName::*} to "Fairall", "Belford", "Hammitt", "scarpa", "Quashie", "Delafeuente", "Wilmot", "Flett", "Rossow", "Goers", "Roca", "Holdeman", "Bury", "Simonton", "Oren", "Faison", "Gold", "Stiller", "Dutta", "Mckillop", "Maddix", "Foran", "Riley", "Hanks" and "Smith"
+	#if {AL.talk.mood.happy::*} doesn't exist:
+	set {AL.talk.mood.happy::*} to "Hello there", "What's up?", "long time no see!" and "How it's hanging?"
+													# cant use comma.. wtf? ^
+	#if {AL.talk.mood.angry::*} doesn't exist:
+	set {AL.talk.mood.angry::*} to "Go away!", "I don't want talk to you right now.", "Another time." and "I'm kinda busy right now."

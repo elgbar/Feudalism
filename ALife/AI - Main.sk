@@ -1,0 +1,11 @@
+on join:
+	#TODO: removes all entities when the player disconnect
+	message "ALfie plugin have successfully been installed"
+on quit:
+	#TODO: remove all entities when 
+	message ""
+	
+On death of villager:
+	if {AL.commandSpawned.%entity's name%} is true:
+		broadcast "it works ;D"
+		
