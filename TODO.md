@@ -1,0 +1,1 @@
+find a way to override worldguard, so a player can mine certain blocks in that area.hb

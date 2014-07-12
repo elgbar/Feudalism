@@ -1,20 +1,19 @@
 options:
-	debug: true
+	debug: true	
+	entity: villager
 	#set to true to get more info
 	
-	
-command /setspawnpointNPC <text>:
-	aliases: ssai
-	usage: /ssai <name of spawnpoint>
-	permission:	AL
+command /killmobs:
 	trigger:
-		add 1 to {AL.count.spawnPoints}
-		#add the player's location to {AI.spawnPoint::*}
-		set {AL.spawnPoint.%{AL.count.spawnPoints}%} to location of the player
-		set {AL.spawnPoint.name.%{AL.count.spawnPoints}%} to arg-1
-		message "&aSpawnpoint nr <gold>%{AL.count.spawnPoints}% is set!"
-		message "Spawnpoint name is set to %{AL.spawnPoint.name.%{AL.count.spawnPoints}%}%"
-		
+		loop {AL.NPC::*}:
+			kill {@entity} named "%loop-value%"
+			remove loop-value from {AL.NPC::*}
+			message "+1"
+		message "done"
+	#	delete {feu.timer.stone.%loop-value%}
+	#	block at loop-value is stone
+	#	set block at loop-value to iron ore
+	#	remove loop-value from {feu.coord.stone::*}
 	
 command /editor [<text="help">] [<text="help">] [<text>] [<text>] [<text>]:
 	description: this is a tool to create or remove Factions within the Minecraft ALife AI engine, do don't use it if have no idea what you're doing :)
@@ -24,9 +23,10 @@ command /editor [<text="help">] [<text="help">] [<text>] [<text>] [<text>]:
 	trigger:
 		if arg-1 is "help":
 			message "<gold>+----- <green>MALife ingame editor <gold>-----+"
+			message "+Help: Help screen for the MALife ingame editor"	
 			message "+Faction: edit factions"
 			message "+spawnNPC: spawn a MALife NPC"
-			message "+Help: Help screen for the MALife ingame editor"	
+			message "+Node: edit walking nodes"
 			stop	
 		else if arg-1 is "Faction":
 			if arg-2 is "add":
@@ -37,8 +37,9 @@ command /editor [<text="help">] [<text="help">] [<text>] [<text>] [<text>]:
 								add 1 to {_loop}
 						if {_loop} doesn't exist:
 							add "%arg-3%" to {AL.factions::*}
-							message "<green>A new Faction was created with the name: <gold>%arg-3%"
-							stop
+							if "%player's name%" isn't "<none>":
+							#No output to the console ^
+								message "<green>A new Faction was created with the name: <gold>%arg-3%"	
 						else:
 							Message "<red>That name is already taken!"
 					else:
@@ -48,8 +49,19 @@ command /editor [<text="help">] [<text="help">] [<text>] [<text>] [<text>]:
 				
 			else if arg-2 is "remove":
 				if arg-3 exists:
-					remove "%arg-3%" from {AL.factions::*}
-					message "<green>The faction <gold>%arg-3%<green> have now been removed"
+					if arg-3 is "Loner":
+						message "<yellow>This faction cannot be removed!"
+						stop
+					else:
+						loop {AL.factions::*}:
+							if {AL.factions::%loop-index%} is "%arg-3%":
+								add 1 to {_loop}
+						if {_loop} is 1:							
+							remove "%arg-3%" from {AL.factions::*}
+							message "<green>The faction <gold>%arg-3%<green> have now been removed"
+						else:
+							message "<red>That faction doesn't exist!"
+							stop
 				else:
 					message "usage: /editor faction remove <faction name>"
 				
@@ -71,19 +83,17 @@ command /editor [<text="help">] [<text="help">] [<text>] [<text>] [<text>]:
 				if {clear.%player%} doesn't exist:
 					set {clear.%player%} to now
 					message "<red>Warning: This <b>WILL<r><red> break the plugin!"
-					message "<red>Are you sure you want to delete all factions?"
-					message "<red>To confirm run the command again within 30 seconds"
+					message "<yellow>Are you sure you want to delete all factions?"
+					message "<yellow>To confirm run the command again within 30 seconds"
 				else:
 					set {_waited} to difference between {clear.%player%} and now
 					if {_waited} is less than 30 seconds:
 						clear {AL.factions::*}
 						delete {clear.%player%}
-						message "<red>It is now done."
-						message "<red>No more factions!"
+						message "<red>All factions has been removed! (except 'Loner')"
 					else:
-						message "<green>The nukes have been disarmed!"
-						message "<yellow>run the command again"
-						message "<red>to remove all factions"
+						message "<yellow>The time period has expired!"
+						message "<yellow>Run the command again!"
 						delete {clear.%player%}
 		else if arg-1 is "spawnNPC":
 			if arg-2 is "help":
@@ -124,15 +134,29 @@ command /editor [<text="help">] [<text="help">] [<text>] [<text>] [<text>]:
 				message "<yellow>valid ranks: <gold>newbie, regular, master and expert"
 				stop
 			if arg-4 doesn't exist:
-				set {_AL.Faction} to "loner"
+				#broadcast "doesn't exist (f)"
+				loop {AL.factions::*}:
+					#broadcast "looping"
+					if {AL.factions::%loop-index%} is "Loner":
+						add 1 to {_loop}
+						#broadcast "%{_loop}%"
+				if {_loop} is 1:
+					#broadcast "{_loop} = 1"
+					set {_AL.Faction} to "Loner"
+				else:
+					#broadcast "createing faction"
+					execute server command "editor faction add Loner"
+					set {_AL.Faction} to "Loner"
+					message "<red>The Factions 'Loner' has been restored! This faction cannot be removed!"
 				message "<yellow>The third argument wasn't set (Faction)!"	
 			else if arg-4 exists:
 				loop {AL.factions::*}:
 					if {AL.factions::%loop-index%} is "%arg-4%":
 						add 1 to {_loop}
-				if {_loop} is 1:
-					set {_AL.Faction} to "%arg-4%" 
-				else if {_loop} doesn't exist:
+						if {_loop} is 1:
+							set {_AL.Faction} to "%arg-4%" 
+							stop loop						
+				if {_loop} doesn't exist:
 					message "<red>That faction doesn't exist!"
 					message "<yellow>use <gold>/editor faction list<yellow> to list the factions"
 					stop
@@ -147,34 +171,66 @@ command /editor [<text="help">] [<text="help">] [<text>] [<text>] [<text>]:
 			while {_loop} isn't 0:
 				add 1 to {_loopNR}
 				set {_loop} to {_loopNR}
-				remove {_AL.size} from {_loop}
-				#message "l: %{_loop}%, nr %{_loopNR}%"
-				spawn a villager above location of targeted block
-				set {_AL.ran1name} to a random integer between 1 and 35
-				set {_AL.ran2name} to a random integer between 1 and 24
-				set name of last spawned villager to "%{AL.firstName::%{_AL.ran1name}%}%_%{AL.lastName::%{_AL.ran2name}%}%"
-				set {_name} to "%{AL.firstName::%{_AL.ran1name}%}%_%{AL.lastName::%{_AL.ran2name}%}%"
-				#just to make it easier to read ^
-				add "%{_name}%" to {AL.NPC::*}
+				remove {_AL.size} from {_loop}			
+				set {_AL.ran1name} to a random element of {AL.firstName::*}
+				set {_AL.ran2name} to a random element of {AL.lastName::*}			
+				set {_name} to "%{_AL.ran1name}%%{_AL.ran2name}%"
+				if {_loopNR} is 1:
+					spawn a {@entity} above location of targeted block
+					set the name of last spawned entity to "[<gold>*<r>]<green>%{_name}%<r>"
+					set {_name} to "%last spawned entity's name%"
+					set {AL.faction.group.Leader.%{_name}%} to true
+					set {_squad} to "%{_name}%"
+					set {AL.faction.squad.%{_name}%} to {_squad}
+				else: 
+					if {_loopNR} is 2:						
+						spawn a {@entity} above south east location of targeted block
+					else if {_loopNR} is 3:
+						spawn a {@entity} above south west location of targeted block
+					else:
+						spawn a {@entity} above {_loopNR} south location of targeted block
+					set the name of last spawned entity to "<green>%{_name}%<r>"
+					set {_name} to "%last spawned entity's name%"
+					set {AL.faction.group.Leader.%{_name}%} to false
+					set {AL.faction.squad.%{_name}%} to {_squad}
 				set {AL.faction.%{_name}%} to "%{_AL.Faction}%"
 				set {AL.mood.%{_name}%} to "happy"
 				set {AL.commandSpawned.%{_name}%} to true
 				set {AL.rank.%{_name}%} to "%{_AL.rank}%"
-				if {_loopNR} is 1:
-					set {AL.faction.group.Leader.%{_name}%} to true
-				else: 
-					set {AL.faction.group.Leader.%{_name}%} to false
+				add "%{_name}%" to {AL.NPC::*}
+				
 				if {@debug} is true:
-					message "%{_loopNR}% (%{_name}%) - _ran1name: %{_AL.ran1name}%"
-					message "%{_loopNR}% (%{_name}%) - _ran2name: %{_AL.ran2name}%"
-					message "%{_loopNR}% (%{_name}%) - _name: %{_name}%"
-					message "%{_loopNR}% (%{_name}%) - name(array): %{AL.NPC::%{_name}%}%"
-					message "%{_loopNR}% (%{_name}%) - rank: %{AL.rank.%{_name}%}%"					
-					message "%{_loopNR}% (%{_name}%) - mood: %{AL.mood.%{_name}%}%"
-					message "%{_loopNR}% (%{_name}%) - commandSpawned: %{AL.commandSpawned.%{_name}%}%"
-					message "%{_loopNR}% (%{_name}%) - Faction: %{AL.faction.%{_name}%}%"
-					message "%{_loopNR}% (%{_name}%) - GroupLeader: %{AL.faction.group.Leader.%{_name}%}%"
+					message "l: %{_loop}%, nr %{_loopNR}%"
+					message "%{_loopNR}% (%{_name}%) <r>- _ran1name: %{_AL.ran1name}%"
+					message "%{_loopNR}% (%{_name}%) <r>- _ran2name: %{_AL.ran2name}%"
+					message "%{_loopNR}% (%{_name}%) <r>- _name: %last spawned entity's name%"
+					message "%{_loopNR}% (%{_name}%) <r>- name(array): %{AL.NPC::%last spawned entity's name%}%"
+					message "%{_loopNR}% (%{_name}%) <r>- rank: %{AL.rank.%last spawned entity's name%}%"					
+					message "%{_loopNR}% (%{_name}%) <r>- mood: %{AL.mood.%last spawned entity's name%}%"
+					message "%{_loopNR}% (%{_name}%) <r>- commandSpawned: %{AL.commandSpawned.%last spawned entity's name%}%"
+					message "%{_loopNR}% (%{_name}%) <r>- Faction: %{AL.faction.%last spawned entity's name%}%"
+					message "%{_loopNR}% (%{_name}%) <r>- GroupLeader: %{AL.faction.group.Leader.%last spawned entity's name%}%"
+					message "%{_loopNR}% (%{_name}%) <r>- squad: %{AL.faction.squad.%last spawned entity's name%}%"
+		else if arg-1 is "node":
+			if arg-2 is "help":
+				message "<gold>+----- <green>MALife ingame Node editor <gold>-----+"
+				message "+Help: Help screen for the MALife ingame editor"	
+				message "+set: set a node at your location"
+				message "+delete: delete a node"
+				message "+list: list all nodes"
+			else if arg-2 is "set":
+				loop blocks in radius 10:
+					if {AL.WalkingNode.%loop-block's location%} exists:
+						block at loop-block's location is diamond block
+						message "it's diamonds here!"
+				set {AL.WalkingNode.%player's location%} to player's location
+				message "<green>Walking node set at <gold>'%player's location%'"
+				if {@debug} is true:
+					set {_de} to "%player's location%"
+					set block above {_de} to diamond block
+			else:
+				message "usage: /editor node <set|delete|list>"
 		else:
-			message "usage: /editor <help|faction> <add|remove|list> <text>"	
+			message "usage: /editor <help|faction|spawnNPC|node>"	
 			stop
 			

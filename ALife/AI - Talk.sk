@@ -1,0 +1,22 @@
+on rightclick on entity:
+	#Test entity to check if this works
+	#message "eti nam: %entity's name%"
+	#message "var: %{AL.NPC::%entity's name%}%"
+	#replace all spaces with "_" or have no last name? 
+	#if "%entity's name%" is "%{AL.NPC::%entity's name%}%":
+	#	cancel event
+	#	set {_AL.talk} to a random integer between 1 and 4
+	#	message "<green>%entity's name%<r>: %{AL.talk.mood.%{AL.mood.%entity's name%}%::%{_AL.talk}%}%"
+	#else:
+	entity is a villager
+	if entity's name exists:
+		cancel event
+		set {_AL.talk} to a random integer between 1 and 4
+		#if {AL.entity.state.%entity's name%} is "resting"
+		if {AL.faction.group.Leader.%entity's name%} is true:
+		#	message "true"
+			message "%entity's name%: %{AL.talk.mood.%{AL.mood.%entity's name%}%::%{_AL.talk}%}%"
+		else:
+		#	message "false"
+			message "%entity's name%: %{AL.talk.mood.%{AL.mood.%entity's name%}%::%{_AL.talk}%}%"
+			

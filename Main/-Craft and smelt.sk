@@ -5,6 +5,6 @@ on craft:
 			cancel event
 	
 
-on smelt of ore:
-	cancel event
+#on smelt of ore:
+	#cancel event
 	

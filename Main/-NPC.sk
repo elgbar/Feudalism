@@ -1,3 +1,5 @@
-on right click on entity:
-	entity is a villager
-	broadcast "TODO: merchants, quest npcs, all other villagers (saying random stuff)"
+on rightclick on entity:
+	#Test entity to check if this works
+	if "%entity's name%" is "Testify":
+		cancel event
+		message "<green>Testify<r>: TODO: merchants, quest npcs, all other villagers (saying random stuff)"

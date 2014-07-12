@@ -1,0 +1,29 @@
+options:
+	debug: true
+#every 3 seconds:
+#	make a entity go to the next walk node
+#	if entity is at the right walk node
+#		check if everyone in squad is there, and no one is dead
+#	else wait for the squad is filled up
+	
+	
+command /setspawnpointNPC <text>:
+	aliases: ssai
+	usage: /ssai <name of spawnpoint>
+	permission:	AL.setSpawnpoint
+	trigger:
+		add 1 to {AL.count.spawnPoints}
+		#add the player's location to {AI.spawnPoint::*}
+		set {AL.spawnPoint.%{AL.count.spawnPoints}%} to location of the player
+		set {AL.spawnPoint.name.%{AL.count.spawnPoints}%} to arg-1
+		message "&aSpawnpoint nr <gold>%{AL.count.spawnPoints}% is set!"
+		message "Spawnpoint name is set to %{AL.spawnPoint.name.%{AL.count.spawnPoints}%}%"
+
+command /setNode:
+	aliases: sn
+	permission: AL.setNode
+	trigger:
+		set {AL.WalkingNode.%player's location%} to player's location
+		message "<green>Walking node set at <gold>'%player's location%'"
+		if {@debug} is true:
+			set block below the player to diamond block

@@ -1,11 +1,35 @@
+options:
+	debug: true
+	
 on join:
 	#TODO: removes all entities when the player disconnect
 	message "ALfie plugin have successfully been installed"
-on quit:
-	#TODO: remove all entities when 
-	message ""
+#on quit:
+	#TODO: remove all entities when
 	
 On death of villager:
-	if {AL.commandSpawned.%entity's name%} is true:
+	if {AL.commandSpawned.%victim's name%} is true:
 		broadcast "it works ;D"
-		
+		delete {AL.rank.%victim's name%}
+		delete {AL.mood.%victim's name%}
+		delete {AL.commandSpawned.%victim's name%}
+		delete {AL.Faction.%victim's name%}
+		delete {AL.faction.group.Leader.%victim's name%}
+		delete {AL.faction.squad.%victim's name%}
+		if {@debug} is true:
+			message "rank: %{AL.rank.%last spawned entity's name%}%"				
+			message "mood: %{AL.mood.%last spawned entity's name%}%"
+			message "commandSpawned: %{AL.commandSpawned.%last spawned entity's name%}%"
+			message "Faction: %{AL.faction.%last spawned entity's name%}%"
+			message "GroupLeader: %{AL.faction.group.Leader.%last spawned entity's name%}%"
+			message "squad: %{AL.faction.squad.%last spawned entity's name%}%"
+			
+#on damage of villager:
+#	attacker isn't a player, creeper or skeleton:
+#		default attack, if they are in a squad surround them, else if there are too many attackers flee
+#	attacker is a player
+#		npc has more life, deals more damage
+#	attacker is a creeper:
+#		attacks then retreats, looping
+#	attacker is a skeleton:
+#		check if there are only skeletons or melee fighters alwell
