@@ -3,13 +3,14 @@ options:
 	entity: villager
 	#set to true to get more info
 	
-command /killmobs:
-	trigger:
-		loop {AL.NPC::*}:
-			kill {@entity} named "%loop-value%"
-			remove loop-value from {AL.NPC::*}
-			message "+1"
-		message "done"
+#command /killmobs:
+#	trigger:
+#		loop {AL.NPC::*}:
+#			if "%entity's name%" is "%loop-value%": 
+#				kill loop-entity #no loop entity
+#				remove loop-value from {AL.NPC::*}
+#				message "+1"
+#		message "done"
 	#	delete {feu.timer.stone.%loop-value%}
 	#	block at loop-value is stone
 	#	set block at loop-value to iron ore
