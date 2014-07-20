@@ -16,7 +16,7 @@ on break:
 		set {_block} to the target block
 		set {_blockID} to the id of the target block
 		#wait 1 tick	
-		if {_block} is spruce wood block:
+		if {_block} is wood block:
 			if player is holding an axe:
 				cancel event
 				set block to air
@@ -107,7 +107,6 @@ on skript stop:
 	#This is done due to temporary variables are deleted on a server restart or reload
 	#If this didn't exist if a block is still in its none mineable form it would stay so forever (unless a admin fixed it)
 	#If it does happen admins can use the /fix command
-	#broadcast "THSI DOESNT WORK! FIX IT!"
 	loop {feu.blockID::*}:
 		loop {feu.coord.%loop-value-1%::*}:
 			delete {feu.timer.%loop-value-1%.%loop-value-2%}

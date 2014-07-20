@@ -3,24 +3,32 @@ options:
 	entity: villager
 	#set to true to get more info
 	
-#command /killmobs:
-#	trigger:
-#		loop {AL.NPC::*}:
-#			if "%entity's name%" is "%loop-value%": 
-#				kill loop-entity #no loop entity
-#				remove loop-value from {AL.NPC::*}
-#				message "+1"
-#		message "done"
-	#	delete {feu.timer.stone.%loop-value%}
-	#	block at loop-value is stone
-	#	set block at loop-value to iron ore
-	#	remove loop-value from {feu.coord.stone::*}
-	
+command /killmobs <text>:
+	usage: /killmobs <all|commandspawned|natrualspawned>
+	trigger:
+		loop all villagers:
+			if loop-entity-1's name exists:
+				set {_DataName} to entity's name
+				if entity's name contains "[<gold>*<r>]<green>":		
+					replace all " ", "[<gold>*<r>]<green>" with "" in {_DataName}
+				else:
+					replace all " ", "<green>" with "" in {_DataName}
+				kill loop-entity #no loop entity
+				remove {_DataName} from {AL.NPC::*}
+				{AL.rank.%{_DataName}%}%"					
+				remove {AL.mood.%{_DataName}%}
+				remove {AL.commandSpawned.%{_DataName}%}%"
+				remove {AL.faction.%{_DataName}%}%"
+				remove {AL.faction.group.Leader.%{_DataName}%}%"
+				remove {AL.faction.squad.%{_DataName}%}%"
+				remove {AL.mode.%{_DataName}%}
+		message "done"
+
 command /editor [<text="help">] [<text="help">] [<text>] [<text>] [<text>]:
-	description: this is a tool to create or remove Factions within the Minecraft ALife AI engine, do don't use it if have no idea what you're doing :)
+	description: this is a tool for Minecraft ALife AI engine, do don't use it if have no idea what you're doing :)
 	usage: /editor <help|faction|spawnNPC>
 	permission: AL.creator
-	aliases: /ef
+	aliases: /e
 	trigger:
 		if arg-1 is "help":
 			message "<gold>+----- <green>MALife ingame editor <gold>-----+"
@@ -174,15 +182,22 @@ command /editor [<text="help">] [<text="help">] [<text>] [<text>] [<text>]:
 				set {_loop} to {_loopNR}
 				remove {_AL.size} from {_loop}			
 				set {_AL.ran1name} to a random element of {AL.firstName::*}
-				set {_AL.ran2name} to a random element of {AL.lastName::*}			
-				set {_name} to "%{_AL.ran1name}%%{_AL.ran2name}%"
+				set {_AL.ran2name} to a random element of {AL.lastName::*}	
+				set {_name} to "%{_AL.ran1name}% %{_AL.ran2name}%"
+				
+				set {_DataName} to {_name}
+				replace all " " with "" in {_DataName}
+				{@debug} is true:
+					message "DN %{_DataName}%"
+					message "N %{_name}%"
+				
 				if {_loopNR} is 1:
 					spawn a {@entity} above location of targeted block
 					set the name of last spawned entity to "[<gold>*<r>]<green>%{_name}%<r>"
 					set {_name} to "%last spawned entity's name%"
-					set {AL.faction.group.Leader.%{_name}%} to true
-					set {_squad} to "%{_name}%"
-					set {AL.faction.squad.%{_name}%} to {_squad}
+					set {AL.faction.group.Leader.%{_DataName}%} to true
+					set {_squad} to "%{_DataName}%"
+					set {AL.faction.squad.%{_DataName}%} to {_squad}
 				else: 
 					if {_loopNR} is 2:						
 						spawn a {@entity} above south east location of targeted block
@@ -191,27 +206,28 @@ command /editor [<text="help">] [<text="help">] [<text>] [<text>] [<text>]:
 					else:
 						spawn a {@entity} above {_loopNR} south location of targeted block
 					set the name of last spawned entity to "<green>%{_name}%<r>"
-					set {_name} to "%last spawned entity's name%"
-					set {AL.faction.group.Leader.%{_name}%} to false
-					set {AL.faction.squad.%{_name}%} to {_squad}
-				set {AL.faction.%{_name}%} to "%{_AL.Faction}%"
-				set {AL.mood.%{_name}%} to "happy"
-				set {AL.commandSpawned.%{_name}%} to true
-				set {AL.rank.%{_name}%} to "%{_AL.rank}%"
-				add "%{_name}%" to {AL.NPC::*}
+					set {AL.faction.group.Leader.%{_DataName}%} to false
+					set {AL.faction.squad.%{_DataName}%} to {_squad}
+				set {AL.faction.%{_DataName}%} to "%{_AL.Faction}%"
+				set {AL.mood.%{_DataName}%} to "happy"
+				set {AL.commandSpawned.%{_DataName}%} to true
+				set {AL.rank.%{_DataName}%} to "%{_AL.rank}%"
+				set {AL.mode.%{_DataName}%} to "online"
+				add "%{_DataName}%" to {AL.NPC::*}
 				
 				if {@debug} is true:
 					message "l: %{_loop}%, nr %{_loopNR}%"
-					message "%{_loopNR}% (%{_name}%) <r>- _ran1name: %{_AL.ran1name}%"
-					message "%{_loopNR}% (%{_name}%) <r>- _ran2name: %{_AL.ran2name}%"
-					message "%{_loopNR}% (%{_name}%) <r>- _name: %last spawned entity's name%"
-					message "%{_loopNR}% (%{_name}%) <r>- name(array): %{AL.NPC::%last spawned entity's name%}%"
-					message "%{_loopNR}% (%{_name}%) <r>- rank: %{AL.rank.%last spawned entity's name%}%"					
-					message "%{_loopNR}% (%{_name}%) <r>- mood: %{AL.mood.%last spawned entity's name%}%"
-					message "%{_loopNR}% (%{_name}%) <r>- commandSpawned: %{AL.commandSpawned.%last spawned entity's name%}%"
-					message "%{_loopNR}% (%{_name}%) <r>- Faction: %{AL.faction.%last spawned entity's name%}%"
-					message "%{_loopNR}% (%{_name}%) <r>- GroupLeader: %{AL.faction.group.Leader.%last spawned entity's name%}%"
-					message "%{_loopNR}% (%{_name}%) <r>- squad: %{AL.faction.squad.%last spawned entity's name%}%"
+					message "%{_loopNR}% (%{_DataName}%) <r>- _ran1name: %{_AL.ran1name}%"
+					message "%{_loopNR}% (%{_DataName}%) <r>- _ran2name: %{_AL.ran2name}%"
+					message "%{_loopNR}% (%{_DataName}%) <r>- _name: %last spawned entity's name%"
+					message "%{_loopNR}% (%{_DataName}%) <r>- {AL.NPC::%{_DataName}%}: %{AL.NPC::*}%"
+					message "%{_loopNR}% (%{_DataName}%) <r>- {AL.rank.%{_DataName}%}: %{AL.rank.%{_DataName}%}%"					
+					message "%{_loopNR}% (%{_DataName}%) <r>- {AL.mood.%{_DataName}%}: %{AL.mood.%{_DataName}%}%"
+					message "%{_loopNR}% (%{_DataName}%) <r>- {AL.commandSpawned.%{_DataName}%}: %{AL.commandSpawned.%{_DataName}%}%"
+					message "%{_loopNR}% (%{_DataName}%) <r>- {AL.faction.%{_DataName}%}: %{AL.faction.%{_DataName}%}%"
+					message "%{_loopNR}% (%{_DataName}%) <r>- {AL.faction.group.Leader.%{_DataName}%}: %{AL.faction.group.Leader.%{_DataName}%}%"
+					message "%{_loopNR}% (%{_DataName}%) <r>- {AL.faction.squad.%{_DataName}%}: %{AL.faction.squad.%{_DataName}%}%"
+					message "%{_loopNR}% (%{_DataName}%) <r>- {AL.mode.%{_DataName}%}: %{AL.mode.%{_DataName}%}%"
 		else if arg-1 is "node":
 			if arg-2 is "help":
 				message "<gold>+----- <green>MALife ingame Node editor <gold>-----+"

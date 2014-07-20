@@ -10,13 +10,22 @@ on rightclick on entity:
 	#else:
 	entity is a villager
 	if entity's name exists:
-		cancel event
-		set {_AL.talk} to a random integer between 1 and 4
-		#if {AL.entity.state.%entity's name%} is "resting"
-		if {AL.faction.group.Leader.%entity's name%} is true:
-		#	message "true"
-			message "%entity's name%: %{AL.talk.mood.%{AL.mood.%entity's name%}%::%{_AL.talk}%}%"
+		set {_DataName} to entity's name
+		if entity's name contains "[<gold>*<r>]<green>":		
+			replace all " ", "[<gold>*<r>]<green>" with "" in {_DataName}
 		else:
-		#	message "false"
-			message "%entity's name%: %{AL.talk.mood.%{AL.mood.%entity's name%}%::%{_AL.talk}%}%"
+			replace all " ", "<green>" with "" in {_DataName}
+		cancel event
+		#if {AL.entity.state.%entity's name%} is "resting"
+		set {_AL.talk} to random integer between 1 and 3
+		#TODO make dynamic ^
+		message "{AL.faction.group.Leader.%{_DataName}%}: %{AL.faction.group.Leader.%{_DataName}%}%"
+		if {AL.faction.group.Leader.%{_DataName}%} is true:
+			#replace all " " and "[*]" with "" in {_DataName}
+			message "%entity's name%: %{AL.talk.mood.%{AL.mood.%{_DataName}%}%::%{_AL.talk}%}%"
+			message "%{_DataName}%"
+		else:
+			#set {_AL.talk} to the size of {AL.talk.mood.squadLeaderFalse::*}
+			message "%entity's name%: %{AL.talk.mood.squadLeaderFalse::%{_AL.talk}%}%"
+			message "%{_DataName}%"
 			

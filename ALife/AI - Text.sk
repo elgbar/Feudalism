@@ -8,3 +8,4 @@ on script load:
 													# cant use comma.. wtf? ^
 	#if {AL.talk.mood.angry::*} doesn't exist:
 	set {AL.talk.mood.angry::*} to "Go away!", "I don't want talk to you right now.", "Another time.", "The basted ate my hand!", "CHOKOLORI" and "I'm kinda busy right now."
+	set {AL.talk.mood.squadLeaderFalse::*} to "Go talk to the leader. It's what he's paid for.", "Talk to the squad leader." and "I don't have time. Talk to the squad leader!" 

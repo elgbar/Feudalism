@@ -7,23 +7,22 @@ options:
 #	else wait for the squad is filled up
 	
 	
-command /setspawnpointNPC <text>:
-	aliases: ssai
-	usage: /ssai <name of spawnpoint>
-	permission:	AL.setSpawnpoint
-	trigger:
-		add 1 to {AL.count.spawnPoints}
-		#add the player's location to {AI.spawnPoint::*}
-		set {AL.spawnPoint.%{AL.count.spawnPoints}%} to location of the player
-		set {AL.spawnPoint.name.%{AL.count.spawnPoints}%} to arg-1
-		message "&aSpawnpoint nr <gold>%{AL.count.spawnPoints}% is set!"
-		message "Spawnpoint name is set to %{AL.spawnPoint.name.%{AL.count.spawnPoints}%}%"
-
-command /setNode:
-	aliases: sn
-	permission: AL.setNode
-	trigger:
-		set {AL.WalkingNode.%player's location%} to player's location
-		message "<green>Walking node set at <gold>'%player's location%'"
-		if {@debug} is true:
-			set block below the player to diamond block
+every 3 seconds:
+	loop {AL.NPC::*}:
+		set {_DataName} to "%loop-value-1%"
+		if {_DataName} contain "[<gold>*<r>]<green>":		
+			replace all " ", "[<gold>*<r>]<green>" with "" in {_DataName}
+		else:
+			replace all " ", "<green>" with "" in {_DataName}
+		if {AL.mode.%{_DataName}%} is "online":
+			set {_loopDis} to 5
+		else if {AL.mode.%{_DataName}%} is "offline":
+			set {_loopDis} to 20
+		else:
+			#log "<red>Error: '%loop-value-1%' arnt offline or online! Killing this mob/squad!"
+			#execute console command "killmobs"
+		#loop blocks in radius of 10:
+		#	loop-block-2 is diamond block:
+		#		broadcast "loop block diamond at %locaton of loop-block-2%"
+				
+		
