@@ -20,6 +20,8 @@ on break:
 			if player is holding an axe:
 				cancel event
 				set block to air
+				data of {_block} isn't 0:
+					set {feu.data.%{_place}%} to data of {_block}
 			else:
 				cancel event
 				message "<red>Use an axe on trees!"
@@ -83,14 +85,20 @@ every 2 seconds:
 		loop {feu.coord.%loop-value-1%::*}:
 			set {_waited} to difference between {feu.timer.%loop-value-1%.%loop-value-2%} and now
 			#broadcast "waited: %{_waited}%"
-			if {_waited} is greater than 5 seconds: #5 real minutes:
+			if {_waited} is greater than 5 real minutes:
 				delete {feu.timer.%loop-value-1%.%loop-value-2%}
 				if block at loop-value-2 is stone:
 					if loop-value-1 is {@MBIDStone}:
-						set id of block at loop-value-2 to loop-value-1 
+						if block at loop-value-2 isn't id of loop-value-1:
+							set id of block at loop-value-2 to loop-value-1 
+						else:
+							log "block at %loop-value-2% is already a block with id %loop-value-1%"
 				else if block at loop-value-2 is air:
 					if loop-value-1 is 17:
-						set block at loop-value-2 to spruce wood
+						if  {feu.data.%loop-value-2%} exists:
+							set data of block at loop-vaule-2 to {feu.data.%loop-value-2%}
+ 						else:
+							log "Should block at %loop-value-2% be oak wood or is this an error?"
 					else if loop-value-1 is 13:
 						set block below loop-value-2 to stone
 						set block at loop-value-2 to gravel
