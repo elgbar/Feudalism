@@ -3,26 +3,60 @@ options:
 	entity: villager
 	#set to true to get more info
 	
-command /killmobs <text>:
+command /killmobs <text="help">:
 	usage: /killmobs <all|commandspawned|natrualspawned>
 	trigger:
+		BROADCAST "FIX THIS SHIT!"
+		stop
+		if arg-1 is "commandspawned" or "cs":
+			set {_kill} to true
+		else if arg-1 is "naturalspawned" or "ns":
+			set {_kill} to false
+		else if arg-1 is "help":
+			message "usage: /killmobs <all|commandspawned|natrualspawned>"
+			stop
 		loop all villagers:
 			if loop-entity-1's name exists:
 				set {_DataName} to entity's name
 				if entity's name contains "[<gold>*<r>]<green>":		
-					replace all " ", "[<gold>*<r>]<green>" with "" in {_DataName}
+					replace all " " and "[<gold>*<r>]<green>" with "" in {_DataName}
 				else:
-					replace all " ", "<green>" with "" in {_DataName}
-				kill loop-entity #no loop entity
-				remove {_DataName} from {AL.NPC::*}
-				{AL.rank.%{_DataName}%}%"					
-				remove {AL.mood.%{_DataName}%}
-				remove {AL.commandSpawned.%{_DataName}%}%"
-				remove {AL.faction.%{_DataName}%}%"
-				remove {AL.faction.group.Leader.%{_DataName}%}%"
-				remove {AL.faction.squad.%{_DataName}%}%"
-				remove {AL.mode.%{_DataName}%}
+					replace all " " and "<green>" with "" in {_DataName}
+				if {_kill} doesn't exist:
+					if {AL.mode.%{_DataName}%} doesn't exist:
+						kill loop-entity
+					else:
+						message "<red>Internal error! Please contact a staff member!"
+						stop
+					remove {_DataName} from {AL.NPC::*}
+					delete {AL.rank.%{_DataName}%}	
+					delete {AL.mood.%{_DataName}%}
+					delete {AL.commandSpawned.%{_DataName}%}
+					delete {AL.faction.%{_DataName}%}
+					delete {AL.faction.group.Leader.%{_DataName}%}
+					delete {AL.faction.squad.%{_DataName}%}
+					delete {AL.mode.%{_DataName}%}
+				else if {AL.commandSpawned.%{_DataName}%} is {_kill}:
+					kill loop-entity
+					remove {_DataName} from {AL.NPC::*}
+					delete {AL.rank.%{_DataName}%}	
+					delete {AL.mood.%{_DataName}%}
+					delete {AL.commandSpawned.%{_DataName}%}
+					delete {AL.faction.%{_DataName}%}
+					delete {AL.faction.group.Leader.%{_DataName}%}
+					delete {AL.faction.squad.%{_DataName}%}
+					delete {AL.mode.%{_DataName}%}
+				else:
+					message "<red>Internal error! Please tell a staff member!"
+					stop
 		message "done"
+command /exist <text="help">:
+	usage: /exist <name of npc>
+	trigger:
+		if {AL.rank.%arg-1%} exists:
+			message "%arg-1% exists"
+		else:
+			message "%arg-1% doesn't exist"
 
 command /editor [<text="help">] [<text="help">] [<text>] [<text>] [<text>]:
 	description: this is a tool for Minecraft ALife AI engine, do don't use it if have no idea what you're doing :)

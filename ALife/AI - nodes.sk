@@ -11,9 +11,9 @@ every 3 seconds:
 	loop {AL.NPC::*}:
 		set {_DataName} to "%loop-value-1%"
 		if {_DataName} contain "[<gold>*<r>]<green>":		
-			replace all " ", "[<gold>*<r>]<green>" with "" in {_DataName}
+			replace all " " and "[<gold>*<r>]<green>" with "" in {_DataName}
 		else:
-			replace all " ", "<green>" with "" in {_DataName}
+			replace all " " and "<green>" with "" in {_DataName}
 		if {AL.mode.%{_DataName}%} is "online":
 			set {_loopDis} to 5
 		else if {AL.mode.%{_DataName}%} is "offline":
