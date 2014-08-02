@@ -1,5 +1,6 @@
 every 1 second:
 	#broadcast "looping health update"
+	#Bug when standing on half slab, if its day you get half health
 	loop all players:
 		if loop-player doesn't have permission "feu.health":
 			if the time in the loop-player's world is between 05:30 and 18:30:

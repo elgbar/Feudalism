@@ -1,14 +1,28 @@
 options:
-	allowedBlocks: wood, any plank, any glass, any glass pane, crafting table, any door, any button, any stairs, any slabs, any furnace, chest, fence, cobble or torch
+	#different blocks and IDs used to different things
+	allowedBlocks: oak wood, any plank, any glass, any glass pane, crafting table, any door, any button, any stairs, any slabs, any furnace, chest, fence, air, cobble or torch
 	MultiBlocksAir: spruce wood or gravel
 	MultiBlocksStone: iron ore, diamond ore or coal ore
+	blocks: spruce wood, air, coal ore, iron ore, gravel or diamond ore
 	MBIDAir: 13 or 17
 	MBIDStone: 15, 16 or 56
-	prefix: &aFeudalism
+	
+	#Easy to use default sayings
+	prefix: <gold>[&aFeudalism<gold>]<r>
 	war: <yellow>WARNING
 	err: <red>ERROR
+	
 	debug: false
-	blocks: spruce wood, air, coal ore, iron ore, gravel or diamond ore
+	
+	#set to stone to remove trees. Default: air
+	treeReplacer: air
+	
+	#Remove spruce trees: 
+	#1: set treeReplacer to stone (and save)
+	#2: execute command "skript reload scripts" (without quotes)
+	#3: cut down all trees you want to remove 
+	#4: reload/stop server
+	#5: set treeReplacer to air and repeat step 2
 	
 on script load:
 	set {feu.blockID::*} to 13, 15, 16, 17 and 56
@@ -16,7 +30,6 @@ on script load:
 on break:
 	if block is {@MultiBlocksAir} or {@MultiBlocksStone}:
 		#prevents the block from dropping anything
-		#removes the block
 		set {_place} to the block's location
 		set {_block} to the block at {_place}
 		set {_blockID} to the id of {_block}
@@ -24,20 +37,10 @@ on break:
 		set {_u} to "%{_block}%"
 		{@debug} is true:
 			message "<b>P:<r>%{_place}%, <b>B:<r> %{_block}%, <b>BID: <r>%{_blockID}%,<b> D:<r>%{_data}%"
-		if {_block} is wood:
-			#broadcast "fix: u get noting"
-			#stop
+		if {_block} is spruce wood, acacia wood, dark oak wood or birch wood:
 			if player is holding an axe:
-				#if data of {_block} isn't 0:
-				#	if data of {_block} is 5 or 9:				
-				#		set {feu.data.%{_place}%} to 1
-				#	else:
-				#		set {feu.data.%{_place}%} to data of {_block}
-				#	set {_data} to 0
-				#	message "D: %{_data}%"
-				#else:
-				#	send "{@war}: Mined block at %{_place}% is an oak log!" to console
 				cancel event
+				
 				set {_loopNR} to 0
 				
 				if block below {_block} is wood:
@@ -48,6 +51,7 @@ on break:
 						set {_below} to true
 						
 				if {_below} is true:
+				
 					while block {_loopNR} below {_block} is wood:						
 						set {_place2} to location {_loopNR} below {_block}'s location
 						set {_data2} to data of block {_loopNR} below {_block}'s location
@@ -55,23 +59,35 @@ on break:
 						set {feu.timer.%{_blockID}%.%{_place2}%} to now
 						add location {_loopNR} below {_block}'s location to {feu.coord.%{_blockID}%::*}						
 						set {feu.data.%{_place2}%} to {_data2}
-						set block {_loopNR} below {_block} to air
+						if {@treeReplacer} is air or stone:
+							set block {_loopNR} below {_block} to {@treeReplacer}
+						else:
+							message "{@prefix} {@err}: &ctreeReplacer<red> is set to something else than  '&cstone<red>' or '&cair<red>'! Contact a staff member immediately"
+							stop
 						add 1 to {_loopNR}
 						{@debug} is true:
 							message "L 2 + %{_loopNR}%, p2: %{_place2}%, d: %{feu.data.%{_place2}%}%"#, D2 %data of block 1 below target block's location% "#, S: %location 1 below target block's location%"
 					set {_loopNR} to 1
+					
 					while block {_loopNR} above {_block} is wood:
+					
 						set {_place2} to location {_loopNR} above {_block}'s location
 						set {_data2} to data of block {_loopNR} above {_block}'s location
 						
 						set {feu.timer.%{_blockID}%.%{_place2}%} to now
 						add location {_loopNR} above {_block}'s location to {feu.coord.%{_blockID}%::*}
 						set {feu.data.%{_place2}%} to {_data2}
-						set block {_loopNR} above {_block} to air
+						if {@treeReplacer} is air or stone:
+							set block {_loopNR} above {_block} to {@treeReplacer}
+						else:
+							message "{@prefix} {@err}: &ctreeReplacer<red> is set to something else than  '&cstone<red>' or '&cair<red>'! Contact a staff member immediately"
+							stop
 						add 1 to {_loopNR}
 						{@debug} is true:
 							message "L 2 + %{_loopNR}%, p2: %{_place2}%, d: %{feu.data.%{_place2}%}%"
-				else if block below {_block} isn't wood:					
+							
+				else if block below {_block} isn't wood:
+				
 					while block {_loopNR} above {_block} is wood:
 						set {_place2} to location {_loopNR} above {_block}'s location
 						set {_data2} to data of block {_loopNR} above {_block}'s location
@@ -79,29 +95,44 @@ on break:
 						set {feu.timer.%{_blockID}%.%{_place2}%} to now
 						add location {_loopNR} above {_block}'s location to {feu.coord.%{_blockID}%::*}
 						set {feu.data.%{_place2}%} to {_data2}
-						set block {_loopNR} above {_block} to air
+						if {@treeReplacer} is air or stone:
+							set block {_loopNR} above {_block} to {@treeReplacer}
+						else:
+							message "{@prefix} {@err}: &ctreeReplacer<red> is set to something else than  '&cstone<red>' or '&cair<red>'! Contact a staff member immediately"
+							stop
 						add 1 to {_loopNR}
 						{@debug} is true:
 							message "L 1 + %{_loopNR}%, p2: %{_place2}%, d: %{feu.data.%{_place2}%}%"
 					set {_loopNR} to 0
+					
 				else if block above {_block} isn't wood:
-					while block {_loopNR} below {_block} is wood:						
+				
+					while block {_loopNR} below {_block} is wood:
+					
 						set {_place2} to location {_loopNR} below {_place}
 						set {_data2} to data of block {_loopNR} below {_place}
 						
 						set {feu.timer.%{_blockID}%.%{_place2}%} to now
 						add location {_loopNR} below {_place} to {feu.coord.%{_blockID}%::*}						
 						set {feu.data.%{_place2}%} to {_data2}
-						set block {_loopNR} below {_place} to air
+						if {@treeReplacer} is air or stone:
+							set block {_loopNR} below {_block} to {@treeReplacer}
+						else:
+							message "{@prefix} {@err}: &ctreeReplacer<red> is set to something else than  '&cstone<red>' or '&cair<red>'! Contact a staff member immediately"
+
+							stop
 						add 1 to {_loopNR}
+						
 						{@debug} is true:
 							message "L 3 + %{_loopNR}%, p2: %{_place2}%, d: %{feu.data.%{_place2}%}%"
+							
 					set {_loopNR} to 0
 						
 			else:
 				cancel event
 				message "<red>Use an axe on trees!"
 				stop
+				
 		else if {_block} is ore:
 			if player is holding an pickaxe:
 				cancel event				
@@ -110,6 +141,7 @@ on break:
 				cancel event
 				message "<red>Use a pickaxe on ores!"
 				stop
+				
 		else if block is gravel:
 			if player is holding a shovel:
 				cancel event				
@@ -118,6 +150,7 @@ on break:
 				cancel event
 				message "<red>Use a shovel on gravel!"
 				stop
+				
 		if block isn't wood:
 			set {feu.timer.%{_blockID}%.%{_place}%} to now
 			add the block's location to {feu.coord.%{_blockID}%::*}
@@ -137,19 +170,19 @@ on break:
 		else if {_u} is "spruce wood block", "south-north spruce wood block" or "west-east spruce wood block":
 			give oak wood to the player
 		else if {_block} is air:
-			message "{@err}: An error accrued while trying to give you the block! contact a staff to get this sorted!"
-			{@debug} is true:
-				message "Error report: {_block} is %{_block}%"
-				message "ID of the target block was %{_blockID}%"
-				message "Location of block is at %{_place}%"# or %{_place2}%"
-				message "data of block was %{_data}%"#""%{feu.data.%{_place2}%}%"",""%{_data}%"" or ""%{_data2}%"""
-				log "error at %{_place}% block is %{_block}%, but blockID show something else (ID %{_blockID}%)"
+			message "{@prefix} {@err}: An error accrued while trying to give you the block! contact an operator to get this sorted out!"
+			player is op
+			message "Error report: {_block} is %{_block}%"
+			message "ID of the target block was %{_blockID}%"
+			message "Location of block is at %{_place}%"# or %{_place2}%"
+			message "data of block was %{_data}%"#""%{feu.data.%{_place2}%}%"",""%{_data}%"" or ""%{_data2}%"""
+			log "error at %{_place}% block is %{_block}%, but blockID show something else (ID %{_blockID}%)"
 		else:	
 			give {_block} to the player
 	else:
 		if player doesn't have permission "feu.dig":
 		#those with permission can break any block
-			if block is cobble stairs or any leaves:
+			if block is any leaves:
 			#denies breaking ^
 				cancel event
 				stop
@@ -172,13 +205,21 @@ every 2 seconds:
 			#broadcast "waited: %{_waited}%"
 			if {_waited} is greater than 5 seconds: #5 real minutes:
 				delete {feu.timer.%loop-value-1%.%loop-value-2%}
+				#if block at loop-value-2 isn't {@allowedBlocks}:
 				if block at loop-value-2 is stone:
+					if {@treeReplacer} is stone:
+						if loop-value-1 is 17:
+							set block at loop-value-2 to air
 					if loop-value-1 is {@MBIDStone}:
 						set id of block at loop-value-2 to loop-value-1 
-				else if block at loop-value-2 is air:
+				else if block at loop-value-2 isn't stone:
 					if loop-value-1 is 17:
-						set id of block at loop-value-2 to loop-value-1
-						set data of block at loop-value-2 to {feu.data.%loop-value-2%}
+						if {@treeReplacer} is stone:
+							if loop-value-1 is 17:
+								set block at loop-value-2 to air
+						else:
+							set id of block at loop-value-2 to loop-value-1
+							set data of block at loop-value-2 to {feu.data.%loop-value-2%}
 					else if loop-value-1 is 13:
 						set block below loop-value-2 to stone
 						set block at loop-value-2 to gravel
@@ -198,15 +239,30 @@ on skript stop:
 	loop {feu.blockID::*}:
 		loop {feu.coord.%loop-value-1%::*}:
 			delete {feu.timer.%loop-value-1%.%loop-value-2%}
+			#if block at loop-value-2 isn't {@allowedBlocks}:
 			if block at loop-value-2 is stone:
+				if {@treeReplacer} is stone:
+					if loop-value-1 is 17:
+						set block at loop-value-2 to air
 				if loop-value-1 is {@MBIDStone}:
 					set id of block at loop-value-2 to loop-value-1 
-			else if block at loop-value-2 is air:
+			else if block at loop-value-2 isn't stone:
 				if loop-value-1 is 17:
-					set block at loop-value-2 to spruce wood
+					if {@treeReplacer} is stone:
+						if loop-value-1 is 17:
+							set block at loop-value-2 to air
+					else:
+						set id of block at loop-value-2 to loop-value-1
+						set data of block at loop-value-2 to {feu.data.%loop-value-2%}
+				else if loop-value-1 is 13:
+					set block below loop-value-2 to stone
+					set block at loop-value-2 to gravel
+					wait 2 ticks
+					if block below loop-value-2 isn't gravel:
+						set block below loop-value-2 to air
 				else if loop-value-1 is {@MBIDAir}:
 					set id of block at loop-value-2 to loop-value-1 
-			remove loop-value-2 from {feu.coord.%loop-value-1%::*}
+			remove loop-value-2 from {feu.coord.%loop-value-1%::*}	
 	
 command /mine <integer> [<player=%player%>]:
 	description: set the percent (from 0 to 100) of the mining of gravel
@@ -215,7 +271,7 @@ command /mine <integer> [<player=%player%>]:
 		if arg-1 is less than 0:
 			message "<red>I'm afraid I cannot go that low"
 		else if arg-1 is greater than 100:
-			message "<red>IT'S OVER 9000(-8900). too high!"
+			message "<red>IT'S OVER 9000(-8900). Too high!"
 		else:
 			set {feu.chance.stone.%arg-2%} to arg-1
 			message "<green>%arg-2%'s chance at mining stone from gravel is now:<gold> %arg-1%"
@@ -230,24 +286,19 @@ command /fix <item>:
 			#check is the player is standing upon a "corruptBlock"
 				set the block below the player to arg-1
 			else:
-				Message "<red>Cannot fix the block below you!"
+				Message "{@prefix} {@err}: Cannot fix the block below you!"
 				Message "<gold>Valid block to stand on:<red> {@blocks} or stone"
 				#say what's wrong
 		else:
-			Message "<red>That's not an allowed block to fix!"
+			Message "{@prefix} {@err}: That's not an allowed block to fix!"
 			Message "<gold>valid choices: <red>{@blocks}"
 			
 command /get:
 	permission: op
 	trigger:
-		{@debug} is true:
-			#set data of {_block} to {_data}
-			#give {_block} to the player
-			give target block to the player
-			message "%target block's id%:%target block's data%"
-		else:
-			message "<red>Debug must be set to true"
-			stop
+		give target block to the player
+		message "<green>BlockID/blockDATA: <gold>%target block's id%/%target block's data%"
+
 on physics:
 	block is gravel
 	cancel event
