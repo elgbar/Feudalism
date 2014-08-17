@@ -4,7 +4,7 @@ options:
 	#set to true to get more info
 	
 command /killmobs <text="help">:
-	usage: /killmobs <all|commandspawned|natrualspawned>
+	usage: /killmobs <all|commandspawned|cs|natrualspawned|ns|>
 	trigger:
 		BROADCAST "FIX THIS SHIT!"
 		stop
@@ -13,21 +13,22 @@ command /killmobs <text="help">:
 		else if arg-1 is "naturalspawned" or "ns":
 			set {_kill} to false
 		else if arg-1 is "help":
-			message "usage: /killmobs <all|commandspawned|natrualspawned>"
+			message "usage: /killmobs <all|commandspawned|cs|natrualspawned|ns|>"
+			stop
+		else:
+			message "usage: /killmobs <all|commandspawned|cs|natrualspawned|ns|>"
 			stop
 		loop all villagers:
-			if loop-entity-1's name exists:
+			add 1 to {_loopNR}
+			if loop-entity's name exists:
 				set {_DataName} to entity's name
+				
 				if entity's name contains "[<gold>*<r>]<green>":		
 					replace all " " and "[<gold>*<r>]<green>" with "" in {_DataName}
 				else:
 					replace all " " and "<green>" with "" in {_DataName}
-				if {_kill} doesn't exist:
-					if {AL.mode.%{_DataName}%} doesn't exist:
-						kill loop-entity
-					else:
-						message "<red>Internal error! Please contact a staff member!"
-						stop
+				message "%{AL.commandSpawned.%{_DataName}%}%, <b>_name<r> %{_DataName}%"
+				if {AL.commandSpawned.%{_DataName}%} is {_kill}:
 					remove {_DataName} from {AL.NPC::*}
 					delete {AL.rank.%{_DataName}%}	
 					delete {AL.mood.%{_DataName}%}
@@ -36,18 +37,19 @@ command /killmobs <text="help">:
 					delete {AL.faction.group.Leader.%{_DataName}%}
 					delete {AL.faction.squad.%{_DataName}%}
 					delete {AL.mode.%{_DataName}%}
-				else if {AL.commandSpawned.%{_DataName}%} is {_kill}:
 					kill loop-entity
-					remove {_DataName} from {AL.NPC::*}
-					delete {AL.rank.%{_DataName}%}	
-					delete {AL.mood.%{_DataName}%}
-					delete {AL.commandSpawned.%{_DataName}%}
-					delete {AL.faction.%{_DataName}%}
-					delete {AL.faction.group.Leader.%{_DataName}%}
-					delete {AL.faction.squad.%{_DataName}%}
-					delete {AL.mode.%{_DataName}%}
-				else:
-					message "<red>Internal error! Please tell a staff member!"
+					{@debug} is true:					
+						message "%{_loopNR}% (%{_DataName}%) <r>- _name: %loop-entity's name%"
+						message "%{_loopNR}% (%{_DataName}%) <r>- {AL.NPC::%{_DataName}%}: %{AL.NPC::*}%"
+						message "%{_loopNR}% (%{_DataName}%) <r>- {AL.rank.%{_DataName}%}: %{AL.rank.%{_DataName}%}%"					
+						message "%{_loopNR}% (%{_DataName}%) <r>- {AL.mood.%{_DataName}%}: %{AL.mood.%{_DataName}%}%"
+						message "%{_loopNR}% (%{_DataName}%) <r>- {AL.commandSpawned.%{_DataName}%}: %{AL.commandSpawned.%{_DataName}%}%"
+						message "%{_loopNR}% (%{_DataName}%) <r>- {AL.faction.%{_DataName}%}: %{AL.faction.%{_DataName}%}%"
+						message "%{_loopNR}% (%{_DataName}%) <r>- {AL.faction.group.Leader.%{_DataName}%}: %{AL.faction.group.Leader.%{_DataName}%}%"
+						message "%{_loopNR}% (%{_DataName}%) <r>- {AL.faction.squad.%{_DataName}%}: %{AL.faction.squad.%{_DataName}%}%"
+						message "%{_loopNR}% (%{_DataName}%) <r>- {AL.mode.%{_DataName}%}: %{AL.mode.%{_DataName}%}%"
+				else if {_kill} doesn't exist:
+					message "<red>Internal error 1! Please tell a staff member!"
 					stop
 		message "done"
 command /exist <text="help">:
