@@ -1,3 +1,5 @@
+#options:
+	
 on place:
 	block is sponge
 	set {_blockLoooking} to location of player
@@ -8,13 +10,13 @@ on place:
 			
 	else if {feu.setArea.%player%} is greater than {feu.maxArea.%player%}:
 		message "<red>You can only have <gold>%{feu.maxArea.%player%}%<red> regions!"
-		set block at block's location to air
+		set block at block's location to air or snow layer
 		give player a sponge
 		stop
 		
 	else if {feu.setArea.%player%} is equal to {feu.maxArea.%player%}:
 		message "<red>You can only have <gold>%{feu.maxArea.%player%}%<red> regions!"
-		set block at block's location to air
+		set block at block's location to air or snow layer
 		give player a sponge
 		stop
 		
@@ -24,6 +26,22 @@ on place:
 		set {feu.maxRadius.%player%} to 20
 		set {feu.maxArea.%player%} to 1
 		set {feu.setArea.%player%} to 1
+		
+	#TODO make a region without using WE and WG
+	set {_cornerNW} to location 20 blocks north west of target block
+	block above {_cornerNW} is air or snow layer:
+		set {_cornerNW} to cobblestone
+	else:
+		set {_NW} to 2
+		while sunlight level {_NW} blocks above {_cornerNW} isn't greater than 1:
+			add 1 to {_NW}
+			message "hi"
+		#else:
+	#		set block {_NW} blocks above {_cornerNW} to cobblestone
+		
+	stop
+		
+		
 		
 	execute console command "manuaddp %player% worldedit.selection.hpos"
 	teleport player to {_blockLoooking}
@@ -75,4 +93,144 @@ on break:
 			Message "<red>You cannot remove other player's areas!" #or "<green>You have damaged this house's nexus by 1"
 			
 	
-	
+command /sunLightLevel:
+	aliases: /sll, /fsll
+	permission: op
+	trigger:
+		message "%sunlight level 2 blocks below the player%"
+
+command /testArea:
+	aliases: /ta, fta
+	permission: op
+	trigger:
+		set {_center} to player's location
+		block below {_center} is air or snow layer:
+			message "<red>You cannot create an area here!"
+			stop
+		else:
+			set block below {_center} to stone
+		
+		#NW
+		set {_cornerNW} to location 20 blocks north west of {_center}
+		set {_cornerNE} to location 20 blocks north east of {_center}
+		set {_cornerSW} to location 20 blocks south west of {_center}
+		set {_cornerSE} to location 20 blocks south east of {_center}
+		set {_dir} to "NW"
+		message "<green>First direction set to <red>NW"
+		set {run.%player%} to true
+		
+		while {run.%player%} is true:
+			set {_%{_dir}%} to 1
+			message "<gold>%{_dir}%: corner @ %{_corner%{_dir}%}%"
+			block above {_corner%{_dir}%} is air or snow layer:
+				message "<green>%{_dir}%: org block set to cobble"
+				while block {_%{_dir}%} below {_corner%{_dir}%} is air or snow layer:
+					add 1 to {_%{_dir}%}
+					
+				set {_finalCorner%{_%{_dir}%}%} to location {_%{_dir}%} blocks below {_corner%{_dir}%}
+				
+				set block {_%{_dir}%} below {_corner%{_dir}%} to cobblestone
+				remove 1 from {_%{_dir}%}
+				set block {_%{_dir}%} below {_corner%{_dir}%} to cobblestone
+				remove 1 from {_%{_dir}%}
+				set block {_%{_dir}%} below {_corner%{_dir}%} to cobblestone
+				
+				message "<gold>Done setting standard blocks, switching to dynamic mode!"
+				
+				#set {_f} to true
+				#while {_f} is true:
+				if block east of {_finalCorner%{_%{_dir}%}%} isn't air:
+					remove 1 from {_%{_dir}%}
+					set block {_%{_dir}%} below {_corner%{_dir}%} to cobblestone
+					message "<yellow>A block east spotted!"
+					wait 1 tick
+				
+					
+				else if block west of {_finalCorner%{_%{_dir}%}%}  isn't air:
+					remove 1 from {_%{_dir}%}
+					set block {_%{_dir}%} below {_corner%{_dir}%} to cobblestone
+					message "<yellow>A block west spotted!"
+					wait 1 tick
+						
+				else if block north of {_finalCorner%{_%{_dir}%}%}  isn't air:
+					remove 1 from {_%{_dir}%}
+					set block {_%{_dir}%} below {_corner%{_dir}%} to cobblestone
+					message "<yellow>A block north spotted!"
+					wait 1 tick
+						
+				else if block south of {_finalCorner%{_%{_dir}%}%}  isn't air:
+					remove 1 from {_%{_dir}%}
+					set block {_%{_dir}%} below {_corner%{_dir}%} to cobblestone
+					message "<yellow>A block south spotted!"
+					wait 1 tick
+				message "<gold>Done with dynamic mode!"
+				#set {_f} to false
+				#message "<green>{_f} is now false!"
+						
+			else:
+				message "<red>{_corner%{_dir}%} is underground, trying to find the surface block"
+				while block {_%{_dir}%} blocks above {_corner%{_dir}%} isn't air or snow layer:
+					add 1 to {_%{_dir}%}
+					message "<yellow>%{_dir}%: added 1 to {_%{_dir}%} (%{_%{_dir}%}%)"
+				set block {_%{_dir}%} above {_corner%{_dir}%} to cobblestone
+				add 1 to {_%{_dir}%}
+				set block {_%{_dir}%} above {_corner%{_dir}%} to cobblestone
+				set {_f} to true
+				while {_f} is true:
+					if block east isn't air:
+						set {_a} to false
+						message "<yellow>A block east spotted!"
+						wait 1 tick
+					#else:
+					#	if {_a} isn't false:
+					#		set {_a} to true
+						
+					if block west isn't air:
+						remove 1 from {_%{_dir}%}
+						set block {_%{_dir}%} below {_corner%{_dir}%} to cobblestone
+						message "<yellow>A block west spotted!"
+						wait 1 tick
+						
+					else if block north isn't air:
+						remove 1 from {_%{_dir}%}
+						set block {_%{_dir}%} below {_corner%{_dir}%} to cobblestone
+						message "<yellow>A block north spotted!"
+						wait 1 tick
+						
+					else if block south isn't air:
+						remove 1 from {_%{_dir}%}
+						set block {_%{_dir}%} below {_corner%{_dir}%} to cobblestone
+						message "<yellow>A block south spotted!"
+						wait 1 tick
+						
+					else if block east isn't air:
+						remove 1 from {_%{_dir}%}
+						set block {_%{_dir}%} east {_corner%{_dir}%} to cobblestone
+						message "<yellow>A block east spotted!"
+						wait 1 tick
+
+					set {_f} to false
+					message "<green>{_f} is now false!"
+				Message "<green>%{_dir}%: Block set %{_%{_dir}%}% above %{_corner%{_dir}%}% to cobblestone"
+			wait 1 tick
+			message "<gold>Switching direction!"
+			if {_dir} is "NW":
+				set {_dir} to "NE"
+			else if {_dir} is "NE":
+				set {_dir} to "SE"
+			else if {_dir} is "SE":
+				set {_dir} to "SW"
+			else if {_dir} is "SW":
+				set {run.%player%} to false
+				stop
+			else:
+				message "<red>Something went wrong! @ Area.sk switching direction"
+				stop
+			message "<green>New direction is <red>%{_dir}%"
+		
+command /quit [<player=%player%>]:
+	aliases: /fq, /q
+	permission: op
+	trigger:
+		set {run.%arg-1%} to false
+		message "{run.%arg-1%} is now %{run.%arg-1%}%"
