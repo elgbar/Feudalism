@@ -10,3 +10,17 @@ on spread:
 	block is dirt or grass
 	cancel event
 	
+On Zombie Break Door:
+	spawn 5 zombies at block's location
+	
+command /IamBored <boolean>:
+	aliases: /iab
+	trigger:
+		set {boolean.door.%player%} to arg-1
+		block below the player is a door
+		set {_location} to player's location
+		while {boolean.door.%player%}  is true:
+			wait 5 tick
+			toggle the block below {_location}
+			#play door close
+			broadcast "ha"
