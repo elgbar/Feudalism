@@ -104,7 +104,11 @@ command /testArea:
 		set {_cornerSW} to location 20 blocks south west of {_center}
 		set {_cornerSE} to location 20 blocks south east of {_center}
 		set {_dir} to "NW"
-		message "<green>First direction set to <red>NW"
+		message ""
+		message ""
+		message "<light green>First direction set to <red>NW"
+		message ""
+		message ""
 		set {run.%player%} to true
 		
 		while {run.%player%} is true:
@@ -131,28 +135,41 @@ command /testArea:
 						set block {_newDir} blocks below {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block west spotted!"
 						wait 1 tick
-
+						set {_w} to false
+					else:
+						set {_w} to true
+						
 					set {_newLocation} to location north of {_corner%{_dir}%}	
 					if block {_newDir} blocks below {_newLocation} isn't air:
 						remove 1 from {_newDir}
 						set block {_newDir} blocks below {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block north spotted!"
 						wait 1 tick
-					
+						set {_n} to false
+					else:
+						set {_n} to true
+						
 					set {_newLocation} to location south of {_corner%{_dir}%}			
 					if block {_newDir} blocks below {_newLocation} isn't air:
 						remove 1 from {_newDir}
 						set block {_newDir} blocks below {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block south spotted!"
 						wait 1 tick
-					
+						set {_s} to false
+					else:
+						set {_s} to true
+						
 					set {_newLocation} to location east of {_corner%{_dir}%}			
 					if block {_newDir} blocks below {_newLocation} isn't air:
 						remove 1 from {_newDir}
 						set block {_newDir} blocks below {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block east spotted!"
 						wait 1 tick
+						set {_e} to false
 					else:
+						set {_e} to true
+						
+					if {_w} and {_n} and {_s} and {_e} is true:
 						set {_a} to false
 						message "&d%{_dir}%: Block checking loop ended!" 
 					#Message "<green>%{_dir}%: Block set %{_dir%{_dir}%}% above %{_corner%{_dir}%}% to cobblestone"
@@ -178,13 +195,18 @@ command /testArea:
 						set block {_newDir} blocks above {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block west spotted!"
 						wait 1 tick
-
+						set {_w} to false
+					else:
+						set {_w} to true
 					set {_newLocation} to location north of {_corner%{_dir}%}	
 					if block {_newDir} blocks above {_newLocation} isn't air:
 						add 1 to {_newDir}
 						set block {_newDir} blocks above {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block north spotted!"
 						wait 1 tick
+						set {_n} to false
+					else:
+						set {_n} to true
 					
 					set {_newLocation} to location south of {_corner%{_dir}%}			
 					if block {_newDir} blocks above {_newLocation} isn't air:
@@ -192,6 +214,9 @@ command /testArea:
 						set block {_newDir} blocks above {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block south spotted!"
 						wait 1 tick
+						set {_s} to false
+					else:
+						set {_s} to true						
 					
 					set {_newLocation} to location east of {_corner%{_dir}%}			
 					if block {_newDir} blocks above {_newLocation} isn't air:
@@ -199,7 +224,11 @@ command /testArea:
 						set block {_newDir} blocks above {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block east spotted!"
 						wait 1 tick
+						set {_e} to false
 					else:
+						set {_e} to true
+						
+					if {_w} and {_n} and {_s} and {_e} is true:
 						set {_a} to false
 						message "&d%{_dir}%: Block checking loop ended!" 
 					#Message "<green>%{_dir}%: Block set %{_dir%{_dir}%}% above %{_corner%{_dir}%}% to cobblestone"
