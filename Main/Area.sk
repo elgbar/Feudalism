@@ -1,7 +1,19 @@
 options:
 	debug: false
+	
+	#what world shall this script be enabled in?
+	#usage:
+	#enabledWorlds: "world" or "world_nether" or "world_the_end"
+	enabledWorlds: "Feudalism_4" or "Feudalism_4_nether"
+	
+	buildingMaterials: stone, planks, wood or cobblestone
+	
+script options:
+    $ developer mode
+	
 on place:
-	block is sponge
+	player's world is {@enabledWorlds}
+	block is pumpkin
 	set {_blockLoooking} to location of player
 	if {feu.setArea.%player%} is less than {feu.maxArea.%player%}:		
 		message "<green>You have choosen a place to build!"
@@ -36,7 +48,9 @@ on place:
 	stop
 		
 		
-		
+	#TODO:
+	
+	#DONE!
 	execute console command "manuaddp %player% worldedit.selection.hpos"
 	teleport player to {_blockLoooking}
 	execute player command "//hpos1"
@@ -47,15 +61,24 @@ on place:
 	open the player's inventory for the player
 	execute player command "//expand %{feu.maxRadius.%player%}% %{feu.maxRadius.%player%}% west"
 	open the player's inventory for the player
-	execute player command "//expand %{feu.maxRadius.%player%}% %{feu.maxRadius.%player%}% north"
+	execute player command "//expand %{feu.maxRadius.%player%}% %{feu.maxRadius.%player%}% north"	
 	open the player's inventory for the player
+	
+	#TODO: Limit where the area can be placed, eg. not in a mountain or underground (height difference)
+	
+	#TODO: Create a wooden wall around the base
+	
+	#TODO
 	execute player command "//expand vert"
 	close the player's inventory
 	execute console command "manudelp %player% worldedit.selection.expand"
 	execute console command "manuaddp %player% worldguard.region.claim"
+	
+	#TODO
 	execute player command "/region claim %player%-%{feu.setArea.%player%}%"
 	execute console command "manudelp %player% worldguard.region.claim"
 	
+	#TODO
 	set block at block's location to pumpkin
 	set {feu.area.pumpkin.%block's location%} to player's name
 	
@@ -73,52 +96,44 @@ command /maxRegions <integer> [<player=%player%>]:
 	trigger:
 		set {feu.maxArea.%arg-2%} to arg-1
 		message "<green>Max areas are now <gold>%arg-1%<green> for <gold>%arg-2%"
-		
-on click:
-	block is pumpkin
-	
-on break:
-	block is pumpkin
-	if {feu.area.pumpkin.%block's location%} exists:
-		if {feu.area.pumpkin.%block's location%} is player's name:
-			Message "<green>You have removed this region"
-			remove 1 from {feu.setArea.%player%}
-		else:
-			Message "<red>You cannot remove other player's areas!" #or "<green>You have damaged this house's nexus by 1"
-			
+					
 	
 command /testArea:
 	aliases: /ta, fta
 	permission: op
 	trigger:
+		add 1 to {test.runs}
 		set {_center} to player's location
-		block below {_center} is air or snow layer:
-			message "<red>You cannot create an area here!"
+		block below {_center} is air:
+			message "<red>You cannot create an area here! You need to stand on a solid block!"
 			stop
 		else:
 			set block below {_center} to mossy cobblestone
 		
 		#NW
-		set {_cornerNW} to location 20 blocks north west of {_center}
-		set {_cornerNE} to location 20 blocks north east of {_center}
-		set {_cornerSW} to location 20 blocks south west of {_center}
-		set {_cornerSE} to location 20 blocks south east of {_center}
+		set {_cornerNW} to location 10 blocks north west of {_center}
+		set {_cornerNE} to location 10 blocks north east of {_center}
+		set {_cornerSW} to location 10 blocks south west of {_center}
+		set {_cornerSE} to location 10 blocks south east of {_center}
 		set {_dir} to "NW"
 		message ""
 		message ""
-		message "<light green>First direction set to <red>NW"
+		message "<green>Test run Nr: <gold>%{test.runs}%"
 		message ""
 		message ""
+		message "<green>First direction set to <red>NW"
 		set {run.%player%} to true
 		
 		while {run.%player%} is true:
 			set {_dir%{_dir}%} to 1
 			message "<gold>%{_dir}%: corner @ %{_corner%{_dir}%}%"
 			block above {_corner%{_dir}%} is air or snow layer:
-				message "<green>%{_dir}%: org block set to cobble"
+				message "<green>%{_dir}%: org block set to cobble"						
 				while block {_dir%{_dir}%} blocks below {_corner%{_dir}%} is air or snow layer:
 					add 1 to {_dir%{_dir}%}
-					
+				
+				set {_orgLoc} to location {_dir%{_dir}%} blocks below {_corner%{_dir}%}
+				
 				set block {_dir%{_dir}%} blocks below {_corner%{_dir}%} to cobblestone
 				remove 1 from {_dir%{_dir}%}
 				set block {_dir%{_dir}%} blocks below {_corner%{_dir}%} to cobblestone
@@ -130,7 +145,7 @@ command /testArea:
 				message "{_newDir} is %{_newDir}%"
 				while {_a} is true:
 					set {_newLocation} to location west of {_corner%{_dir}%}
-					if block {_newDir} blocks below {_newLocation} isn't air:
+					if block {_newDir} blocks below {_newLocation} isn't air or snow layer:
 						remove 1 from {_newDir}
 						set block {_newDir} blocks below {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block west spotted!"
@@ -140,7 +155,7 @@ command /testArea:
 						set {_w} to true
 						
 					set {_newLocation} to location north of {_corner%{_dir}%}	
-					if block {_newDir} blocks below {_newLocation} isn't air:
+					if block {_newDir} blocks below {_newLocation} isn't air or snow layer:
 						remove 1 from {_newDir}
 						set block {_newDir} blocks below {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block north spotted!"
@@ -150,7 +165,7 @@ command /testArea:
 						set {_n} to true
 						
 					set {_newLocation} to location south of {_corner%{_dir}%}			
-					if block {_newDir} blocks below {_newLocation} isn't air:
+					if block {_newDir} blocks below {_newLocation} isn't air or snow layer:
 						remove 1 from {_newDir}
 						set block {_newDir} blocks below {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block south spotted!"
@@ -160,7 +175,7 @@ command /testArea:
 						set {_s} to true
 						
 					set {_newLocation} to location east of {_corner%{_dir}%}			
-					if block {_newDir} blocks below {_newLocation} isn't air:
+					if block {_newDir} blocks below {_newLocation} isn't air or snow layer:
 						remove 1 from {_newDir}
 						set block {_newDir} blocks below {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block east spotted!"
@@ -180,6 +195,8 @@ command /testArea:
 				while block {_dir%{_dir}%} blocks above {_corner%{_dir}%} isn't air or snow layer:
 					add 1 to {_dir%{_dir}%}
 					message "<yellow>%{_dir}%: added 1 to {_dir%{_dir}%} (%{_dir%{_dir}%}%)"
+					
+				set {_orgLoc} to location {_dir%{_dir}%} blocks above {_corner%{_dir}%}
 				
 				set block {_dir%{_dir}%} blocks above {_corner%{_dir}%} to cobblestone
 				add 1 to {_dir%{_dir}%}
@@ -190,7 +207,7 @@ command /testArea:
 				message "{_newDir} is %{_newDir}%"
 				while {_a} is true:
 					set {_newLocation} to location west of {_corner%{_dir}%}
-					if block {_newDir} blocks above {_newLocation} isn't air:
+					if block {_newDir} blocks above {_newLocation} isn't air or snow layer:
 						add 1 to {_newDir}
 						set block {_newDir} blocks above {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block west spotted!"
@@ -199,7 +216,7 @@ command /testArea:
 					else:
 						set {_w} to true
 					set {_newLocation} to location north of {_corner%{_dir}%}	
-					if block {_newDir} blocks above {_newLocation} isn't air:
+					if block {_newDir} blocks above {_newLocation} isn't air or snow layer:
 						add 1 to {_newDir}
 						set block {_newDir} blocks above {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block north spotted!"
@@ -209,7 +226,7 @@ command /testArea:
 						set {_n} to true
 					
 					set {_newLocation} to location south of {_corner%{_dir}%}			
-					if block {_newDir} blocks above {_newLocation} isn't air:
+					if block {_newDir} blocks above {_newLocation} isn't air or snow layer:
 						add 1 to {_newDir}
 						set block {_newDir} blocks above {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block south spotted!"
@@ -219,7 +236,7 @@ command /testArea:
 						set {_s} to true						
 					
 					set {_newLocation} to location east of {_corner%{_dir}%}			
-					if block {_newDir} blocks above {_newLocation} isn't air:
+					if block {_newDir} blocks above {_newLocation} isn't air or snow layer:
 						add 1 to {_newDir}
 						set block {_newDir} blocks above {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block east spotted!"
@@ -233,6 +250,23 @@ command /testArea:
 						message "&d%{_dir}%: Block checking loop ended!" 
 					#Message "<green>%{_dir}%: Block set %{_dir%{_dir}%}% above %{_corner%{_dir}%}% to cobblestone"
 				wait 1 tick
+			if {_dir} isn't "NW":
+				set {_away} to 1
+				set {_up} to 1
+				set {_Down} to 1
+				while {_wallBuilding} is true:
+					if {_dir} is "SE":
+						set {_newLoc} to location {_away} blocks east of {_orgLoc}
+						if block {_away} blocks east of {_orgLoc} is air:
+							set block {_away} blocks east of {_orgLoc} to cobble
+							add 1 to {_away}
+						else if block {_up} blocks above {_newLoc} isn't air:
+							set block {_up} blocks above {_newLoc} to cobble
+							add 1 to {_up}
+						else if block {_Down} blocks above {_newLoc} is air:
+							set block {_Down} blocks above {_newLoc} to cobble
+								
+			set {_Old.%{_dir}%.Dir} to {_orgLoc}
 			
 			if {_dir} is "NW":
 				set {_dir} to "NE"
@@ -279,3 +313,143 @@ command /test:
 	trigger:
 	#	set {_newDir} to 
 		set block {_newDir} above {_corner%{_dir}%} to cobblestone
+
+on place:
+	block is door
+	player's world is {@enabledWorlds}
+	block below block isn't piston:
+		message "You have to do this in a doorframe! On a piston"
+		cancel event
+	
+	
+
+#TODO: create a menu on what you want to do!
+on click:
+	player's world is {@enabledWorlds}
+	block is pumpkin:
+		message "mellow ^^"
+	else if block is door:
+		player is holding a sign:
+			the block in front of the player's eyes is door
+			message "%{_looking}%"
+		else:
+			message "<red>You have to hold a key to unlock this door!(sign)"
+			cancel event
+	else if block is piston:
+		player is holding a door:
+			cancel event
+			set block above block to door
+			remove 1 door from player
+			player is sneaking:
+				message "<yellow>You don't have to sneak to place a door in a door frame :P"
+			message "<light green>You successfully placed a door!"
+			set {area.key1.%location above block%} to a random integer between 0 and 9
+			set {area.key2.%location above block%} to a random integer between 0 and 9
+			set {area.key3.%location above block%} to a random integer between 0 and 9
+			set {area.key4.%location above block%} to a random integer between 0 and 9
+			message "<green>The key to the door is: <gold>%{area.key1.%location above block%}%%{area.key2.%location above block%}%%{area.key3.%location above block%}%%{area.key4.%location above block%}%"
+	else if player is holding a wooden hoe named "Doorway":
+		cancel event
+		distance between target block and player is greater than 4:
+			message "blocks too far away!"
+			stop
+		set {_orgt} to target block's location
+		set block at {_orgt} to piston
+		set {_t} to {_orgt}
+		set {_newt} to 0
+		while {_newt} is less than 4:
+			set {_t} to location {_newt} above {_orgt}
+			if {_newt} is 3:
+				set block at {_t} to oak planks
+			set block east {_t} to oak planks
+			set block 2 east {_t} to oak planks
+			set block west {_t} to oak planks
+			set block 2 west {_t} to oak planks
+			add 1 to {_newt}
+	else if player is holding a wooden hoe named "Wall":
+		cancel event
+		distance between target block and player is greater than 4:
+			message "blocks too far away!"
+			stop
+		set {_orgt} to target block's location
+		set {_t} to {_orgt}
+		set {_newt} to 0
+		set block at {_orgt} to piston
+		while {_newt} is less than 4:
+			set {_t} to location {_newt} above {_orgt}
+			set block at {_t} to oak planks
+			set block east {_t} to oak planks
+			set block 2 east {_t} to oak planks
+			set block west {_t} to oak planks
+			set block 2 west {_t} to oak planks
+			add 1 to {_newt}
+	else if player is holding a wooden hoe named "Floor":
+		cancel event
+		distance between target block and player is greater than 4:
+			message "blocks too far away!"
+			stop
+		set {_orgt} to target block's location
+		set {_t} to {_orgt}
+		set {_newt} to 0
+		
+		while {_newt} is less than 3:
+			set {_t} to location {_newt} south {_orgt}
+			set block at {_t} to oak planks
+			set block east {_t} to oak planks
+			set block 2 east {_t} to oak planks
+			set block west {_t} to oak planks
+			set block 2 west {_t} to oak planks
+			add 1 to {_newt}
+		set {_newt} to 1
+		while {_newt} is less than 3:
+			set {_t} to location {_newt} north {_orgt}
+			set block at {_t} to oak planks
+			set block east {_t} to oak planks
+			set block 2 east {_t} to oak planks
+			set block west {_t} to oak planks
+			set block 2 west {_t} to oak planks
+			add 1 to {_newt}	
+		set block at {_orgt} to oak wood	
+command /hoes <text> <text>:
+	usage: /hoes <wood|w|stone|s|iron|i> <name>
+	permission: op
+	trigger:
+		if arg-1 is "w" or "wood" or "wooden":
+			give player a wooden hoe named "%arg-2%"
+		else if arg-1 is "stone" or "s":
+			give player a stone hoe named "%arg-2%"
+		else if arg-1 is "iron" or "i":
+			give player an iron hoe named "%arg-2%"
+		else:
+			message "Wrong argument!"
+			stop
+		message "You now have a hoe!"
+#TODO: Remove the region
+on break:
+	player's world is {@enabledWorlds}
+	block is pumpkin:
+		if {feu.area.pumpkin.%block's location%} exists:
+			if {feu.area.pumpkin.%block's location%} is player's name:
+				Message "<green>You have removed this region"
+				remove 1 from {feu.setArea.%player%}
+			else:
+				Message "<red>You cannot remove other player's areas!" #or "<green>You have damaged this house's nexus by 1"
+	else if block is door:
+		player is holding a sign:
+			if block below block is door: 
+				#message "below is door"
+				#message "%{area.key1.%location below block%}%%{area.key2.%location below block%}%%{area.key3.%location below block%}%%{area.key4.%location below block%}%"
+				delete {area.key1.%location below block%}
+				delete {area.key2.%location below block%}
+				delete {area.key3.%location below block%}
+				delete {area.key4.%location below block%}
+				#message "%{area.key1.%location below block%}%%{area.key2.%location below block%}%%{area.key3.%location below block%}%%{area.key4.%location below block%}%"
+			else:
+				#message "%{area.key1.%location of block%}%%{area.key2.%location of block%}%%{area.key3.%location of block%}%%{area.key4.%location of block%}%"
+				delete {area.key1.%location of block%}
+				delete {area.key2.%location of block%}
+				delete {area.key3.%location of block%}
+				delete {area.key4.%location of block%}
+				#message "%{area.key1.%location of block%}%%{area.key2.%location of block%}%%{area.key3.%location of block%}%%{area.key4.%location of block%}%"
+			give player a wood door
+
