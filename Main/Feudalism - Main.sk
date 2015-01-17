@@ -1,7 +1,4 @@
-command /fhelp:
-	trigger:
-		broadcast "TODO: add a help screen, credit, how to play (tutorial), buycraft page, kiste skal lage denne"
-		
+#Events		
 
 on weather change:
 	set weather to sun
@@ -13,3 +10,56 @@ on spread:
 on place:
 	block is glowstone
 	cancel event
+	
+#Commands	
+
+command /fhelp:
+	trigger:
+		broadcast "TODO: add a help screen, credit, how to play (tutorial), buycraft page, kiste skal lage denne"
+
+command /fullyClear [<player=%player%>] <text>:
+	aliases: fc
+	permission: op
+	trigger:
+		execute console command "clear %arg-1%"
+		set the helmet slot of arg-1 to air
+		set the chestplate slot of arg-1 to air
+		set the legs slot of arg-1 to air
+		set the boots slot of arg-1 to air
+		set the maximum health of arg-1 to 10
+		set the health of arg-1 to 20
+		if "%arg-2%" isn't "Silent":
+			message "<green>Done!"
+command /setMainSpawn:
+	permission: op
+	trigger:
+		player's name is "kh498"
+		set {feu.mainSpawn} to the player's location
+		message "The main spawn point is now at: %{feu.mainSpawn}%"
+#Quick option menu
+			
+on click with clock:
+    show "s;9;i;shears;n;Death;l;Kill yourself;c;resetplayer %player% requested" with 1 row named "Thingy" to player
+
+on click with shears:
+	clock's name is "Death"
+	kill the player
+	#force player to spawn
+on skript load:
+	set {feu.version} to "0.0.1 pre-pre-alpha"
+#Unknown
+
+on chat:
+	player is op
+	message is "1":
+		set {helmet.%player%} to "%helmet of the player%"
+		set {chestplate.%player%} to "%chestplate of the player%"
+		set {legging.%player%} to "%legging of the player%"
+		set {boots.%player%} to "%boots of the player%"
+		Message "1"
+	message is "2":
+		equip the player with {helmet.%player%} parsed as item
+		equip the player with {chestplate.%player%} parsed as item
+		equip the player with {legging.%player%} parsed as item
+		equip the player with {boots.%player%} parsed as item
+		Message "2"
