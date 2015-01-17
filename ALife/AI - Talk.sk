@@ -1,14 +1,30 @@
+script options:
+    $ developer mode
+
+	
 on rightclick on entity:
-	#Test entity to check if this works
-	#message "eti nam: %entity's name%"
-	#message "var: %{AL.NPC::%entity's name%}%"
-	#replace all spaces with "_" or have no last name? 
-	#if "%entity's name%" is "%{AL.NPC::%entity's name%}%":
-	#	cancel event
-	#	set {_AL.talk} to a random integer between 1 and 4
-	#	message "<green>%entity's name%<r>: %{AL.talk.mood.%{AL.mood.%entity's name%}%::%{_AL.talk}%}%"
-	#else:
 	entity is a villager
+	cancel event
+	while clicked entity exists:
+		if block below clicked entity is diamond:
+			message "villager is standing on the block"
+		else:
+			message "nope"
+		if {_i} exists:
+			if {_i} is 14:
+				set {_i} to 1
+			else:
+				add 1 to {_i}
+		else:
+			set {_i} to 1
+
+		
+		make clicked entity pathfind to {AL.nodes::%{_i}%} with speed 1
+		message "<gold>changing path to %{_i}%"
+		message "%direction from clicked entity's location to {AL.nodes::%{_i}%}%"
+		#teleport player to clicked entity's location
+		wait 15 tick
+	stop
 	if entity's name exists:
 		set {_DataName} to entity's name
 		if entity's name contains "[<gold>*<r>]<green>":		
@@ -29,3 +45,9 @@ on rightclick on entity:
 			message "%entity's name%: %{AL.talk.mood.squadLeaderFalse::%{_AL.talk}%}%"
 			message "%{_DataName}%"
 			
+command /fixNPC:
+	aliases: /fn, /ffn
+	permission: op
+	trigger:
+		execute console command "reload"
+		execute console command "killall mobs Feudalism_4"

@@ -38,60 +38,9 @@ on place:
 		set {feu.maxRadius.%player%} to 20
 		set {feu.maxArea.%player%} to 1
 		set {feu.setArea.%player%} to 1
-	#!!!
-	#!!!
-	message "TODO make a region without using WE and WG"
-	message "Use the command '/testArea' for now (alias: '/ta'"
-	#!!!
-	#!!!
-	
-	stop
-		
-		
-	#TODO:
-	
-	#DONE!
-	execute console command "manuaddp %player% worldedit.selection.hpos"
-	teleport player to {_blockLoooking}
-	execute player command "//hpos1"
-	teleport player to {_blockLoooking}
-	execute player command "//hpos2"
-	execute console command "manudelp %player% worldedit.selection.hpos"
-	execute console command "manuaddp %player% worldedit.selection.expand"
-	open the player's inventory for the player
-	execute player command "//expand %{feu.maxRadius.%player%}% %{feu.maxRadius.%player%}% west"
-	open the player's inventory for the player
-	execute player command "//expand %{feu.maxRadius.%player%}% %{feu.maxRadius.%player%}% north"	
-	open the player's inventory for the player
-	
-	#TODO: Limit where the area can be placed, eg. not in a mountain or underground (height difference)
-	
-	#TODO: Create a wooden wall around the base
-	
-	#TODO
-	execute player command "//expand vert"
-	close the player's inventory
-	execute console command "manudelp %player% worldedit.selection.expand"
-	execute console command "manuaddp %player% worldguard.region.claim"
-	
-	#TODO
-	execute player command "/region claim %player%-%{feu.setArea.%player%}%"
-	execute console command "manudelp %player% worldguard.region.claim"
-	
-	#TODO
-	set block at block's location to pumpkin
-	set {feu.area.pumpkin.%block's location%} to player's name
-	
-	if player is op:
-		execute player command "//walls 20"
-		message "the walls will soon be removed automaticly, do NOT use ANY WE commands!"
-		wait 10 seconds
-		message "Removing the wall!!"
-		execute player command "//undo"
-	
 	
 command /maxRegions <integer> [<player=%player%>]:
-	permission: op
+	permission: feu.admin.setMaxRegions
 	aliases: /mr, /fmr
 	trigger:
 		set {feu.maxArea.%arg-2%} to arg-1
@@ -100,7 +49,7 @@ command /maxRegions <integer> [<player=%player%>]:
 	
 command /testArea:
 	aliases: /ta, fta
-	permission: op
+	permission: feu.tech.test
 	trigger:
 		add 1 to {test.runs}
 		set {_center} to player's location
@@ -286,10 +235,20 @@ command /testArea:
 			message "<green>New direction is <red>%{_dir}%"
 			
 		message "<green>Command executed without any errors!"
+		message "Second test initiated"
+		player's x-coordinate is greater than {_cornerNW}
+		message "1"
+		player's x-coordinate is less than {_cornerNE}
+		message "2"
+		player's z-coordinate is less than {_cornerSW}
+		message "3"
+		player's z-coordinate is greater than {_cornerSE}
+		message "Works!"
+
 		
 		
 command /diecobble:
-	permission: op
+	permission: feu.tech.dieCobble
 	aliases: /dc, /fdc
 	trigger:
 		set {_location} to player's location
@@ -310,6 +269,7 @@ command /diecobble:
 		message "Removed %{_count}% blocks"
 
 command /test:
+	permission: feu.tech.test2
 	trigger:
 	#	set {_newDir} to 
 		set block {_newDir} above {_corner%{_dir}%} to cobblestone
@@ -317,8 +277,8 @@ command /test:
 on place:
 	block is door
 	player's world is {@enabledWorlds}
-	block below block isn't piston:
-		message "You have to do this in a doorframe! On a piston"
+	block below block isn't note block:
+		message "You have to do this in a doorframe! On a note block!"
 		cancel event
 	
 	
@@ -335,7 +295,7 @@ on click:
 		else:
 			message "<red>You have to hold a key to unlock this door!(sign)"
 			cancel event
-	else if block is piston:
+	else if block is note block:
 		player is holding a door:
 			cancel event
 			set block above block to door
@@ -412,7 +372,7 @@ on click:
 		set block at {_orgt} to oak wood	
 command /hoes <text> <text>:
 	usage: /hoes <wood|w|stone|s|iron|i> <name>
-	permission: op
+	permission: feu.mod.SpawnHose
 	trigger:
 		if arg-1 is "w" or "wood" or "wooden":
 			give player a wooden hoe named "%arg-2%"

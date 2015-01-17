@@ -1,0 +1,38 @@
+script options:
+    $ developer mode
+#every 3 seconds:
+#	make a entity go to the next walk node
+#	if entity is at the right walk node
+#		check if everyone in squad is there, and no one is dead
+#	else wait for the squad is filled up
+	
+
+command /setNode:
+	aliases: /sn, /fsn
+	permission: op
+	trigger:
+		add location at player to {AL.nodes::*}
+		set block below player to diamond block
+		message "&dNode added at %location at player%"
+	#	delete {AL.nodes::*}
+
+command /deleteNode:
+	aliases: /dn, /fdn
+	permission: op
+	trigger:
+		remove location at player from {AL.nodes::*}
+		set block below player to grass block
+		message "&dNode removed from %location at player%"
+		
+command /deleteAllNodes:
+	aliases: /dan, /fdan
+	permission: op
+	trigger:		
+		clear {AL.nodes::*}
+		message "&dAll nodes cleared!"
+	
+#every 3 seconds:
+#	loop {AL.NPC::*}:
+#		#make 
+				
+		
