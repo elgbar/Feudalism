@@ -29,7 +29,6 @@ on script load:
 	
 on break:
 	if block is {@MultiBlocksAir} or {@MultiBlocksStone}:
-		#prevents the block from dropping anything
 		set {_place} to the block's location
 		set {_block} to the block at {_place}
 		set {_blockID} to the id of {_block}
@@ -40,7 +39,9 @@ on break:
 		if {_block} is spruce wood, acacia wood, dark oak wood or birch wood:
 			if player is holding an axe:
 				cancel event
-				
+				#prevents the block from dropping anything
+				{@debug} is true:
+					message "Block is wood"
 				set {_loopNR} to 0
 				
 				if block below {_block} is wood:
@@ -153,22 +154,32 @@ on break:
 				
 		if block isn't wood:
 			set {feu.timer.%{_blockID}%.%{_place}%} to now
-			add the block's location to {feu.coord.%{_blockID}%::*}
+			add the block's location to {feu.coord.%{_blockID}%::*}			
 		if {_block} is coal ore:
 			give coal to the player
+			{@debug} is true:
+				message "Giving coal to the player"
 		else if {_block} is gravel:
 			if {feu.chance.%{_blockID}%.%player%} doesn't exist:
 				set {feu.chance.%{_blockID}%.%player%} to 0
 			if {feu.chance.%{_blockID}%.%player%} is 0:
 				drop gravel
-				message "<red>I have no idea what i'm doing..."
+				message "<red>I need a higher level for this..."
 				stop
-			else if chance of {feu.chance.%{_blockID}%.%player%}%:#% <-- prevents flooding when using skript language file
+			else if chance of {feu.chance.%{_blockID}%.%player%}%:#%# <-- prevents flooding when using skript language file
 				give player cobblestone
+				{@debug} is true:
+					message "Giving cobble to the player"
 			else:
 				drop gravel
-		else if {_u} is "spruce wood block", "south-north spruce wood block" or "west-east spruce wood block":
+				{@debug} is true:
+					message "Dropping gravel"
+			stop
+		else if {_u} is "spruce wood block", "north-south spruce wood block" or "east-west spruce wood block":
 			give oak wood to the player
+			{@debug} is true:
+				message "Giving oak to the player"
+			stop
 		else if {_block} is air:
 			message "{@prefix} {@err}: An error accrued while trying to give you the block! contact an operator to get this sorted out!"
 			player is op
@@ -179,6 +190,8 @@ on break:
 			log "error at %{_place}% block is %{_block}%, but blockID show something else (ID %{_blockID}%)"
 		else:	
 			give {_block} to the player
+			{@debug} is true:
+				message "Giving %{_block}% to the player"
 	else:
 		if player doesn't have permission "feu.dig":
 		#those with permission can break any block

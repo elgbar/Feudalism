@@ -11,6 +11,7 @@ on place:
 	block is glowstone
 	cancel event
 	
+	
 #Commands	
 
 command /fhelp:
@@ -45,8 +46,12 @@ on click with shears:
 	clock's name is "Death"
 	kill the player
 	#force player to spawn
+	
+	
 on skript load:
-	set {feu.version} to "0.0.1 pre-pre-alpha"
+	set {feu.version} to "0.0.1 Build 2"
+	
+	
 #Unknown
 
 on chat:
@@ -63,3 +68,6 @@ on chat:
 		equip the player with {legging.%player%} parsed as item
 		equip the player with {boots.%player%} parsed as item
 		Message "2"
+on combust:
+	entity is zombie
+	cancel event

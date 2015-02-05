@@ -1,9 +1,6 @@
-<<<<<<< HEAD
-Current stage: 0
-=======
-Currently stage: 0
 
->>>>>>> origin/master
+Current stage: 1
+
 ---
 Stage 1: Main goal of the stage: early playable game
 
@@ -46,7 +43,7 @@ enemies far away from player get killed
 Building:
 
 Plot pole 30m
-<<<<<<< HEAD
+
 Wooden wall, doorway and window 
 when placing a wall it loops blocks in 30m radius (bad coding at first) and finding a plot pole it loops all blocks within the wall and adds them to something like {feu.building.%loop-block-location}. When trying to break a plank block with an e-tool it breaks the whole wall at once, but it takes a loong time! changing one block at a time to spruce wood, when there are none oak blocks left it will break the wall
 
@@ -60,7 +57,6 @@ How this works:
 
 when placing a wall it loops blocks in 30m radius (bad coding at first) and finding a plot pole it loops all blocks within the wall and adds them to something like {feu.building.%loop-block-location}. When trying to break a plank block with an e-tool it breaks the whole wall at once, but it takes a loong time! changing one block at a time to spruce wood, when there are none oak blocks left it will break the wall
 
->>>>>>> origin/master
 ---
 stage 3: - Main goal of the stage: Alife
 
