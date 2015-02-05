@@ -44,27 +44,20 @@ command /spawnCostumsZombies <integer> [<text="none">] [<text="none">]:
 			message "<red>Wrong argument! <light red>The entity is spawned with no arms!"
 			
 		#Health	
-			
-		set {_health} to 5*arg-1^3
+		set {_arg} to arg-1
+		set {_health} to 16.09*{_arg}^0.38
 		#message "%{_health}%"
-		set the maximum health of the last spawned entity to {_health}
-		set health of the last spawned entity to {_health}
-			
-command /testHealth <integer>:
-	aliases: th
-	trigger:
-		spawn a zombie north of the player
-		set {_health} to 5*arg-1^3
-		message "%{_health}%"
-		set the maximum health of the last spawned entity to {_health}
-		set health of the last spawned entity to {_health}
+		set the maximum health of the last spawned entity to {_health}/2
+		set health of the last spawned entity to {_health}/2
 		
-on damage of zombie:
-	attacker is a player
-	set {_OldName} to "%name of victim%"
-	replace all "LvL ", " Health - " and " Zombie" with "" in {_OldName}
-	message "%{_OldName}%" to the attacker
-	
+command /th <integer>:
+	#to calculate properly you need to set the argument to a variable!
+	permission: aefj
+	trigger:
+		set {_arg} to arg-1
+		message "arg: %arg-1%"
+		message "all: %{_message}%"
+		
 command /testEverything <integer> <text> <text>:
 	permission: op
 	aliases: te
@@ -75,20 +68,59 @@ command /testEverything <integer> <text> <text>:
 		set {feu.testspawn.armour.%player's location%} to arg-2
 		set {feu.testspawn.weapon.%player's location%} to arg-3
 		
-every 10 second in "Feudalism_4":
+every 30 second in "Feudalism_4":
+	#stop
 	#broadcast "spawning"
 	loop {feu.testspawn::*}:
 		#broadcast "test 1 | %loop-value%"
-		#spawn a zombie at 
+		spawn a zombie at loop-value
 		set the name of last spawned entity to "d"
+		kill last spawned entity
+		set {_players} to 0
 		loop players in radius 20 around last spawned entity:
 			add 1 to {_players} 
-			broadcast "test 2 | players: %{_players}%"			
+			#broadcast "test 2 | players: %{_players}%"			
 			if {_players} is greater than 0:
-				#kill zombies named "d"
-				spawn a zombie at loop-value-1
-				execute console command "spawnCostumsZombies %{feu.testspawn.lvl.%loop-value-1%}% %{feu.testspawn.armour.%loop-value-1%}% %{feu.testspawn.weapon.%loop-value-1%}%"
-	#broadcast "spawning stopped"		
+				spawn a zombie at loop-value-1			
+				set the name of last spawned entity to "LvL %{feu.testspawn.lvl.%loop-value-1%}% Zombie"
+				
+				if {feu.testspawn.armour.%loop-value-1%} is "leather":
+					equip last spawned entity with all leather armour			
+				else if {feu.testspawn.armour.%loop-value-1%} is "chain":
+					equip last spawned entity with all chain armour
+				else if {feu.testspawn.armour.%loop-value-1%} is "iron":
+					equip last spawned entity with all iron armour
+				else if {feu.testspawn.armour.%loop-value-1%} is "gold":
+					equip last spawned entity with all gold armour	
+				else if {feu.testspawn.armour.%loop-value-1%} is "diamond":
+					equip last spawned entity with all diamond armour
+				else if {feu.testspawn.armour.%loop-value-1%} is "none":
+					equip last spawned entity with all air
+				else:
+					log "An error was retuned from auto spawn at %loop-value-1%: <red>Wrong argument! <light red>The entity is spawned with no armour!"
+			
+				#Weapon	
+			
+				if {feu.testspawn.weapon.%loop-value-1%} is "wooden":
+					set tool of the last spawned entity to a wooden sword
+				else if {feu.testspawn.weapon.%loop-value-1%} is "stone":
+					set tool of the last spawned entity to a stone sword	
+				else if {feu.testspawn.weapon.%loop-value-1%} is "iron":
+					set tool of the last spawned entity to a iron sword	
+				else if {feu.testspawn.weapon.%loop-value-1%} is "gold":
+					set tool of the last spawned entity to a gold sword
+				else if {feu.testspawn.weapon.%loop-value-1%} is "diamond":
+					set tool of the last spawned entity to a diamond sword
+				else if {feu.testspawn.weapon.%loop-value-1%} is "none":
+					set tool of the last spawned entity to air
+				else:
+					log "An error was retuned from auto spawn at %loop-value-1%: <red>Wrong argument! <light red>The entity is spawned with no arms!"
+
+				set {_arg} to {feu.testspawn.lvl.%loop-value-1%}
+				set {_health} to 16.09*{_arg}^0.38
+				set the maximum health of the last spawned entity to {_health}/2
+				set health of the last spawned entity to {_health}/2
+				#execute console command "spawnCostumsZombies %{feu.testspawn.lvl.%loop-value-1%}% %{feu.testspawn.armour.%loop-value-1%}% %{feu.testspawn.weapon.%loop-value-1%}%"	
 			
 			
 			

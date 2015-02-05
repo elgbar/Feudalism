@@ -136,8 +136,11 @@ on break:
 				
 		else if {_block} is ore:
 			if player is holding an pickaxe:
-				cancel event				
-				set block to stone
+				cancel event	
+				if {@treeReplacer} is air:
+					set block to stone
+				else:
+					set block to air
 			else:
 				cancel event
 				message "<red>Use a pickaxe on ores!"
@@ -146,7 +149,7 @@ on break:
 		else if block is gravel:
 			if player is holding a shovel:
 				cancel event				
-				set block to air
+				set block to {@treeReplacer}
 			else:
 				cancel event
 				message "<red>Use a shovel on gravel!"

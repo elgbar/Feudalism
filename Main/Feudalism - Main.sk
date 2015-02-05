@@ -49,7 +49,7 @@ on click with shears:
 	
 	
 on skript load:
-	set {feu.version} to "0.0.1 Build 2"
+	set {feu.version} to "0.1.0 Build 1"
 	
 	
 #Unknown

@@ -1,5 +1,9 @@
 options:
-	debug: true
+	debug: false
+	
+	prefix: <gold>[&aFeudalism<gold>]<r>
+	warn: <gold>[&aFeudalism<gold>]<r> <yellow>WARNING
+	err: <gold>[&aFeudalism<gold>]<r> <red>ERROR
 #events
 on join:
 	if name of player is equal to {resetPlayer::*}:
@@ -88,77 +92,49 @@ command /resetPlayer <text="help"> [<text="help">]:
 		
 
 #XP system
+on experience spawn:
+	cancel event
 
-on death of a zombie:
+on death of zombie:
+	clear drops
 	attacker is a player
 	set {_victim level} to "%name of victim%"
 	replace all "LvL " and " Zombie" with "" in {_victim level} 
 	set {_victim level} to {_victim level} parsed as number
-	message "1"
-	add 2*{_victim level}^1.1 to {feu.currXP.%arg-1%}
-
-	if {feu.currXP.%player%} is greater than {feu.maxXP.%player%}:
-		add 1 to {feu.level.%player%}
-		set player's level to {feu.level.%player%}
-		set level progress of the player to {feu.currXP.%player%}-{feu.maxXP.%player%}
-		set {feu.currXP.%player%} to 0
-		set {feu.maxXP.%player%} to ({feu.level.%player%}+300*(2^({feu.level.%player%}/10)))/4
-		loop all players in radius 20 around player:
-			message "%player% just levelled up!" to loop-player
+	if "%{_victim level}%" is equal to "<none>":
+		add 5 to {feu.currXP.%attacker%}
+		log "<yellow>WARNING: <r>Zombie at %attacker's location% isn't a custom spawned zombie"
 	else:
-		set {_math1} to ({feu.currXP.%player%}/{feu.maxXP.%player%})*10000
-		add ({feu.maxXP.%player%}*{feu.currXP.%player%})/100 to the player's level progress 
-	{@debug} is true:
-		message "curr XP: %{feu.currXP.%arg-1%}%"
-		message "Max XP: %{feu.maxXP.%arg-1%}%"
-		message "Level: %{feu.level.%arg-1%}%"
-		message "presentage till next lvl: %{_math1}%"
-	stop
-		
-	if {_victim level} is equal to 3 or 4:		
-		set {_feu.xp.%attacker%} to 0.25*({feu.level.%attacker%}+1)^(-0.8)
-		add {_feu.xp.%attacker%} to the attacker's level progress
-		add {_feu.xp.%attacker%} to {feu.level.%attacker%}
+		add 5+{_victim level}^0.3 to {feu.currXP.%attacker%}
+	if {feu.currXP.%attacker%} is greater than {feu.maxXP.%attacker%}:
+		add 1 to {feu.level.%attacker%}
+		set attacker's level to {feu.level.%attacker%}
+		set level progress of the attacker to 0
+		set {feu.oldMaxXP.%attacker%} to {feu.maxXP.%attacker%}
+		set {feu.maxXP.%attacker%} to (({feu.level.%attacker%}+300*(2^({feu.level.%attacker%}/10)))/4)+{feu.oldMaxXP.%attacker%}
+		loop all players in radius 20 around attacker:
+			message "%attacker% just leveled up!" to loop-player
 		{@debug} is true:
-			message "XP lvl: %{feu.level.%attacker%}%" to the attacker
-			message "XP gained: %{_feu.xp.%attacker%}%" to the attacker	
-			message "Killed a %name of victim%" to the attacker
-	else if {_victim level} is between 4 and 7:		
-		set {_feu.xp.%attacker%} to 0.25*({feu.level.%attacker%}+1)^(-0.8)
-		add {_feu.xp.%attacker%} to the attacker's level progress
-		add {_feu.xp.%attacker%} to {feu.level.%attacker%}
-		{@debug} is true:
-			message "XP lvl: %{feu.level.%attacker%}%" to the attacker
-			message "XP gained: %{_feu.xp.%attacker%}%" to the attacker	
-			message "Killed a %name of victim%" to the attacker	
+			message "max: %{feu.maxXP.%attacker%}%"
+			message "curr: %{feu.currXP.%attacker%}%"
+			message "level: %{feu.level.%attacker%}%"
+			message "old max: %{feu.oldMaxXP.%attacker%}%"				
 	else:
-		set {_feu.xp.%attacker%} to 0.3*({feu.level.%attacker%}+1)^(-0.8)
-		add {_feu.xp.%attacker%} to the attacker's level progress
-		add {_feu.xp.%attacker%} to {feu.level.%attacker%}
+		set {feu.XPtoNextLevel.%attacker%} to {feu.maxXP.%attacker%}-{feu.currXP.%attacker%}		
+		if {feu.level.%attacker%} isn't 1:
+			set {_newMax} to {feu.maxXP.%attacker%}-{feu.oldMaxXP.%attacker%}
+			set {_newCurr} to {feu.currXP.%attacker%}-{feu.oldMaxXP.%attacker%}
+			set {_temp} to {_newCurr}/{_newMax}		
+		else:
+			set {_temp} to {feu.currXP.%attacker%}/{feu.maxXP.%attacker%}
+		set the attacker's level progress to {_temp}
 		{@debug} is true:
-			message "XP lvl: %{feu.level.%attacker%}%" to the attacker
-			message "XP gained: %{_feu.xp.%attacker%}%" to the attacker
-		
-on death of a skeleton:
-	attacker is a player
-	set {_feu.xp.%attacker%} to 0.4*({feu.level.%attacker%}+1)^(-0.8)
-	add {_feu.xp.%attacker%} to the attacker's level progress
-	add {_feu.xp.%attacker%} to {feu.level.%attacker%}
-	{@debug} is true:
-		message "XP lvl: %{feu.level.%attacker%}%" to the attacker
-		message "XP gained: %{_feu.xp.%attacker%}%" to the attacker
-		
-on death of a spider:
-	attacker is a player
-	set {_feu.xp.%attacker%} to 0.35*({feu.level.%attacker%}+1)^(-0.8)
-	add {_feu.xp.%attacker%} to the attacker's level progress
-	add {_feu.xp.%attacker%} to {feu.level.%attacker%}
-	{@debug} is true:
-		message "XP lvl: %{feu.level.%attacker%}%" to the attacker
-		message "XP gained: %{_feu.xp.%attacker%}%" to the attacker
-		
+			set {_precent} to {_temp}*100
+			message "You're at %{_precent}%%%"
+			Message "And you need %{feu.XPtoNextLevel.%attacker%}% till next level"
+			
 command /addXP <integer=5>:
-	#permission: feu.admin
+	permission: feu.admin
 	usage: /addXP <XP gained>
 	trigger:
 		add arg-1 to {feu.currXP.%player%}
@@ -169,6 +145,7 @@ command /addXP <integer=5>:
 			#set {feu.currXP.%player%} to 0
 			set {feu.oldMaxXP.%player%} to {feu.maxXP.%player%}
 			set {feu.maxXP.%player%} to (({feu.level.%player%}+300*(2^({feu.level.%player%}/10)))/4)+{feu.oldMaxXP.%player%}
+			set {feu.currXP.%player%} to {feu.oldMaxXP.%player%}
 			#loop all players in radius 20 around player:
 			message "%player% just levelled up!"# to loop-player
 			{@debug} is true:
@@ -190,7 +167,7 @@ command /addXP <integer=5>:
 			set the player's level progress to {_temp}
 			{@debug} is true:
 				set {_precent} to {_temp}*100
-				message "You've just got %{_precent}%%%"
+				message "You're at %{_precent}%%%"
 				Message "And you need %{feu.XPtoNextLevel.%player%}% till next level"
 
 command /stats [<player=%player%>]:
@@ -201,11 +178,15 @@ command /stats [<player=%player%>]:
 		message "Current Level: %{feu.level.%player%}%"
 		message "Amount of XP need for next level: %{feu.maxXP.%player%}%"
 		message "XP needed for next level: %{feu.XPtoNextLevel.%arg-1%}%"
-		message ""
-		
+
+On Level Change:
+	player's level isn't equal to {feu.level.%player%}:
+		Message "{@warn} Something went wrong! Your level shifted unexpectedly!"
+		log "%player%'s level just changed unexpectedly"
+		set player's level to {feu.level.%player%}
 		
 command /levelup <integer>:
-	#permission: feu.admin
+	permission: feu.admin
 	aliases: lvlup
 	trigger:
 		#set {_arg-1} to arg-1 phased as a number
