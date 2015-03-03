@@ -1,0 +1,132 @@
+options:
+	debug: false
+	
+	prefix: <gold>[&aFeudalism<gold>]<r>
+	warn: <gold>[&aFeudalism<gold>]<r> <yellow>WARNING:<light red>
+	err: <gold>[&aFeudalism<gold>]<r> <red>ERROR:<light red>
+
+#Commands
+command /resetPlayer <text="help"> [<text="help">]:
+	usage: /resetPlayer <player> [<hacker|reboot|requested>]
+	permission: feu.tech.reset
+	trigger:
+		if arg-2 or arg-1 is "help":
+			message "usage: /resetPlayer <player> [<hacker|reset|requested>]"
+			stop
+		else if arg-2 is "hacker" or "hack" or "h":
+			message "<light red>You have been reset because of <red>hacking<light red>!" #to arg-1
+			message "<light red>If you think this is a mistake apply for a pardon here:<gold> ""need-link.now""" #to arg-1
+		else if arg-2 or arg-1 is "reset":
+			#player's name is "kh498"
+			broadcast "{@prefix} Every player will be reset, we are sorry for the inconvenience"
+			delete {allplayers::*}
+		else if arg-2 is "request" or "requested" or "r":
+			message "Your application for reset has been approved! Please relog for the changes to take effect."# to arg-1
+		else:
+			message "wrong arguments!"
+			execute player command "resetPlayer"
+			stop
+		add arg-1 to {resetPlayer::*}
+				
+command /fullyClear [<player=%player%>] <text>:
+	aliases: fc
+	permission: feu.mod
+	trigger:
+		execute console command "clear %arg-1%"
+		set the helmet slot of arg-1 to air
+		set the chestplate slot of arg-1 to air
+		set the legs slot of arg-1 to air
+		set the boots slot of arg-1 to air
+		set the maximum health of arg-1 to 10
+		set the health of arg-1 to 20
+		if "%arg-2%" isn't "Silent":
+			message "<green>Done!"
+			
+command /setup <player>:
+	aliases: su
+	permission: op
+	trigger:
+		#make sure the arg-1 is really reset
+		{@debug} is false:			
+			deop the arg-1 
+		set gamemode of arg-1 to survival
+		execute console command "manudel %arg-1%"
+		execute console command "fc %arg-1% Silent" #fully clear
+		#broadcast "<magenta>Welcome <b>%arg-1%<r><magenta> to Feudalism!"
+		set the maximum health of the arg-1 to 10
+		execute console command "god %arg-1% disable"	
+		
+		#Setup the arg-1
+		set {feu.level.%arg-1%} to 1
+		set arg-1's level to {feu.level.%arg-1%}
+		set level progress of the arg-1 to 0
+		set {feu.maxXP.%arg-1%} to 80
+		set {feu.currXP.%arg-1%} to 0
+		set {feu.XPtoNextLevel.%arg-1%} to {feu.maxXP.%arg-1%}
+		#armour & weapon
+		give a wooden sword named "<yellow>Old Rotten Sword" to the arg-1
+		
+		equip the arg-1 with leather helmet named "<yellow>Decayed Leather Helmet"
+		equip the arg-1 with leather chestplate named "<yellow>Decayed Chestplate"
+		equip the arg-1 with leather leggings named "<yellow>Decayed Leggings"
+		equip the arg-1 with leather boots named "<yellow>Decayed Boots"
+		teleport arg-1 to {feu.mainSpawn}
+		
+#Events
+
+on death of player:	
+	set death message to ""
+	set {feu.xpBar.%player%} to level progress of the player
+	#if you loose your inventory use the command:
+	#/gamerule keepInventory true
+
+on respawn:
+	wait 2 tick
+	set player's level to {feu.level.%player%}
+	increase level progress of the player by {feu.xpBar.%player%}
+
+on hunger meter change:
+	set hunger of player to 10
+	
+on quit:
+	set leave message to ""	
+	
+on damage:
+	wait 2 tick
+	repair the attacker's tool
+
+on join:
+	if name of player is equal to {resetPlayer::*}:
+		execute console command "setup %name of player%"
+		remove name of player from {resetPlayer::*}
+		Message "{@prefix} You have now been reset!"
+	loop {allplayers::*}:
+		if "%{allplayers::%loop-index%}%" is equal to "%name of player%":
+			add 1 to {_players}
+		message "%{_players}%" to console
+	if {_players} is equal to 1:
+		set join message to ""
+		Message "<light green>Welcome back %player%" to player
+		if player has permission "feu.mod.extraInfo":
+			message "<gold>Current version: <red>%{feu.version}%"
+			if player is op:
+				set {_feu.permissionLevel.%player%} to "Op"
+			else if player has permission "feu.admin.*":
+				set {_feu.permissionLevel.%player%} to "Fully Administrator"
+			else if player has permission "feu.tech.*":
+				set {_feu.permissionLevel.%player%} to "Fully technician"
+			else if player has permission "feu.mod.*":
+				set {_feu.permissionLevel.%player%} to "Fully Moderator"
+			else:
+				set {_feu.permissionLevel.%player%} to "Unknown/not fully of any of the above :/"
+			message "<gold>Your current permission level: <red>%{_feu.permissionLevel.%player%}%"					
+		stop
+	else if {_players} is greater than 1:
+		kick player due to "Multiple entries in list of players - try to log back in again."
+		remove name of player from {allplayers::*}
+		message "{@err} A player has been added multiple times to the allplayers varable!" to console
+	else:
+		message "<red>Else triggered" to console
+		set join message to "<magenta>Welcome <b>%player%<r><magenta> to Feudalism!"
+		add "%name of player%" to {allplayers::*}
+		execute console command "setup %name of player%"	

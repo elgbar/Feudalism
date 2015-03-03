@@ -1,4 +1,6 @@
 options:
+	debug: false
+
 	#different blocks and IDs used to different things
 	allowedBlocks: oak wood, any plank, any glass, any glass pane, crafting table, any door, any button, any stairs, any slabs, any furnace, chest, fence, air, cobble or torch
 	MultiBlocksAir: spruce wood or gravel
@@ -12,8 +14,6 @@ options:
 	war: <yellow>WARNING
 	err: <red>ERROR
 	
-	debug: false
-	
 	#set to stone to remove trees. Default: air
 	treeReplacer: air
 	
@@ -24,10 +24,45 @@ options:
 	#4: reload/stop server
 	#5: set treeReplacer to air and repeat step 2
 	
+#Commands
+
+command /mine <integer> [<player=%player%>]:
+	description: set the percent (from 0 to 100) of the mining of gravel
+	permission: feu.mine.commands
+	trigger:
+		if arg-1 is less than 0:
+			message "<red>I'm afraid I cannot go that low"
+		else if arg-1 is greater than 100:
+			message "<red>IT'S OVER 9000(-8900). Too high!"
+		else:
+			set {feu.chance.stone.%arg-2%} to arg-1
+			message "<green>%arg-2%'s chance at mining stone from gravel is now:<gold> %arg-1%"
+			
+command /fix <item>:
+	permission: feu.fix
+	usage: /fix <{@blocks}>
+	trigger:
+		if arg-1 is {@blocks}:
+		#check if the block is correct
+			if the block below the player is {@blocks} or stone:
+			#check is the player is standing upon a "corruptBlock"
+				set the block below the player to arg-1
+			else:
+				Message "{@prefix} {@err}: Cannot fix the block below you!"
+				Message "<gold>Valid block to stand on:<red> {@blocks} or stone"
+				#say what's wrong
+		else:
+			Message "{@prefix} {@err}: That's not an allowed block to fix!"
+			Message "<gold>valid choices: <red>{@blocks}"
+	
+#Events	
+	
 on script load:
 	set {feu.blockID::*} to 13, 15, 16, 17 and 56
 	
 on break:
+	if block is green wool:
+		cancel event
 	if block is {@MultiBlocksAir} or {@MultiBlocksStone}:
 		set {_place} to the block's location
 		set {_block} to the block at {_place}
@@ -61,7 +96,7 @@ on break:
 						add location {_loopNR} below {_block}'s location to {feu.coord.%{_blockID}%::*}						
 						set {feu.data.%{_place2}%} to {_data2}
 						if {@treeReplacer} is air or stone:
-							set block {_loopNR} below {_block} to {@treeReplacer}
+							set block {_loopNR} below {_block} to green wool#{@treeReplacer}
 						else:
 							message "{@prefix} {@err}: &ctreeReplacer<red> is set to something else than  '&cstone<red>' or '&cair<red>'! Contact a staff member immediately"
 							stop
@@ -79,7 +114,7 @@ on break:
 						add location {_loopNR} above {_block}'s location to {feu.coord.%{_blockID}%::*}
 						set {feu.data.%{_place2}%} to {_data2}
 						if {@treeReplacer} is air or stone:
-							set block {_loopNR} above {_block} to {@treeReplacer}
+							set block {_loopNR} above {_block} to green wool#{@treeReplacer}
 						else:
 							message "{@prefix} {@err}: &ctreeReplacer<red> is set to something else than  '&cstone<red>' or '&cair<red>'! Contact a staff member immediately"
 							stop
@@ -97,7 +132,7 @@ on break:
 						add location {_loopNR} above {_block}'s location to {feu.coord.%{_blockID}%::*}
 						set {feu.data.%{_place2}%} to {_data2}
 						if {@treeReplacer} is air or stone:
-							set block {_loopNR} above {_block} to {@treeReplacer}
+							set block {_loopNR} above {_block} to green wool#{@treeReplacer}
 						else:
 							message "{@prefix} {@err}: &ctreeReplacer<red> is set to something else than  '&cstone<red>' or '&cair<red>'! Contact a staff member immediately"
 							stop
@@ -117,7 +152,7 @@ on break:
 						add location {_loopNR} below {_place} to {feu.coord.%{_blockID}%::*}						
 						set {feu.data.%{_place2}%} to {_data2}
 						if {@treeReplacer} is air or stone:
-							set block {_loopNR} below {_block} to {@treeReplacer}
+							set block {_loopNR} below {_block} to green wool#{@treeReplacer}
 						else:
 							message "{@prefix} {@err}: &ctreeReplacer<red> is set to something else than  '&cstone<red>' or '&cair<red>'! Contact a staff member immediately"
 
@@ -190,7 +225,7 @@ on break:
 			message "ID of the target block was %{_blockID}%"
 			message "Location of block is at %{_place}%"# or %{_place2}%"
 			message "data of block was %{_data}%"#""%{feu.data.%{_place2}%}%"",""%{_data}%"" or ""%{_data2}%"""
-			log "error at %{_place}% block is %{_block}%, but blockID show something else (ID %{_blockID}%)"
+			message "error at %{_place}% block is %{_block}%, but blockID show something else (ID %{_blockID}%)" to console
 		else:	
 			give {_block} to the player
 			{@debug} is true:
@@ -278,42 +313,7 @@ on skript stop:
 						set block below loop-value-2 to air
 				else if loop-value-1 is {@MBIDAir}:
 					set id of block at loop-value-2 to loop-value-1 
-			remove loop-value-2 from {feu.coord.%loop-value-1%::*}	
-	
-command /mine <integer> [<player=%player%>]:
-	description: set the percent (from 0 to 100) of the mining of gravel
-	permission: feu.mine.commands
-	trigger:
-		if arg-1 is less than 0:
-			message "<red>I'm afraid I cannot go that low"
-		else if arg-1 is greater than 100:
-			message "<red>IT'S OVER 9000(-8900). Too high!"
-		else:
-			set {feu.chance.stone.%arg-2%} to arg-1
-			message "<green>%arg-2%'s chance at mining stone from gravel is now:<gold> %arg-1%"
-			
-command /fix <item>:
-	permission: feu.fix
-	usage: /fix <{@blocks}>
-	trigger:
-		if arg-1 is {@blocks}:
-		#check if the block is correct
-			if the block below the player is {@blocks} or stone:
-			#check is the player is standing upon a "corruptBlock"
-				set the block below the player to arg-1
-			else:
-				Message "{@prefix} {@err}: Cannot fix the block below you!"
-				Message "<gold>Valid block to stand on:<red> {@blocks} or stone"
-				#say what's wrong
-		else:
-			Message "{@prefix} {@err}: That's not an allowed block to fix!"
-			Message "<gold>valid choices: <red>{@blocks}"
-			
-command /get:
-	permission: op
-	trigger:
-		give target block to the player
-		message "<green>BlockID/blockDATA: <gold>%target block's id%/%target block's data%"
+			remove loop-value-2 from {feu.coord.%loop-value-1%::*}				
 
 on physics:
 	block is gravel

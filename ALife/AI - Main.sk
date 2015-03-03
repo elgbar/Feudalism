@@ -1,9 +1,9 @@
 options:
 	debug: true
 	
-on join:
+#on join:
 	#TODO: removes all entities when the player disconnect
-	message "ALfie plugin have successfully been installed"
+	#message "ALfie plugin have successfully been installed"
 #on quit:
 	#TODO: remove all entities when
 	
@@ -32,4 +32,4 @@ On death of villager:
 #	attacker is a creeper:
 #		attacks then retreats, looping
 #	attacker is a skeleton:
-#		check if there are only skeletons or melee fighters alwell
+#		check if there are only skeletons or melee fighters as well

@@ -8,37 +8,26 @@ options:
 	
 	buildingMaterials: stone, planks, wood or cobblestone
 	
-script options:
-    $ developer mode
+#script options:
+#    $ developer mode
 	
-on place:
-	player's world is {@enabledWorlds}
-	block is pumpkin
-	set {_blockLoooking} to location of player
-	if {feu.setArea.%player%} is less than {feu.maxArea.%player%}:		
-		message "<green>You have choosen a place to build!"
-		Message "<green>To confirm click the sponge one more time the next 10 seconds"
-		add 1 to {feu.setArea.%player%}
-			
-	else if {feu.setArea.%player%} is greater than {feu.maxArea.%player%}:
-		message "<red>You can only have <gold>%{feu.maxArea.%player%}%<red> regions!"
-		set block at block's location to air or snow layer
-		give player a sponge
-		stop
-		
-	else if {feu.setArea.%player%} is equal to {feu.maxArea.%player%}:
-		message "<red>You can only have <gold>%{feu.maxArea.%player%}%<red> regions!"
-		set block at block's location to air or snow layer
-		give player a sponge
-		stop
-		
-	else:
-		set {feu.coordsSet.%player%} to false
-		set {feu.blockClicked.%player%} to now
-		set {feu.maxRadius.%player%} to 20
-		set {feu.maxArea.%player%} to 1
-		set {feu.setArea.%player%} to 1
+#Commands	
 	
+command /hoes <text> <text>:
+	usage: /hoes <wood|w|stone|s|iron|i> <name>
+	permission: feu.mod.SpawnHose
+	trigger:
+		if arg-1 is "w" or "wood" or "wooden":
+			give player a wooden hoe named "%arg-2%"
+		else if arg-1 is "stone" or "s":
+			give player a stone hoe named "%arg-2%"
+		else if arg-1 is "iron" or "i":
+			give player an iron hoe named "%arg-2%"
+		else:
+			message "Wrong argument!"
+			stop
+		message "You now have a hoe!"
+		
 command /maxRegions <integer> [<player=%player%>]:
 	permission: feu.admin.setMaxRegions
 	aliases: /mr, /fmr
@@ -244,8 +233,6 @@ command /testArea:
 		message "3"
 		player's z-coordinate is greater than {_cornerSE}
 		message "Works!"
-
-		
 		
 command /diecobble:
 	permission: feu.tech.dieCobble
@@ -260,19 +247,44 @@ command /diecobble:
 			else if loop-block is mossy cobblestone:
 				add 1 to {_count}
 				set loop-block to dirt		
-			else:
+			#else:
 				#Warning: LAG
-				{@debug} is true
-				add 1 to {_debugCount}
-				message "count: %{_count}%"
-				message "loop-block nr: %{_debugCount}%"
+				#{@debug} is true
+				#add 1 to {_debugCount}
+				#message "count: %{_count}%"
+				#message "loop-block nr: %{_debugCount}%"
 		message "Removed %{_count}% blocks"
-
-command /test:
-	permission: feu.tech.test2
-	trigger:
-	#	set {_newDir} to 
-		set block {_newDir} above {_corner%{_dir}%} to cobblestone
+		
+#Events		
+	
+on place:
+	player's world is {@enabledWorlds}
+	block is pumpkin
+	set {_blockLoooking} to location of player
+	if {feu.setArea.%player%} is less than {feu.maxArea.%player%}:		
+		message "<green>You have choosen a place to build!"
+		Message "<green>To confirm click the sponge one more time the next 10 seconds"
+		add 1 to {feu.setArea.%player%}
+			
+	else if {feu.setArea.%player%} is greater than {feu.maxArea.%player%}:
+		message "<red>You can only have <gold>%{feu.maxArea.%player%}%<red> regions!"
+		set block at block's location to air or snow layer
+		give player a sponge
+		stop
+		
+	else if {feu.setArea.%player%} is equal to {feu.maxArea.%player%}:
+		message "<red>You can only have <gold>%{feu.maxArea.%player%}%<red> regions!"
+		set block at block's location to air or snow layer
+		give player a sponge
+		stop
+		
+	else:
+		set {feu.coordsSet.%player%} to false
+		set {feu.blockClicked.%player%} to now
+		set {feu.maxRadius.%player%} to 20
+		set {feu.maxArea.%player%} to 1
+		set {feu.setArea.%player%} to 1
+	
 
 on place:
 	block is door
@@ -370,20 +382,7 @@ on click:
 			set block 2 west {_t} to oak planks
 			add 1 to {_newt}	
 		set block at {_orgt} to oak wood	
-command /hoes <text> <text>:
-	usage: /hoes <wood|w|stone|s|iron|i> <name>
-	permission: feu.mod.SpawnHose
-	trigger:
-		if arg-1 is "w" or "wood" or "wooden":
-			give player a wooden hoe named "%arg-2%"
-		else if arg-1 is "stone" or "s":
-			give player a stone hoe named "%arg-2%"
-		else if arg-1 is "iron" or "i":
-			give player an iron hoe named "%arg-2%"
-		else:
-			message "Wrong argument!"
-			stop
-		message "You now have a hoe!"
+
 #TODO: Remove the region
 on break:
 	player's world is {@enabledWorlds}
