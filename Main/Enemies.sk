@@ -106,7 +106,6 @@ command /setFixedZombieSpawn <integer> <text> <text>:
 		add 1 to {feu.fixedspawnID}
 		set {feu.fixedspawn.ID.%{_round Coords}%} to {feu.fixedspawnID}
 		set {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%{_round Coords}%}%} to false
-		set {feu.fixedspawn.IDtoLocation.%{feu.fixedspawn.ID.%{_round Coords}%}%} to "%{_round Coords}%"
 		message "LvL %arg-1% zombie with %arg-2% armour and %arg-3% sword will spawn here!"
 	
 command /removeFixedSpawns:
@@ -128,15 +127,7 @@ command /fixZombieSpawns <integer>:
 	usage: fzs <ID>
 	aliases: fzs
 	trigger:
-		set {_round Coords} to location of player
-		set {_x} to x coordinate of {_round Coords}
-		set {_y} to y coordinate of {_round Coords}
-		set {_z} to z coordinate of {_round Coords}
-		set x coordinate of {_round Coords} to floor({_x})
-		set y coordinate of {_round Coords} to floor({_y})
-		set z coordinate of {_round Coords} to floor({_z})
-		
-		if {feu.fixedspawn.isSpawned.%{_round Coords}%} exists:
+		if {feu.fixedspawn.isSpawned.%arg-1%} exists:
 			#message "%{feu.fixedspawn.isSpawned.%{_round Coords}%}%"
 			set {feu.fixedspawn.isSpawned.%arg-1%} to false
 			#message "%{feu.fixedspawn.isSpawned.%{_round Coords}%}%"
@@ -144,19 +135,11 @@ command /fixZombieSpawns <integer>:
 		else:
 			message "No variable here!"			
 			
-command /checkZombieSpawns:
-	aliases: czs
+command /checkZombieSpawns <integer>:
+	aliases: czs <ID>
 	trigger:
-		set {_round Coords} to location of player
-		set {_x} to x coordinate of {_round Coords}
-		set {_y} to y coordinate of {_round Coords}
-		set {_z} to z coordinate of {_round Coords}
-		set x coordinate of {_round Coords} to floor({_x})
-		set y coordinate of {_round Coords} to floor({_y})
-		set z coordinate of {_round Coords} to floor({_z})
-		
-		if {feu.fixedspawn.isSpawned.%{_round Coords}%} exists:
-			message "%{feu.fixedspawn.isSpawned.%{_round Coords}%}%"
+		if {feu.fixedspawn.isSpawned.%arg-1%} exists:
+			message "%{feu.fixedspawn.isSpawned.%arg-1%}%"
 		else:
 			message "No variable here!"
 #Events	
@@ -182,7 +165,7 @@ every 10 second in "Feudalism_4":
 			set {_loop-1} to loop-value
 			{@debug} is true:
 				message "%loop-index-1% | test 2 | players: %{_players}%" to console	
-			if {_players} is greater than 0:											
+			if {_players} is greater than 0:
 				if {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%loop-value-1%}%} is false:
 					{@debug} is true:
 						message "%loop-index-1% | Spawning a zombie" to console
@@ -205,13 +188,16 @@ every 10 second in "Feudalism_4":
 					else if {feu.fixedspawn.armour.%loop-value-1%} is "diamond":
 						equip last spawned entity with all diamond armour
 					else if {feu.fixedspawn.armour.%loop-value-1%} is "none":
-						equip last spawned entity with all air
+						set the helmet of the last spawned entity to air
+						set the chestplate of the last spawned entity to air
+						set the leggings of the last spawned entity to air
+						set the boots of the last spawned entity to air
 					else:
-						message "{@err} An error was retuned from auto spawn at %loop-value-1%: <red>Wrong argument! <light red>The entity is spawned with no armour!" to console
+						message "{@err} An error was retuned from auto spawn at %loop-value-1%: <yellow>Wrong argument! <light red>The entity is spawned with no armour! " to console
 			
 					#Weapon	
 			
-					if {feu.fixedspawn.weapon.%loop-value-1%} is "wooden":
+					if {feu.fixedspawn.weapon.%loop-value-1%} is "wooden" or "wood":
 						set tool of the last spawned entity to a wooden sword
 					else if {feu.fixedspawn.weapon.%loop-value-1%} is "stone":
 						set tool of the last spawned entity to a stone sword	

@@ -11,7 +11,7 @@ command /addXP <number=5> [<player=%player%>]:
 	permission: feu.admin
 	usage: /addXP <XP gained>
 	trigger:
-		if arg-1 is greater than 5000:
+		if arg-1 is greater than 2500:
 			message "{@err} You cannot add more than 1000 xp at a time!"
 			stop
 		message "you just gained %arg-1% xp" to arg-2
@@ -94,16 +94,21 @@ on death of zombie:
 	set {_victim level} to metadata value "Level" of victim
 	set {_Victim ID} to metadata value "ID" of victim
 	#message "%{feu.fixedspawn.isSpawned.%{feu.IDtoLocation.%{_victim level}%}%}%" to attacker
-	message "ID: %{_Victim ID}% | Lvl: %{_victim level}%" to attacker
+	#message "ID: %{_Victim ID}% | Lvl: %{_victim level}%" to attacker
 	if "%{_victim level}%" is equal to "<none>":
 		add 5 to {feu.currXP.%attacker%}
 		{@debug} is true:
 			message "{@warn} Zombie at %attacker's location% isn't a custom spawned zombie" to attacker
 	else:
+		#set {_victim level} to {_victim level} phrased as a number
+		#set {_victim level} to ({_victim level} ^ 1.1)
+		#message "%{_victim level}%" to attacker
+		#message "XP: %floor(5+{_victim level}^1.1)%" to attacker
 		set {_xp} to floor(5+{_victim level}^1.1)
 		add {_xp} to {feu.currXP.%attacker%}
 		{@debug} is true:
 			message "{@prefix} You gained <light green>%{_xp}%<r> xp" to attacker
+			
 		if 	"%{_victim ID}%" is equal to "<none>":
 			Message "{@warn} Didn't find any ID on the zombie." to attacker
 		else:			

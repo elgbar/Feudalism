@@ -14,7 +14,7 @@ command /setMainSpawn:
 #Events
 
 on skript load:
-	set {feu.version} to "0.1.0 Build 2"
+	set {feu.version} to "0.1.0 Build 3"
 	execute console command "gamerule keepInventory true"		
 	
 on weather change:
