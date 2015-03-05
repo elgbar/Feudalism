@@ -61,6 +61,8 @@ on script load:
 	set {feu.blockID::*} to 13, 15, 16, 17 and 56
 	
 on break:
+	if player is op:
+		stop
 	if block is green wool:
 		cancel event
 	if block is {@MultiBlocksAir} or {@MultiBlocksStone}:

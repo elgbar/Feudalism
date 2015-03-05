@@ -72,31 +72,33 @@ command /spawnCostumsZombies <integer> <text="Zombie"> [<text="default">] [<text
 		set the maximum health of the last spawned entity to {_health}
 		set health of the last spawned entity to {_health}
 		
-	
-command /test:
-	trigger:
-		set {_round Coords} to location of player
-		set {_x} to x coordinate of {_round Coords}
-		set {_y} to y coordinate of {_round Coords}
-		set {_z} to z coordinate of {_round Coords}
-		set x coordinate of {_round Coords} to floor({_x})
-		set y coordinate of {_round Coords} to floor({_y})
-		set z coordinate of {_round Coords} to floor({_z})
-		message "%{_round Coords}%"
-		
-		
 command /setFixedZombieSpawn <integer> <text> <text>:
 	usage: /sfzs <level> <Armour> <weapon>
 	permission: feu.tech
 	aliases: sfzs
 	trigger:
+		if arg-1 is less than 0:
+			message "{@err} You cannot set the level to less than 1!"
+			stop
+		else if arg-1 is greater than 1000:
+			message "{@err} An entity cannot be higher than level 1000!"
+			stop
+			
+		if arg-2 isn't "leather", "chain", "iron", "gold", "diamond", "none" or "air":
+			message "{@err} An entity cannot equip that type of armour!"
+			stop
+			
+		if arg-3 isn't "wood", "wooden", "stone", "iron", "gold", "diamond", "air" or "none":
+			message "{@err} An entity cannot hold that kind of weapon!"
+			stop
 		set {_round Coords} to location of player
 		set {_x} to x coordinate of {_round Coords}
 		set {_y} to y coordinate of {_round Coords}
 		set {_z} to z coordinate of {_round Coords}
-		set x coordinate of {_round Coords} to floor({_x})
-		set y coordinate of {_round Coords} to floor({_y})
-		set z coordinate of {_round Coords} to floor({_z})
+		set x coordinate of {_round Coords} to floor({_x})+0.5
+		set y coordinate of {_round Coords} to floor({_y})+0.5
+		set z coordinate of {_round Coords} to floor({_z})+0.5
+		
 		
 		add {_round Coords} to {feu.fixedspawn::*}
 		set block below player to iron block
@@ -108,12 +110,11 @@ command /setFixedZombieSpawn <integer> <text> <text>:
 		set {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%{_round Coords}%}%} to false
 		message "LvL %arg-1% zombie with %arg-2% armour and %arg-3% sword will spawn here!"
 	
-command /removeFixedSpawns:
+command /removeAllFixedSpawns:
 	permission: op
-	aliases: rfs
+	aliases: rafs
 	trigger:
 		loop {feu.fixedspawn::*}:
-			delete {feu.fixedspawn.IDtoLocation.%{feu.fixedspawn.ID.%loop-value%}%}
 			delete {feu.fixedspawn.lvl.%loop-value%}
 			delete {feu.fixedspawn.armour.%loop-value%}
 			delete {feu.fixedspawn.weapon.%loop-value%}
@@ -123,14 +124,36 @@ command /removeFixedSpawns:
 		delete {feu.fixedspawnID}
 		message "done!"
 		
+command /removeFixedSpawns:	
+	permission: op
+	aliases: rfs
+	trigger:
+		message "{@err} command not working!"
+		stop
+		set {_round Coords} to location of player
+		set {_x} to x coordinate of {_round Coords}
+		set {_y} to y coordinate of {_round Coords}
+		set {_z} to z coordinate of {_round Coords}
+		set x coordinate of {_round Coords} to floor({_x})+0.5
+		set y coordinate of {_round Coords} to floor({_y})+0.5
+		set z coordinate of {_round Coords} to floor({_z})+0.5
+		if {feu.fixedspawn::%{_round Coords}%} exists:
+			delete {feu.fixedspawn.lvl.%{_round Coords}%}
+			delete {feu.fixedspawn.armour.%{_round Coords}%}
+			delete {feu.fixedspawn.weapon.%{_round Coords}%}
+			delete {feu.fixedspawn.ID.%{_round Coords}%}
+			delete {feu.fixedspawn.isSpawned.%{_round Coords}%}		
+			delete {feu.fixedspawn::%{_round Coords}%}
+			message "done!"
+		else:
+			message "No spawn here!"
+			
 command /fixZombieSpawns <integer>:
 	usage: fzs <ID>
 	aliases: fzs
 	trigger:
 		if {feu.fixedspawn.isSpawned.%arg-1%} exists:
-			#message "%{feu.fixedspawn.isSpawned.%{_round Coords}%}%"
 			set {feu.fixedspawn.isSpawned.%arg-1%} to false
-			#message "%{feu.fixedspawn.isSpawned.%{_round Coords}%}%"
 			message "done!"
 		else:
 			message "No variable here!"			
@@ -141,19 +164,24 @@ command /checkZombieSpawns <integer>:
 		if {feu.fixedspawn.isSpawned.%arg-1%} exists:
 			message "%{feu.fixedspawn.isSpawned.%arg-1%}%"
 		else:
-			message "No variable here!"
-#Events	
-
+			message "No variable here!"	
+#Events
 on xp spawn:
 	cancel event
 
-on drop:
-	entity isn't a player
+#on drop:
+#	entity isn't a player
+#	cancel event
+
+on zombie break door:
 	cancel event
 		
 every 10 second in "Feudalism_4":
 	#stop
-	#broadcast "20 seconds"
+	if {feu.disable.enemies} is true:
+		message "{@warn} Spawning disabled!" to console
+		stop
+	wait 5 ticks
 	loop {feu.fixedspawn::*}:
 		{@debug} is true:
 			message "%loop-index-1% | test 1 | %loop-value%" to console
@@ -169,7 +197,7 @@ every 10 second in "Feudalism_4":
 				if {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%loop-value-1%}%} is false:
 					{@debug} is true:
 						message "%loop-index-1% | Spawning a zombie" to console
-					spawn a zombie 1 above loop-value-1
+					spawn a zombie at loop-value-1
 					set {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%loop-value-1%}%} to true
 					wait 2 ticks
 					set age of last spawned entity to adult
@@ -187,7 +215,7 @@ every 10 second in "Feudalism_4":
 						equip last spawned entity with all gold armour	
 					else if {feu.fixedspawn.armour.%loop-value-1%} is "diamond":
 						equip last spawned entity with all diamond armour
-					else if {feu.fixedspawn.armour.%loop-value-1%} is "none":
+					else if {feu.fixedspawn.armour.%loop-value-1%} is "none" or "air":
 						set the helmet of the last spawned entity to air
 						set the chestplate of the last spawned entity to air
 						set the leggings of the last spawned entity to air
@@ -207,7 +235,7 @@ every 10 second in "Feudalism_4":
 						set tool of the last spawned entity to a gold sword
 					else if {feu.fixedspawn.weapon.%loop-value-1%} is "diamond":
 						set tool of the last spawned entity to a diamond sword
-					else if {feu.fixedspawn.weapon.%loop-value-1%} is "none":
+					else if {feu.fixedspawn.weapon.%loop-value-1%} is "none" or "air":
 						set tool of the last spawned entity to air
 					else:
 						message "{@err} An error was retuned from auto spawn at %loop-value-1%: <red>Wrong argument! <light red>The entity is spawned with no arms!" to console

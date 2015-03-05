@@ -1,3 +1,9 @@
+options:
+	debug: false
+	
+	prefix: <gold>[&aFeudalism<gold>]<r>
+	warn: <gold>[&aFeudalism<gold>]<r> <yellow>WARNING:<light red>
+	err: <gold>[&aFeudalism<gold>]<r> <red>ERROR:<light red>
 #Commands	
 
 command /fhelp:
@@ -11,10 +17,23 @@ command /setMainSpawn:
 		set {feu.mainSpawn} to the player's location
 		message "The main spawn point is now at: %{feu.mainSpawn}%"
 		
+command /killall:
+	trigger:
+		loop all entities in world "Feudalism_4":
+			loop-entity is not a player
+			kill loop-entity
+			add 1 to {_kills}		
+		loop {feu.fixedspawn::*}:
+			if {feu.fixedspawn.isSpawned.%loop-value%} exists:
+				set {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%loop-value%}%} to false
+			else:
+				message "{@err} An invalid entry has been found!"
+		message "<yellow>Killed <light red>%{_kills}% <yellow>mobs!"	
 #Events
 
 on skript load:
-	set {feu.version} to "0.1.0 Build 3"
+	set {feu.version} to "0.1.0 Build 4"
+	set {feu.disable.enemies} to false
 	execute console command "gamerule keepInventory true"		
 	
 on weather change:
@@ -23,11 +42,49 @@ on weather change:
 on spread:
 	block is dirt or grass
 	cancel event
+	#stops dirt becoming grass and visa versa
 	
-On Explode:
+On Burn:
+	cancel event
+	#stops buring down my castels :(
+
+on ignition:
+	if event-block is air:
+		stop trigger
+	cancel event	
+On Fade:
+	cancel event
+	#stops ice n snow from smelting
+	
+On Form:
+	cancel event
+	#prevents ice and snow to form
+	
+on spawn:
+	entity isn't a zombie
+	cancel event
+	stop
+	if entity isn't zombie:
+		kill event-entity
+		cancel event
+		stop
+	else:
+		set {_Victim ID} to metadata value "ID" of event-entity
+		if {_Victim ID} exists:
+			message "%{_Victim ID}%" to console
+			cancel event
+			kill event-entity
+	
+on Explode:
 	cancel event
 
 on place:
 	block is glowstone
 	cancel event	
 
+on skript stop:
+	set {feu.disable.enemies} to true
+	execute server command "killall"
+	
+
+		

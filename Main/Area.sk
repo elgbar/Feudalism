@@ -1,5 +1,6 @@
 options:
 	debug: false
+	disable: true
 	
 	#what world shall this script be enabled in?
 	#usage:
@@ -258,6 +259,8 @@ command /diecobble:
 #Events		
 	
 on place:
+	{@disable} is true:
+		stop
 	player's world is {@enabledWorlds}
 	block is pumpkin
 	set {_blockLoooking} to location of player
@@ -287,6 +290,8 @@ on place:
 	
 
 on place:
+	{@disable} is true:
+		stop
 	block is door
 	player's world is {@enabledWorlds}
 	block below block isn't note block:
@@ -297,6 +302,8 @@ on place:
 
 #TODO: create a menu on what you want to do!
 on click:
+	{@disable} is true:
+		stop
 	player's world is {@enabledWorlds}
 	block is pumpkin:
 		message "mellow ^^"
@@ -385,6 +392,8 @@ on click:
 
 #TODO: Remove the region
 on break:
+	{@disable} is true:
+		stop
 	player's world is {@enabledWorlds}
 	block is pumpkin:
 		if {feu.area.pumpkin.%block's location%} exists:

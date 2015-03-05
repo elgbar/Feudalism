@@ -25,12 +25,15 @@ command /addXP <number=5> [<player=%player%>]:
 			
 		if {_levelUp} is true:
 			set {_fixLvL} to {feu.currXP.%arg-2%} - {feu.maxXP.%arg-2%} 
+			message "{_fixLvL}: %{_fixLvL}% | curr: %{feu.currXP.%arg-2%}% | Max: %{feu.maxXP.%arg-2%}%"
 			add 1 to {feu.level.%arg-2%}
 			set arg-2's level to {feu.level.%arg-2%}
 			set {_newMax} to {feu.maxXP.%arg-2%}-{feu.oldMaxXP.%arg-2%}
 			set {_newCurr} to {feu.currXP.%arg-2%}-{feu.oldMaxXP.%arg-2%}
 			set {_lvlProgress} to {_newCurr}/{_newMax}
 			if {_lvlProgress} is 1:
+				set the arg-2's level progress to 0
+			else if {_lvlProgress} is greater than 1:
 				set the arg-2's level progress to 0
 			else:
 				set the arg-2's level progress to {_lvlProgress}
@@ -61,8 +64,8 @@ command /addXP <number=5> [<player=%player%>]:
 			{@debug} is true:
 				set {_precent} to {_temp}*100
 				set {_feu.XPtoNextLevel.%arg-2%} to {feu.maxXP.%arg-2%}-{feu.currXP.%arg-2%}
-				message "You're at %{_precent}%%%"
-				message "And you need %{_feu.XPtoNextLevel.%arg-2%}% till next level"
+				message "You're at %{_precent}%%%" to arg-2
+				message "And you need %{_feu.XPtoNextLevel.%arg-2%}% till next level" to arg-2
 
 command /stats [<player=%player%>]:
 	permission: feu.player
@@ -84,9 +87,8 @@ command /stats [<player=%player%>]:
 On Level Change:
 	player's level isn't equal to {feu.level.%player%}:
 		Message "{@warn} Something went wrong! Your level shifted unexpectedly!"
-		message "{@warn}%player%'s level just changed unexpectedly" to console
-		set player's level to {feu.level.%player%}
-	
+		message "{@warn} %player%'s level just changed unexpectedly" to console
+		set player's level to {feu.level.%player%}	
 
 on death of zombie:
 	clear drops
@@ -96,15 +98,13 @@ on death of zombie:
 	#message "%{feu.fixedspawn.isSpawned.%{feu.IDtoLocation.%{_victim level}%}%}%" to attacker
 	#message "ID: %{_Victim ID}% | Lvl: %{_victim level}%" to attacker
 	if "%{_victim level}%" is equal to "<none>":
-		add 5 to {feu.currXP.%attacker%}
+		add 1 to {feu.currXP.%attacker%}
 		{@debug} is true:
-			message "{@warn} Zombie at %attacker's location% isn't a custom spawned zombie" to attacker
+			message "{@warn} Zombie at %attacker's location% isn't a custom spawned zombie. ID: %{_Victim ID}%" to attacker
+			message "{@prefix} You gained <light green>1<r> xp" to attacker
 	else:
-		#set {_victim level} to {_victim level} phrased as a number
-		#set {_victim level} to ({_victim level} ^ 1.1)
-		#message "%{_victim level}%" to attacker
-		#message "XP: %floor(5+{_victim level}^1.1)%" to attacker
-		set {_xp} to floor(5+{_victim level}^1.1)
+		set {_victim level} to "%{_victim level}%" parsed as a number
+		set {_xp} to floor(1+{_victim level}^1.1)
 		add {_xp} to {feu.currXP.%attacker%}
 		{@debug} is true:
 			message "{@prefix} You gained <light green>%{_xp}%<r> xp" to attacker
@@ -116,6 +116,7 @@ on death of zombie:
 				set {feu.fixedspawn.isSpawned.%{_Victim ID}%} to false
 			else:
 				message "{@err} Couldn't find any variable!" to attacker
+				
 	if {feu.currXP.%attacker%} is greater than {feu.maxXP.%attacker%}:
 		set {_levelUp} to true
 	else if {feu.currXP.%attacker%} is equal to {feu.maxXP.%attacker%}:
@@ -126,6 +127,7 @@ on death of zombie:
 	if {_levelUp} is true:
 		#level up the player
 		add 1 to {feu.level.%attacker%}
+		message "variable: %{feu.level.%attacker%}% | Bar: %attacker's level%"
 		set attacker's level to {feu.level.%attacker%}
 		
 		#reset the percentage bar of the player
@@ -134,6 +136,8 @@ on death of zombie:
 		set {_newCurr} to {feu.currXP.%attacker%}-{feu.oldMaxXP.%attacker%}
 		set {_lvlProgress} to {_newCurr}/{_newMax}	
 		if {_lvlProgress} is 1:
+			set the attacker's level progress to 0
+		else if {_lvlProgress} is greater than 1:
 			set the attacker's level progress to 0
 		else:
 			set the attacker's level progress to {_lvlProgress}
