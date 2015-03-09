@@ -2,10 +2,15 @@ options:
 	debug: false
 	
 	prefix: <gold>[&aFeudalism<gold>]<r>
-	warn: <gold>[&aFeudalism<gold>]<r> <yellow>WARNING:<light red>
-	err: <gold>[&aFeudalism<gold>]<r> <red>ERROR:<light red>
+	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
+	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
+	
+	allowedMobs: zombie or villager
 	
 #Commands
+on spawn of zombies:
+	wait 40 ticks
+	
 	
 command /spawnCostumsZombies <integer> <text="Zombie"> [<text="default">] [<text="default">]:
 	usage: scz <level> <name (use '_' for space)> [<leather|chain|iron|gold|diamond|none>]  [<wooden|stone|iron|gold|diamond|none>]#arg-2 is what type of armour should be equipped AND arg-3 is weapon type
@@ -72,13 +77,16 @@ command /spawnCostumsZombies <integer> <text="Zombie"> [<text="default">] [<text
 		set the maximum health of the last spawned entity to {_health}
 		set health of the last spawned entity to {_health}
 		
-command /setFixedZombieSpawn <integer> <text> <text>:
-	usage: /sfzs <level> <Armour> <weapon>
+command /setFixedZombieSpawn <integer> <text> <text> <integer>:
+	usage: /sfzs <level> <Armour> <weapon> <return to spawn distance>
 	permission: feu.tech
 	aliases: sfzs
 	trigger:
+		if block below player is air:
+			message "{@err} Cannot spawn zombies in air!"
+			stop
 		if arg-1 is less than 0:
-			message "{@err} You cannot set the level to less than 1!"
+			message "{@err} You cannot set the level to less than 1."
 			stop
 		else if arg-1 is greater than 1000:
 			message "{@err} An entity cannot be higher than level 1000!"
@@ -91,6 +99,9 @@ command /setFixedZombieSpawn <integer> <text> <text>:
 		if arg-3 isn't "wood", "wooden", "stone", "iron", "gold", "diamond", "air" or "none":
 			message "{@err} An entity cannot hold that kind of weapon!"
 			stop
+		if arg-4 is less than 1:
+			message "{@err} You cannot set that to negative or zero."
+			stop
 		set {_round Coords} to location of player
 		set {_x} to x coordinate of {_round Coords}
 		set {_y} to y coordinate of {_round Coords}
@@ -102,13 +113,16 @@ command /setFixedZombieSpawn <integer> <text> <text>:
 		
 		add {_round Coords} to {feu.fixedspawn::*}
 		set block below player to iron block
+		
 		set {feu.fixedspawn.lvl.%{_round Coords}%} to arg-1
 		set {feu.fixedspawn.armour.%{_round Coords}%} to arg-2
 		set {feu.fixedspawn.weapon.%{_round Coords}%} to arg-3
+		set {feu.returnToSpawn.weapon.%{_round Coords}%} to arg-4
+		
 		add 1 to {feu.fixedspawnID}
 		set {feu.fixedspawn.ID.%{_round Coords}%} to {feu.fixedspawnID}
 		set {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%{_round Coords}%}%} to false
-		message "LvL %arg-1% zombie with %arg-2% armour and %arg-3% sword will spawn here!"
+		message "LvL %arg-1% (ID: %{feu.fixedspawn.ID.%{_round Coords}%}%) zombie with %arg-2% armour and %arg-3% sword will spawn here!"
 	
 command /removeAllFixedSpawns:
 	permission: op
@@ -119,7 +133,8 @@ command /removeAllFixedSpawns:
 			delete {feu.fixedspawn.armour.%loop-value%}
 			delete {feu.fixedspawn.weapon.%loop-value%}
 			delete {feu.fixedspawn.ID.%loop-value%}
-			delete {feu.fixedspawn.isSpawned.%loop-value%}		
+			delete {feu.fixedspawn.isSpawned.%loop-value%}
+			delete {feu.returnToSpawn.weapon.%loop-value%}			
 		delete {feu.fixedspawn::*}
 		delete {feu.fixedspawnID}
 		message "done!"
@@ -128,8 +143,6 @@ command /removeFixedSpawns:
 	permission: op
 	aliases: rfs
 	trigger:
-		message "{@err} command not working!"
-		stop
 		set {_round Coords} to location of player
 		set {_x} to x coordinate of {_round Coords}
 		set {_y} to y coordinate of {_round Coords}
@@ -137,14 +150,19 @@ command /removeFixedSpawns:
 		set x coordinate of {_round Coords} to floor({_x})+0.5
 		set y coordinate of {_round Coords} to floor({_y})+0.5
 		set z coordinate of {_round Coords} to floor({_z})+0.5
-		if {feu.fixedspawn::%{_round Coords}%} exists:
+		
+		if {feu.fixedspawn.isSpawned.%{_round Coords}%} exists:
+			#remove {feu.fixedspawn::%{_round Coords}%}
+			
 			delete {feu.fixedspawn.lvl.%{_round Coords}%}
 			delete {feu.fixedspawn.armour.%{_round Coords}%}
 			delete {feu.fixedspawn.weapon.%{_round Coords}%}
 			delete {feu.fixedspawn.ID.%{_round Coords}%}
-			delete {feu.fixedspawn.isSpawned.%{_round Coords}%}		
-			delete {feu.fixedspawn::%{_round Coords}%}
+			delete {feu.fixedspawn.isSpawned.%{_round Coords}%}				
+			delete {feu.returnToSpawn.weapon.%{_round Coords}%}	
 			message "done!"
+			block below player is iron block
+			set block below player to grass
 		else:
 			message "No spawn here!"
 			
@@ -166,17 +184,24 @@ command /checkZombieSpawns <integer>:
 		else:
 			message "No variable here!"	
 #Events
+
 on xp spawn:
 	cancel event
 
-#on drop:
-#	entity isn't a player
-#	cancel event
+on spawn:	
+	if entity isn't {@allowedMobs}:
+		cancel event
+		stop
+	if entity is zombie:
+		if metadata value "ID" of event-entity exists:
+			#delete event-zombie
+			{@debug} is true:
+				message "zombie deleted" to console
 
 on zombie break door:
 	cancel event
 		
-every 10 second in "Feudalism_4":
+every 10 second in world "Feudalism_4":
 	#stop
 	if {feu.disable.enemies} is true:
 		message "{@warn} Spawning disabled!" to console
@@ -185,9 +210,11 @@ every 10 second in "Feudalism_4":
 	loop {feu.fixedspawn::*}:
 		{@debug} is true:
 			message "%loop-index-1% | test 1 | %loop-value%" to console
-		spawn a zombie 3 below loop-value
+		spawn a chicken 3 below loop-value
 		kill last spawned entity
 		set {_players} to 0
+		set {_index} to loop-index-1
+		set {_location} to loop-value-1
 		loop players in radius 20 around last spawned entity:
 			add 1 to {_players}
 			set {_loop-1} to loop-value
@@ -246,8 +273,29 @@ every 10 second in "Feudalism_4":
 					set health of the last spawned entity to {_health}
 					#execute console command "spawnCostumsZombies %{feu.fixedspawn.lvl.%loop-value-1%}% %{feu.fixedspawn.armour.%loop-value-1%}% %{feu.fixedspawn.weapon.%loop-value-1%}%"	
 				else:
-					{@debug} is true:
-						message "%loop-index-1% | A zombie is already spawned" to console
-						#message "%{feu.fixedspawn.isSpawned.%loop-value-1%}%" to console
+					clear {_ID}
+					loop entities in radius 20 around last spawned entity:
+						set {_ID} to metadata value "ID" of loop-entity-2
+						#message "ID: %{_ID}% Name: %name of loop-entity-2%" to console
+						if "%{_ID}%" isn't equal to "<none>":	
+							#message "not none" to console
+							if "%{_ID}%" is equal to "%{feu.fixedspawn.ID.%loop-value-1%}%":
+								if  distance between loop-entity-2 and loop-value-1 is bigger than {feu.returnToSpawn.weapon.%loop-value-1%}:
+									make loop-entity-2 pathfind to loop-value-1 with speed 1
+									{@debug} is true:
+										message "%loop-index-1% | Making zombie run to its spawn" to console	
+								else:
+									{@debug} is true:
+										message "%loop-index-1% | A zombie is already spawned" to console
 						
-							
+		if {_players} is 0:
+			loop entities in radius 20 around last spawned entity:
+				if {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%{_location}%}%} is true:
+					wait 3 ticks
+					delete loop-entity
+					set {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%{_location}%}%} to false
+					{@debug} is true:
+						message "%{_index}% | No player in sight! Killing zombie." to console
+						wait 20 tick
+						loop-entity is dead:
+							message "%{_index}% | Dead!" to console

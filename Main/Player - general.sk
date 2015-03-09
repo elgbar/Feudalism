@@ -2,8 +2,8 @@ options:
 	debug: false
 	
 	prefix: <gold>[&aFeudalism<gold>]<r>
-	warn: <gold>[&aFeudalism<gold>]<r> <yellow>WARNING:<light red>
-	err: <gold>[&aFeudalism<gold>]<r> <red>ERROR:<light red>
+	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
+	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
 
 #Commands
 command /resetPlayer <text="help"> [<text="help">]:
@@ -49,12 +49,12 @@ command /setup <player>:
 		#make sure the arg-1 is really reset
 		{@debug} is false:			
 			deop the arg-1 
-		set gamemode of arg-1 to survival
-		execute console command "manudel %arg-1%"
+		set gamemode of arg-1 to adventure
+		#execute console command "manudel %arg-1%"
 		execute console command "fc %arg-1% Silent" #fully clear
 		#broadcast "<magenta>Welcome <b>%arg-1%<r><magenta> to Feudalism!"
 		set the maximum health of the arg-1 to 10
-		execute console command "god %arg-1% disable"	
+		#execute console command "god %arg-1% disable"	
 		
 		#Setup the arg-1
 		set {feu.level.%arg-1%} to 1
@@ -64,12 +64,12 @@ command /setup <player>:
 		set {feu.currXP.%arg-1%} to 0
 		set {feu.XPtoNextLevel.%arg-1%} to {feu.maxXP.%arg-1%}
 		#armour & weapon
-		give a wooden sword named "<yellow>Old Rotten Sword" to the arg-1
+		#give a wooden sword named "<yellow>Old Rotten Sword" to the arg-1
 		
-		equip the arg-1 with leather helmet named "<yellow>Decayed Leather Helmet"
-		equip the arg-1 with leather chestplate named "<yellow>Decayed Chestplate"
-		equip the arg-1 with leather leggings named "<yellow>Decayed Leggings"
-		equip the arg-1 with leather boots named "<yellow>Decayed Boots"
+		#equip the arg-1 with leather helmet named "<yellow>Decayed Leather Helmet"
+		#equip the arg-1 with leather chestplate named "<yellow>Decayed Chestplate"
+		#equip the arg-1 with leather leggings named "<yellow>Decayed Leggings"
+		#equip the arg-1 with leather boots named "<yellow>Decayed Boots"
 		teleport arg-1 to {feu.mainSpawn}
 		
 #Events
@@ -100,7 +100,6 @@ on join:
 	loop {allplayers::*}:
 		if "%{allplayers::%loop-index%}%" is equal to "%name of player%":
 			add 1 to {_players}
-		message "%{_players}%" to console
 	if {_players} is equal to 1:
 		set join message to ""
 		Message "<light green>Welcome back %player%" to player
@@ -121,9 +120,8 @@ on join:
 	else if {_players} is greater than 1:
 		kick player due to "Multiple entries in list of players - try to log back in again."
 		remove name of player from {allplayers::*}
-		message "{@err} A player has been added multiple times to the allplayers varable!" to console
+		message "{@err} A player has been added multiple times to the allplayers variable!" to console
 	else:
-		message "<red>Else triggered" to console
 		set join message to "<magenta>Welcome <b>%player%<r><magenta> to Feudalism!"
 		add "%name of player%" to {allplayers::*}
 		execute console command "setup %name of player%"
@@ -131,14 +129,8 @@ on join:
 on damage:
 	wait 2 tick
 	repair the attacker's tool
-	 stop
-	 #The rest is nowhere finished, and is still in it's testing phase!
-	if victim is a zombie:
-		attacker is a player
-		if tool of attacked entity is a diamond sword:
-			message "dia" to attacker
-	else if victim is a player:
-		attacker is a zombie
-	else if victim is a villager:
-		cancel event
-		
+	repair attacker's helmet
+	repair attacker's chestplate
+	repair attacker's legs
+	repair attacker's boots
+	

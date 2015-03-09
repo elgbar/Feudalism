@@ -2,13 +2,13 @@ options:
 	debug: false
 	
 	prefix: <gold>[&aFeudalism<gold>]<r>
-	warn: <gold>[&aFeudalism<gold>]<r> <yellow>WARNING:<light red>
-	err: <gold>[&aFeudalism<gold>]<r> <red>ERROR:<light red>
+	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
+	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
 #Commands	
 
 command /fhelp:
 	trigger:
-		broadcast "TODO: add a help screen, credit, how to play (tutorial), buycraft page, kiste skal lage denne"
+		message "TODO: add a help screen, credit, how to play (tutorial), buycraft page, kiste skal lage denne"
 			
 command /setMainSpawn:
 	permission: op
@@ -28,17 +28,37 @@ command /killall:
 				set {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%loop-value%}%} to false
 			else:
 				message "{@err} An invalid entry has been found!"
-		message "<yellow>Killed <light red>%{_kills}% <yellow>mobs!"	
+		message "<yellow>Killed <light red>%{_kills}% <yellow>mobs!"
+		
 #Events
+on command "/help":
+	if player is op:
+		stop
+	cancel event
+	execute player command "/fhelp"
+on break:
+	if player is op:
+		stop
+	cancel event
 
+on place:
+	if player is op:
+		stop
+	cancel event
+	
 on skript load:
-	set {feu.version} to "0.1.0 Build 4"
+	set {feu.version} to "0.1.0 Build 5"
 	set {feu.disable.enemies} to false
-	execute console command "gamerule keepInventory true"		
+	execute console command "gamerule keepInventory true"
 	
 on weather change:
 	set weather to sun
-	
+
+on command:
+	player isn't op
+	cancel event
+	execute player command "/fhelp"
+
 on spread:
 	block is dirt or grass
 	cancel event
@@ -46,7 +66,7 @@ on spread:
 	
 On Burn:
 	cancel event
-	#stops buring down my castels :(
+	#stops burning down my castles :(
 
 on ignition:
 	if event-block is air:
@@ -60,25 +80,15 @@ On Form:
 	cancel event
 	#prevents ice and snow to form
 	
-on spawn:
-	entity isn't a zombie
-	cancel event
-	stop
-	if entity isn't zombie:
-		kill event-entity
-		cancel event
-		stop
-	else:
-		set {_Victim ID} to metadata value "ID" of event-entity
-		if {_Victim ID} exists:
-			message "%{_Victim ID}%" to console
-			cancel event
-			kill event-entity
-	
 on Explode:
 	cancel event
+	
+on death:
+	clear drops
 
 on place:
+	"%player%" is "Maxi698":
+		stop
 	block is glowstone
 	cancel event	
 
@@ -86,5 +96,7 @@ on skript stop:
 	set {feu.disable.enemies} to true
 	execute server command "killall"
 	
-
+on combust:
+	entity is zombie
+	cancel event
 		

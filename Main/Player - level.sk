@@ -2,8 +2,8 @@ options:
 	debug: false
 	
 	prefix: <gold>[&aFeudalism<gold>]<r>
-	warn: <gold>[&aFeudalism<gold>]<r> <yellow>WARNING:<light red>
-	err: <gold>[&aFeudalism<gold>]<r> <red>ERROR:<light red>
+	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
+	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
 
 #Commands 	
 			
@@ -90,8 +90,8 @@ On Level Change:
 		message "{@warn} %player%'s level just changed unexpectedly" to console
 		set player's level to {feu.level.%player%}	
 
+		
 on death of zombie:
-	clear drops
 	attacker is a player
 	set {_victim level} to metadata value "Level" of victim
 	set {_Victim ID} to metadata value "ID" of victim
@@ -116,6 +116,9 @@ on death of zombie:
 				set {feu.fixedspawn.isSpawned.%{_Victim ID}%} to false
 			else:
 				message "{@err} Couldn't find any variable!" to attacker
+		if {feu.quest.starter.house1.zombiesKilled.%player%} exists:
+			if {feu.quest.starter.house1.zombiesKilled.%player%} is less than 5:
+				add 1 to {feu.quest.starter.house1.zombiesKilled.%player%}
 				
 	if {feu.currXP.%attacker%} is greater than {feu.maxXP.%attacker%}:
 		set {_levelUp} to true

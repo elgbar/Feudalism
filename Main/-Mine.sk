@@ -11,8 +11,8 @@ options:
 	
 	#Easy to use default sayings
 	prefix: <gold>[&aFeudalism<gold>]<r>
-	war: <yellow>WARNING
-	err: <red>ERROR
+	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
+	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
 	
 	#set to stone to remove trees. Default: air
 	treeReplacer: air
@@ -65,6 +65,7 @@ on break:
 		stop
 	if block is green wool:
 		cancel event
+		stop
 	if block is {@MultiBlocksAir} or {@MultiBlocksStone}:
 		set {_place} to the block's location
 		set {_block} to the block at {_place}
@@ -243,8 +244,9 @@ on break:
 				#allow breaking ^
 				cancel event
 	
-on place:
+on place:	
 	if player doesn't have permission "feu.place":
+		cancel event
 	#those with permission can place any block
 		if block isn't {@allowedBlocks}:
 		#allow placing ^
