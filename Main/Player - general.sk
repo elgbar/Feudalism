@@ -50,11 +50,8 @@ command /setup <player>:
 		{@debug} is false:			
 			deop the arg-1 
 		set gamemode of arg-1 to adventure
-		#execute console command "manudel %arg-1%"
 		execute console command "fc %arg-1% Silent" #fully clear
-		#broadcast "<magenta>Welcome <b>%arg-1%<r><magenta> to Feudalism!"
 		set the maximum health of the arg-1 to 10
-		#execute console command "god %arg-1% disable"	
 		
 		#Setup the arg-1
 		set {feu.level.%arg-1%} to 1
@@ -63,13 +60,10 @@ command /setup <player>:
 		set {feu.maxXP.%arg-1%} to 80
 		set {feu.currXP.%arg-1%} to 0
 		set {feu.XPtoNextLevel.%arg-1%} to {feu.maxXP.%arg-1%}
-		#armour & weapon
-		#give a wooden sword named "<yellow>Old Rotten Sword" to the arg-1
 		
-		#equip the arg-1 with leather helmet named "<yellow>Decayed Leather Helmet"
-		#equip the arg-1 with leather chestplate named "<yellow>Decayed Chestplate"
-		#equip the arg-1 with leather leggings named "<yellow>Decayed Leggings"
-		#equip the arg-1 with leather boots named "<yellow>Decayed Boots"
+		execute console command "quest starter %arg-1%"
+		#armour & weapon
+
 		teleport arg-1 to {feu.mainSpawn}
 		
 #Events
@@ -91,7 +85,6 @@ on hunger meter change:
 on quit:
 	set leave message to ""	
 	
-
 on join:
 	if name of player is equal to {resetPlayer::*}:
 		execute console command "setup %name of player%"

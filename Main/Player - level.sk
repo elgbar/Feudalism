@@ -81,7 +81,6 @@ command /stats [<player=%player%>]:
 		message "Current Level: %{feu.level.%player%}%"
 		message "Amount of XP need for next level: %{feu.maxXP.%player%}%"
 		message "XP needed for next level: %{_feu.XPtoNextLevel.%arg-1%}%"	
-	
 #events
 	
 On Level Change:
@@ -89,7 +88,6 @@ On Level Change:
 		Message "{@warn} Something went wrong! Your level shifted unexpectedly!"
 		message "{@warn} %player%'s level just changed unexpectedly" to console
 		set player's level to {feu.level.%player%}	
-
 		
 on death of zombie:
 	attacker is a player
@@ -116,9 +114,9 @@ on death of zombie:
 				set {feu.fixedspawn.isSpawned.%{_Victim ID}%} to false
 			else:
 				message "{@err} Couldn't find any variable!" to attacker
-		if {feu.quest.starter.house1.zombiesKilled.%player%} exists:
-			if {feu.quest.starter.house1.zombiesKilled.%player%} is less than 5:
-				add 1 to {feu.quest.starter.house1.zombiesKilled.%player%}
+		if {feu.quest.starter.doorAThouse1.%player%} is true:
+			if {feu.quest.starter.house1.zombiesKilled.%attacker%} is less than 6:
+				add 1 to {feu.quest.starter.house1.zombiesKilled.%attacker%}
 				
 	if {feu.currXP.%attacker%} is greater than {feu.maxXP.%attacker%}:
 		set {_levelUp} to true
@@ -155,11 +153,11 @@ on death of zombie:
 		
 		#says to all players in radius set that the player levelled up
 		message "{@prefix}<yellow> You just levelled up!" to attacker
-		loop all players in radius 20 around player:
+		loop all players in radius 20 around attacker:
 			message "{@prefix}<b><gold> %attacker% <yellow>just levelled up!" to loop-player
 		#debug stuff that reports stats 
 		{@debug} is true:
-			set {_feu.XPtoNextLevel.%player%} to {feu.maxXP.%player%}-{feu.currXP.%player%}	
+			set {_feu.XPtoNextLevel.%attacker%} to {feu.maxXP.%attacker%}-{feu.currXP.%attacker%}	
 			message "max: <yellow>%{feu.maxXP.%attacker%}%"
 			message "curr: <yellow>%{feu.currXP.%attacker%}%"
 			message "level: <yellow>%{feu.level.%attacker%}%"

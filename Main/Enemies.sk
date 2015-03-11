@@ -8,10 +8,7 @@ options:
 	allowedMobs: zombie or villager
 	
 #Commands
-on spawn of zombies:
-	wait 40 ticks
-	
-	
+
 command /spawnCostumsZombies <integer> <text="Zombie"> [<text="default">] [<text="default">]:
 	usage: scz <level> <name (use '_' for space)> [<leather|chain|iron|gold|diamond|none>]  [<wooden|stone|iron|gold|diamond|none>]#arg-2 is what type of armour should be equipped AND arg-3 is weapon type
 	aliases: scz
@@ -286,8 +283,7 @@ every 10 second in world "Feudalism_4":
 										message "%loop-index-1% | Making zombie run to its spawn" to console	
 								else:
 									{@debug} is true:
-										message "%loop-index-1% | A zombie is already spawned" to console
-						
+										message "%loop-index-1% | A zombie is already spawned" to console						
 		if {_players} is 0:
 			loop entities in radius 20 around last spawned entity:
 				if {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%{_location}%}%} is true:
@@ -296,6 +292,6 @@ every 10 second in world "Feudalism_4":
 					set {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%{_location}%}%} to false
 					{@debug} is true:
 						message "%{_index}% | No player in sight! Killing zombie." to console
-						wait 20 tick
+						wait 5 tick
 						loop-entity is dead:
 							message "%{_index}% | Dead!" to console

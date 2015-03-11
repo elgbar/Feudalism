@@ -47,9 +47,14 @@ on place:
 	cancel event
 	
 on skript load:
-	set {feu.version} to "0.1.0 Build 5"
+	set {feu.version} to "0.1.0 Build 6"
 	set {feu.disable.enemies} to false
 	execute console command "gamerule keepInventory true"
+	execute console command "metadata"
+	wait 5 tick
+	execute console command "killall"
+	loop {feu.fixedspawn::*}:
+		set {feu.fixedspawn.isSpawned.%loop-value%} to false
 	
 on weather change:
 	set weather to sun
@@ -74,7 +79,7 @@ on ignition:
 	cancel event	
 On Fade:
 	cancel event
-	#stops ice n snow from smelting
+	#stops ice 'n' snow from smelting
 	
 On Form:
 	cancel event
@@ -94,7 +99,6 @@ on place:
 
 on skript stop:
 	set {feu.disable.enemies} to true
-	execute server command "killall"
 	
 on combust:
 	entity is zombie
