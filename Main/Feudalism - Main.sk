@@ -11,96 +11,99 @@ command /fhelp:
 		message "TODO: add a help screen, credit, how to play (tutorial), buycraft page, kiste skal lage denne"
 			
 command /setMainSpawn:
+	executable by: players
 	permission: op
 	trigger:
-		player's name is "kh498"
 		set {feu.mainSpawn} to the player's location
 		message "The main spawn point is now at: %{feu.mainSpawn}%"
 		
 command /killall:
 	trigger:
+		if "%name of player%" is "<none>":
+			set {_console} to true
+		if {_console} is true:
+			message "" to player
+		else if {feu.permission.%name of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%name of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%name of player%} to "feu.player"
+			stop
+		clear {_kills}
 		loop all entities in world "Feudalism_4":
 			loop-entity is not a player
 			kill loop-entity
-			add 1 to {_kills}		
-		loop {feu.fixedspawn::*}:
-			if {feu.fixedspawn.isSpawned.%loop-value%} exists:
-				set {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%loop-value%}%} to false
-			else:
-				message "{@err} An invalid entry has been found!"
+			add 1 to {_kills}
+		wait 5 tick
+		clear {_nr}
+		loop {feu.fixedspawnID} times:
+			add 1 to {_nr}
+			set {feu.fixedspawn.isSpawned.%{_nr}%} to false
+			
+		if {_kills} doesn't exist:
+			set {_kills} to "none"
 		message "<yellow>Killed <light red>%{_kills}% <yellow>mobs!"
+
+command /spawnNPC <text> <text>:
+	usage: /spawnNPC <name> <villager profession>
+	trigger:
+		if "%name of player%" is "<none>":
+			set {_console} to true
+		if {_console} is true:
+			message "{@err} Console cannot use this command!" to console
+			stop
+		else if {feu.permission.%name of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%name of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%name of player%} to "feu.player"
+			stop
+			
+		if arg-2 isn't "priest", "blacksmith", "librarian", "butcher" or "farmer":
+			message "{@err} Unknown profession" to player
+			stop
+			
+		set {_name} to arg-1
+		replace all "_" with " " in {_name}
+		execute player command "npc Create %{_name}% --type villager"
+		execute player command "npc profession %arg-2%"
+		execute player command "npc lookclose"
+		execute player command "npc respawn 1"
 		
-#Events
-on command "/help":
-	if player is op:
-		stop
-	cancel event
-	execute player command "/fhelp"
-on break:
-	if player is op:
-		stop
-	cancel event
+command /permission <text="help"> [<player=%player%>]:
+	usage: /permission <rank/help> [<player>]
+	trigger:
+		if "%name of player%" is "<none>":
+			set {_console} to true
+		if {_console} is true:
+			message "" to player
+		else if {feu.permission.%name of player%} isn't "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%name of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%name of player%} to "feu.player"
+			stop
+		if arg-1 is "player":
+			set {feu.permission.%arg-2%} to "feu.player"
+		else if arg-1 is "moderator" or "mod":
+			set {feu.permission.%arg-2%} to "feu.mod"
+			
+		else if arg-1 is "technician" or "tech":
+			set {feu.permission.%arg-2%} to "feu.tech"
+			
+		else if arg-1 is "administrator" or "admin":
+			set {feu.permission.%arg-2%} to "feu.admin"
+			
+		else if arg-1 is "operator" or "op":
+			set {feu.permission.%arg-2%} to "op"
 
-on place:
-	if player is op:
-		stop
-	cancel event
-	
-on skript load:
-	set {feu.version} to "0.1.0 Build 6"
-	set {feu.disable.enemies} to false
-	execute console command "gamerule keepInventory true"
-	execute console command "metadata"
-	wait 5 tick
-	execute console command "killall"
-	loop {feu.fixedspawn::*}:
-		set {feu.fixedspawn.isSpawned.%loop-value%} to false
-	
-on weather change:
-	set weather to sun
-
-on command:
-	player isn't op
-	cancel event
-	execute player command "/fhelp"
-
-on spread:
-	block is dirt or grass
-	cancel event
-	#stops dirt becoming grass and visa versa
-	
-On Burn:
-	cancel event
-	#stops burning down my castles :(
-
-on ignition:
-	if event-block is air:
-		stop trigger
-	cancel event	
-On Fade:
-	cancel event
-	#stops ice 'n' snow from smelting
-	
-On Form:
-	cancel event
-	#prevents ice and snow to form
-	
-on Explode:
-	cancel event
-	
-on death:
-	clear drops
-
-on place:
-	"%player%" is "Maxi698":
-		stop
-	block is glowstone
-	cancel event	
-
-on skript stop:
-	set {feu.disable.enemies} to true
-	
-on combust:
-	entity is zombie
-	cancel event
-		
+		else if arg-1 is "help":
+			message "<yellow>------<gold>[&aFeudalism Permissions<gold>]<yellow>------"
+			message "<light red>Usable ranks: <yellow>Player, moderator (<light red>mod<yellow>), technician (<light red>tech<yellow>), administrator (<light red>admin<yellow>) or operator (<light red>op<yellow>)"
+			message "<light red>Players: <yellow>You have to choose an online player for this to work."
+			message "<light red>Help: <yellow>Displays this help screen."
+			stop	
+		message "%arg-2% now have permission %{feu.permission.%arg-2%}%"

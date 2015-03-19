@@ -4,6 +4,7 @@ options:
 	prefix: <gold>[&aFeudalism<gold>]<r>
 	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
 	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
+	
 	NPC: <green>%entity's name%<r>:<r>
 	You: <green>%player%<r>:<r>
 	
@@ -11,40 +12,78 @@ options:
 #There is a variable named {feu.quest.%name of quest%.%How much you have done, eg 1,2,3%.%name of player%}
 #where %text% is explanation
 
-#Check where you stand on a quest: {feu.quest.%name of quest%.%player%} 
+#Check where you stand on a quest: {feu.quest.%name of quest%.%name of player%} 
 #Three stages of quests: "Not stated", "In progress" and "Completed"
 
 #commands
 
+command /saveItem <text>:
+	usage: /saveItem <name of saved item>
+	permission: op
+	trigger:
+		set {feu.items.%arg-1%} to player's tool
+		message "Done!"
+		
 command /delAllMetadata:
 	executable by: console
 	trigger:
 		loop {feu.metadata.loc::*}:
 			delete {feu.metadata.txt.%loop-value%}
 			delete {feu.metadata.below.%loop-value%}
+			set metadata value "BlockInfo" of block {feu.metadata.below.%loop-value%} below loop-value to ""
 		clear {feu.metadata.loc::*}
+		message "Done! Restart to remove the values"
 		
-command /delSomeMetadata:
-	permission: op
+command /delMetadata:
 	trigger:
-		set {_round Coords} to location of player
+		if "%name of player%" is "<none>":
+			set {_console} to true
+		if {_console} is true:
+			message "" to player
+		else if {feu.permission.%name of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%name of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%name of player%} to "feu.player"
+			stop
+			
+		set {_round Coords} to location 1 below player
 		set {_x} to x coordinate of {_round Coords}
 		set {_y} to y coordinate of {_round Coords}
 		set {_z} to z coordinate of {_round Coords}
 		set x coordinate of {_round Coords} to floor({_x})
 		set y coordinate of {_round Coords} to floor({_y})
 		set z coordinate of {_round Coords} to floor({_z})
-		
-		delete {feu.metadata.txt.%{_round Coords}%}
-		delete {feu.metadata.below.%{_round Coords}%}
-		remove {_round Coords} from {feu.metadata.loc::*}
+		if {feu.metadata.txt.%{_round Coords}%} exists:
+			delete {feu.metadata.txt.%{_round Coords}%}
+			delete {feu.metadata.below.%{_round Coords}%}
+			remove {_round Coords} from {feu.metadata.loc::*}
+		else:
+			message "No metadata here. Remember its the block you're standing on!"
+			stop
 		message "done"
 		
 command /setCheckpoint <text> [<integer=0>]:
 	usage: /setCheckpoint <Info> [<How many blocks below (0=at player's feets)>]
 	aliases: /scp
-	permission: op
 	trigger:
+		if "%name of player%" is "<none>":
+			set {_console} to true
+		if {_console} is true:
+			message "" to player
+		else if {feu.permission.%name of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%name of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%name of player%} to "feu.player"
+			stop
+		set {_arg-2} to arg-2
+		if block below player is chest:
+			if arg-2 is 1:
+				message "{@warn} Chests are glitched, autofixing it for you ;)"
+				set {_arg-2} to 0
 		set {_round Coords} to location of player
 		set {_x} to x coordinate of {_round Coords}
 		set {_y} to y coordinate of {_round Coords}
@@ -55,7 +94,7 @@ command /setCheckpoint <text> [<integer=0>]:
 		
 		add {_round Coords} to {feu.metadata.loc::*}
 		set {feu.metadata.txt.%{_round Coords}%} to arg-1
-		set {feu.metadata.below.%{_round Coords}%} to arg-2
+		set {feu.metadata.below.%{_round Coords}%} to {_arg-2}
 		set metadata value "BlockInfo" of block {feu.metadata.below.%{_round Coords}%} below player to "%{feu.metadata.txt.%{_round Coords}%}%"
 		message "Done!"
 		
@@ -66,7 +105,8 @@ command /metadata:
 		wait 20 tick
 		loop {feu.metadata.loc::*}:
 			set metadata value "BlockInfo" of block {feu.metadata.below.%loop-value%} below loop-value to "%{feu.metadata.txt.%loop-value%}%"
-			message "<gold>loc: %loop-value% | TxT: %{feu.metadata.txt.%loop-value%}% | Location set" to console
+			{@debug} is true:
+				message "<gold>loc: %loop-value% | TxT: %{feu.metadata.txt.%loop-value%}% | Location set" to console
 
 command /setTeleport <text> <text>:
 	usage: /setTeleport <quest> <name>
@@ -75,27 +115,42 @@ command /setTeleport <text> <text>:
 		set {feu.quest.%arg-1%.%arg-2%} to player's location
 		message "done!"
 
-command /quest <text> <player>:
+command /quest <text> <player> [<boolean=false>]:
 	executable by: console
-	usage: /quest <quest> <player>
+	usage: /quest <quest> <player> [<boolean, true: done previous quests, false: fully reset>]
 	trigger:
 		if arg-1 is "starter":
+			set {feu.quest.starter.%arg-2%} to "In progress"	
+			
 			set {feu.quest.starter.1.%arg-2%} to true
 			clear {feu.quest.starter.2.%arg-2%}
 			clear {feu.quest.starter.3.%arg-2%}
 			clear {feu.quest.starter.4.%arg-2%}
-			clear {feu.quest.starter.doorAThouse1.%player%}
-			set {feu.quest.starter.house1.zombiesKilled.%arg-2%} to 0
-			
-			set {feu.quest.starter.%arg-2%} to "In progress"		
+			clear {feu.quest.starter.doorAThouse1.%name of player%}			
 			{@debug} is true:
-				message "{@prefix} Enabling quest starter for %arg-2%" to console
+				message "{@prefix} Enabling quest starter for %arg-2%" to arg-2
+		else if arg-1 is "Crazy_house":
+			#This quest is dependent on that the player have finished "starter" quest
+			if arg-3 is true:
+				if {feu.quest.starter.%arg-2%} isn't "Completed":
+					set {feu.quest.starter.%arg-2%} to "Completed"
+					set {feu.quest.starter.1.%arg-2%} to false
+					set {feu.quest.Crazy_house.%arg-2%} to "In progress"
+					{@debug} is true:
+						message "{@prefix} Enabling quest Crazy_house for %arg-2%" to arg-2
+			clear {feu.quest.Crazy_house.%arg-2%}
+			clear {feu.quest.Crazy_house.1.%arg-2%}
+			clear {feu.quest.Crazy_house.2.%arg-2%}
+			clear {feu.quest.Crazy_house.3.%arg-2%}
+			
 		else:
 			message "usage: /quest <quest> <player>"
+			stop
+			
+		#Global variables	
+		set {feu.quest.zombiesKilled.%arg-2%} to 0	
 			
 #Events
-on rightclick on any door:
-	cancel event
 	
 on any movement:
 	#entity is a player
@@ -103,106 +158,289 @@ on any movement:
 	if block 2 below the player is bedrock:
 		#message "1" to player
 		set {_BlockInfo} to metadata value "BlockInfo" of block 2 below player
+		
+		#
+		# Quest: starter
+		#
+		
 		if 	"%{_BlockInfo}%" is equal to "Starter_house1":
 			#message "2" to player
-			if {feu.quest.starter.%player%} is "Completed": 
+			if {feu.quest.starter.%name of player%} is "Completed": 
 				message "{@You} Don't want to go inside there again.." to player
 				teleport player to {feu.quest.starter.house1}
 				stop
-			else if {feu.quest.starter.doorAThouse1.%player%} is true:			
+			else if {feu.quest.starter.4.%name of player%} is true:
 				stop
-				message "3" to player
+			else if {feu.quest.starter.doorAThouse1.%name of player%} is true:			
+				stop
 			else:
 				message "{@You} That's a creepy place, don't want go in there without a sword!" to player
 				teleport player to {feu.quest.starter.house1}
-				stop		
+		
+		#
+		# Quest: <No Name>
+		#
+		
+		else if "%{_BlockInfo}%" is equal to "WallAlphaMap":
+			message "<green>Wall Guard<r>: This town is under quarantine! You cannot enter without Lord Wilson permission." to player
+			teleport player to {feu.quest.alphaMap.Wall}
+			stop
+			
+		#
+		# Quest: Crazy_house
+		#	
+		
+		else if "%{_BlockInfo}%" is equal to "Crazy_house.house1":
+			if {feu.quest.Crazy_house.2.%name of player%} is true:
+				stop
+			else if {feu.quest.Crazy_house.%name of player%} is "Completed":
+				stop
+			else:
+				teleport player to {feu.quest.Crazy_house.house1}
+				message "<green>House Guard<r>: No one can enter, say those with Lord Willson permission." to player
+				stop
 				
+				
+		else if "%{_BlockInfo}%" is equal to "Crazy_house.stairs1":
+			if {feu.quest.Crazy_house.2.%name of player%} is true:
+				teleport player to {feu.quest.Crazy_house.stairs1}
+				set {feu.quest.Crazy_house.3.%name of player%} to true
+				set {feu.quest.Crazy_house.2.%name of player%} to false
+				message "<light red>???<r>: Hello %name of player%. I was looking forward to your visit."
+				message "<light red>???<r>: It is always fun to watch Willson's peasants die."				
+				stop
+			else if {feu.quest.Crazy_house.%name of player%} is "Completed":
+				stop
+			else:
+				teleport player to {feu.quest.Crazy_house.stairs1}
+				message "<light red>???<r>: You cannot leave now!" to player
+				stop	
+				
+				
+		else if "%{_BlockInfo}%" is equal to "Crazy_house.roomExit1":
+			if {feu.quest.Crazy_house.3.%name of player%} is true:
+				teleport player to {feu.quest.Crazy_house.roomExit1}
+				message "<light red>???<r>: kill the zombies first!" to player
+				stop
+			else if {feu.quest.Crazy_house.4.%name of player%} is true:
+				heal the player
+			
 on rightclick on button:
 	set {_BlockInfo} to metadata value "BlockInfo" of clicked block
+		
+	#
+	# Quest: starter
+	#
+		
 	if 	"%{_BlockInfo}%" is equal to "Starter_house1":
-		if {feu.quest.starter.doorAThouse1.%player%} is true:
+		if {feu.quest.starter.doorAThouse1.%name of player%} is true:
 			wait 2 tick
 			message "{@You} This must be the house" to player					
 			stop
-		else if {feu.quest.starter.%player%} is "Completed": 
+		else if {feu.quest.starter.%name of player%} is "Completed": 
 			message "{@You} Don't want to go inside there again.." to player
 			cancel event
 			stop
 		else:
-			message "{@You} That's a creepy place, don't want go in there without a sword!" to player
+			message "{@You} That's a creepy place, don't want to go in there without a sword!" to player
 			cancel event
 			stop
+	else if "%{_BlockInfo}%" is equal to "Crazy_house.house1":
+		if {feu.quest.Crazy_house.2.%name of player%} is true:
+			stop
+		else if {feu.quest.Crazy_house.%name of player%} is "Completed":
+			stop
+		else:
+			cancel event
 			
 on rightclick on chest:
+	if player is not op:
+		cancel event
 	set {_BlockInfo} to metadata value "BlockInfo" of clicked block
+
+	#
+	# Quest: starter
+	#	
+	
 	if "%{_BlockInfo}%" is equal to "starter.chest1":
 		cancel event
-		#message "%{feu.quest.starter.house1.zombiesKilled.%player%}%" to console
-		if {feu.quest.starter.house1.zombiesKilled.%player%} is greater than 3:
+		#message "%{feu.quest.starter.house1.zombiesKilled.%name of player%}%" to console
+		if {feu.quest.zombiesKilled.%name of player%} is greater than 3:
 			message "{@prefix} Quest complete! Go talk to Lord Willson" to player
-			set {feu.quest.starter.3.%player%} to false
-			set {feu.quest.starter.4.%player%} to true
+			set {feu.quest.starter.3.%name of player%} to false
+			set {feu.quest.starter.4.%name of player%} to true
+			set {feu.quest.starter.doorAThouse1.%name of player%} to false
+			clear {feu.quest.zombiesKilled.%name of player%}
 		else:
 			message "{@You} I should first kill some more zombies." to player
-			
+	#else if "%{_BlockInfo}%" is equal to "starter.chest1":	
+on rightclick on andesite:
+	if true is false: #{feu.secret.%location of block%.%name of player%} is false:
+		message "{@prefix} You have already discovered this secret!"
+		stop
+	else:
+		set {feu.secret.%location of block%.%name of player%} to false
+		message "{@prefix} You just found a secret!"
+		set {_ran} to a random integer between 0.9 and 10.1
+		set {_5precent} to ({feu.currXP.%name of player%}/{feu.maxXP.%name of player%})*5
+		if {_ran} is 1:			
+			message "{@prefix} %{_5precent}% XP!"
+			execute console command "addxp %{_5precent}% %player% false"
+		else if {_ran} is 2:
+			set {_5precent} to {_5precent}*2 #ups it to 10%
+			message "{@prefix} %{_5precent}% XP!" 
+			execute console command "addxp %{_5precent}% %player% false"
+		else if {_ran} is 3:
+			message "{@prefix} Sadly it's already looted!"
+		else if {_ran} is 4:
+			message "{@prefix} But you can't find anything!"
+		else if {_ran} is 5:
+			message "{@prefix} its been all a hoax, nothing here!"
+		else if {_ran} is 6:
+			message "{@prefix} A poem!"
+			wait 20 tick
+			message "<green>Old pond..."
+			wait 60 tick
+			message "<light green>A frog leaps in"
+			wait 40 tick
+			message "<light blue>water's sound"
+		else if {_ran} is 7:
+			message "{@prefix} an iron sword!"
+			give player {feu.items.lucky_sword}		
+		else if {_ran} is 8:
+			message "{@prefix} some text!"
+		else if {_ran} is 9:
+			message "{@prefix} <light red>A ZOMBIE!"
+			run player command "/scz %{feu.level.%name of player%}% %name of player%'s_Zombie_Buddy chain stone" as op
+		else if {_ran} is 10:
+			message "{@prefix} A hug!"
+		else:
+			message "{@prefix} <light red> An ERROR ^^. Oh and and 10 xp"
+			execute console command "addxp 10 %player%"
 on rightclick on entity:
 	#Test entity to check if this works
 	#default chat: message "{@NPC} " to player
 	entity's name exists
 	cancel event
+	
+	#
+	# Quest: starter
+	#
+		
 	if "%entity's name%" is "Lord Willson":
-		if {feu.quest.starter.1.%player%} is true:
-			set {feu.quest.starter.1.%player%} to false
-			set {feu.quest.starter.2.%player%} to true
+		
+		if {feu.quest.starter.1.%name of player%} is true:
+			set {feu.quest.starter.1.%name of player%} to false
+			set {feu.quest.starter.2.%name of player%} to true
 			message "{@NPC} Hello %player%! I am Lord Willson." to player
 			wait 20 tick
 			message "{@NPC} I need your help! But first gear up at the armoury." to player		
 			stop
-		else if {feu.quest.starter.3.%player%} is true:
-			message "{@NPC} If you follow the road left there is a house. Sadly the owners of this house have now passed away." to player
+		else if {feu.quest.starter.3.%name of player%} is true:
+			message "{@NPC} If you <gold>follow the road left <r>there is a house. Sadly the owners of this house have now passed away." to player
 			wait 40 tick
-			message "{@NPC} Zombies have now Infested this house. I need you to clear out this house. When you are finished, talk to me again" to player
-			set {feu.quest.starter.doorAThouse1.%player%} to true
+			message "{@NPC} Zombies have now Infested this house. I need you to <gold>clear out this house<r>. When you are finished, <gold>retrieve the items in the chest<r> and then talk to me again" to player
+			set {feu.quest.starter.doorAThouse1.%name of player%} to true
+			clear {feu.quest.zombiesKilled.%name of player%}
 			stop
-		else if {feu.quest.starter.4.%player%} is true:
-			set {feu.quest.starter.4.%player%} to false
-			set {feu.quest.starter.%player%} to "Completed"
-			set {feu.quest.starter.doorAThouse1.%player%} to false
+		else if {feu.quest.starter.4.%name of player%} is true:
+			set {feu.quest.starter.4.%name of player%} to false
+			set {feu.quest.starter.%name of player%} to "Completed"
+			set {feu.quest.starter.doorAThouse1.%name of player%} to false
 			message "{@NPC} Thank you for your help! Here take this sword." to player
 			message "{@prefix} You received an iron sword!" to player
 			give an iron sword named "The Slayer" to the player
-		else if {feu.quest.starter.1.%player%} is false:
-			if {feu.quest.starter.%player%} is "In progress":
+			stop
+		else if {feu.quest.starter.%name of player%} is "In progress":
+			if {feu.quest.starter.1.%name of player%} is false:		
 				message "{@NPC} You need to head to the armoury!" to player
 				stop
-			else if {feu.quest.starter.%player%} is "Completed":
-				message "{@NPC} Thank you for your help." to player
-				stop
-		else if {feu.quest.starter.1.%player%} doesn't exist:
+			#else if {feu.quest.starter.%name of player%} is "Completed":
+			#	message "{@NPC} Thank you for your help." to player
+			#	stop
+		else if {feu.quest.starter.1.%name of player%} doesn't exist:
 			execute console command "quest starter %player%"
+			
+	#
+	# Quest: Crazy_house
+	#(this is still Lord Willson)
+	#
+		else if {feu.quest.starter.%name of player%} is "Completed":
+			if {feu.quest.Crazy_house.1.%name of player%} doesn't exist:
+				set {feu.quest.Crazy_house.%arg-2%} to "In progress"
+				set {feu.quest.Crazy_house.1.%name of player%} to true
+				message "{@NPC} Hello again %name of player%. I have a new problem." to player
+				wait 20 tick
+			if {feu.level.%name of player%} is less than 5:
+				message "{@NPC} This time it might be a bit harder than the first time, you need to be a higher level" to player
+				stop
+			else:
+				if {feu.quest.Crazy_house.1.%name of player%} is true:
+					set {feu.quest.Crazy_house.1.%name of player%} to false
+					set {feu.quest.Crazy_house.2.%name of player%} to true
+					clear {feu.quest.zombiesKilled.%name of player%}
+					message "{@NPC} An old friend of mine, <green>Lazarus<r>, went behind my back and started to reanimate corpses." to player
+					wait 20 tick
+					message "{@NPC} I have confined him to his house, but none of my guards want to enter his house!" to player
+					wait 20 tick
+					message "{@NPC} I need you to <gold>run straight ahead <r> and <gold>speak to him in his cellar<r>." to player
+					stop
+				else:
+					message "{@NPC} I need you to <gold>run straight ahead <r> and <gold>speak to Lazarus in his cellar<r>." to player
+					stop
+	#				
+	# Quest: starter
+	#		
 		else:
 			message "{@NPC} Hello."
 			message "{@err} Else triggered at {@NPC} for %player%" to console
 			stop
-	else if "%entity's name%" is "Blacksmith":
-		if {feu.quest.starter.2.%player%} is true:
-			set {feu.quest.starter.2.%player%} to false
-			set {feu.quest.starter.3.%player%} to true
-			Message "{@NPC} Here you are! We only got this old rotten stuff for now, but I recon you will manage." to player
-			give a wooden sword named "<yellow>Old Rotten Sword" to the player
 		
+	else if "%entity's name%" is "Blacksmith":
+		if {feu.quest.starter.2.%name of player%} is true:
+			set {feu.quest.starter.2.%name of player%} to false
+			set {feu.quest.starter.3.%name of player%} to true
+			Message "{@NPC} Here you are! We only got this old rotten stuff for now, but I recon you will manage." to player
+			if {feu.items.starterSword} exists:
+				give {feu.items.starterSword} to player
+			else:
+				message "{@err} starterSword doesn't exist!" to console
+				give player a wooden sword named "<yellow>Old Rotten Sword"
 			equip the player with leather helmet named "<yellow>Decayed Leather Helmet"
 			equip the player with leather chestplate named "<yellow>Decayed Chestplate"
 			equip the player with leather leggings named "<yellow>Decayed Leggings"
 			equip the player with leather boots named "<yellow>Decayed Boots"
 			message "{@NPC} Now go back to Lord Willson." to player
 			stop
-		else if {feu.quest.starter.2.%player%} is false:
+		else if {feu.quest.starter.2.%name of player%} is false:
 			message "{@NPC} How did the quest go?" to player
-		else if {feu.quest.starter.2.%player%} doesn't exist:
+			stop
+		else if {feu.quest.starter.2.%name of player%} doesn't exist:
 			message "{@NPC} You need to speak to Lord Willson first!" to player
+			stop
 		else:
 			message "{@NPC} Hello."
 			message "{@err} Else triggered at {@NPC} for %player%" to console
 			stop
+		
+	#
+	# Quest: <No name>
+	#							
+			
+	else if "%entity's name%" is "Wall Guard":
+		message "{@NPC} This town is under quarantine! You cannot enter without Lord Wilson permission." to player
+		stop
+		
+	#
+	# Quest: Crazy_house
+	#
+		
+	else if "%entity's name%" is "House Guard":
+		if {feu.quest.Crazy_house.2.%name of player%} is true:
+			message "{@NPC} He is locked in the cellar." to player
+			stop
+		else if {feu.quest.Crazy_house.%arg-2%} is "Completed":
+			message "{@NPC} Back to hunt some monsters?" to player
+		else:
+			message "{@NPC} No one can enter, say those with Lord Willson permission." to player
 			

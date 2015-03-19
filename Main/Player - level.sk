@@ -7,14 +7,26 @@ options:
 
 #Commands 	
 			
-command /addXP <number=5> [<player=%player%>]:
-	permission: feu.admin
-	usage: /addXP <XP gained>
+command /addXP <number=5> [<player=%player%>] [<boolean=true>]:
+	usage: /addXP <XP gained> [<player>]
 	trigger:
-		if arg-1 is greater than 2500:
-			message "{@err} You cannot add more than 1000 xp at a time!"
+		if "%name of player%" is "<none>":
+			set {_console} to true
+		if {_console} is true:
+			message "" to player
+		else if {feu.permission.%name of player%} isn't "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
 			stop
-		message "you just gained %arg-1% xp" to arg-2
+		else if {feu.permission.%name of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%name of player%} to "feu.player"
+			stop
+			
+		if arg-1 is greater than 2500:
+			message "{@err} You cannot add more than 2500 xp at a time!"
+			stop
+		if arg-3 is true:
+			message "you just gained %arg-1% xp" to arg-2
 		add arg-1 to {feu.currXP.%arg-2%}
 		if {feu.currXP.%arg-2%} is greater than {feu.maxXP.%arg-2%}:
 			set {_levelUp} to true
@@ -25,7 +37,6 @@ command /addXP <number=5> [<player=%player%>]:
 			
 		if {_levelUp} is true:
 			set {_fixLvL} to {feu.currXP.%arg-2%} - {feu.maxXP.%arg-2%} 
-			message "{_fixLvL}: %{_fixLvL}% | curr: %{feu.currXP.%arg-2%}% | Max: %{feu.maxXP.%arg-2%}%"
 			add 1 to {feu.level.%arg-2%}
 			set arg-2's level to {feu.level.%arg-2%}
 			set {_newMax} to {feu.maxXP.%arg-2%}-{feu.oldMaxXP.%arg-2%}
@@ -45,6 +56,7 @@ command /addXP <number=5> [<player=%player%>]:
 			loop all players in radius 20 around arg-2:
 				message "{@prefix}<b><gold> %arg-2% <yellow>just levelled up!" to loop-player
 			{@debug} is true:
+				message "{_fixLvL}: %{_fixLvL}% | curr: %{feu.currXP.%arg-2%}% | Max: %{feu.maxXP.%arg-2%}%"
 				set {_feu.XPtoNextLevel.%arg-2%} to {feu.maxXP.%arg-2%}-{feu.currXP.%arg-2%}	
 				message "max: <yellow>%{feu.maxXP.%arg-2%}%"
 				message "curr: <yellow>%{feu.currXP.%arg-2%}%"
@@ -68,26 +80,19 @@ command /addXP <number=5> [<player=%player%>]:
 				message "And you need %{_feu.XPtoNextLevel.%arg-2%}% till next level" to arg-2
 
 command /stats [<player=%player%>]:
-	permission: feu.player
 	trigger:
-		set {_nextLVL} to {feu.maxXP.%player%}-{feu.currXP.%player%}
-		set {_feu.XPtoNextLevel.%player%} to {feu.maxXP.%player%}-{feu.currXP.%player%}
-		set {_newMax} to {feu.maxXP.%player%}-{feu.oldMaxXP.%player%}
-		set {_newCurr} to {feu.currXP.%player%}-{feu.oldMaxXP.%player%}
+		set {_nextLVL} to {feu.maxXP.%name of player%}-{feu.currXP.%name of player%}
+		set {_XPtoNextLevel} to {feu.maxXP.%name of player%}-{feu.currXP.%name of player%}
+		set {_newMax} to {feu.maxXP.%name of player%}-{feu.oldMaxXP.%name of player%}
+		set {_newCurr} to {feu.currXP.%name of player%}-{feu.oldMaxXP.%name of player%}
 		set {_precent} to ({_newCurr}/{_newMax})*100
 		message "<gold>--<green>The stats of %arg-1%<gold>--"
 		message "Precent: %{_precent}%%%"
-		message "Current XP: %{feu.currXP.%player%}%"
-		message "Current Level: %{feu.level.%player%}%"
-		message "Amount of XP need for next level: %{feu.maxXP.%player%}%"
-		message "XP needed for next level: %{_feu.XPtoNextLevel.%arg-1%}%"	
+		message "Current XP: %{feu.currXP.%name of player%}%"
+		message "Current Level: %{feu.level.%name of player%}%"
+		#message "Amount of XP need for next level: %{feu.maxXP.%name of player%}%"
+		message "XP needed for next level: %{_XPtoNextLevel}%"	
 #events
-	
-On Level Change:
-	player's level isn't equal to {feu.level.%player%}:
-		Message "{@warn} Something went wrong! Your level shifted unexpectedly!"
-		message "{@warn} %player%'s level just changed unexpectedly" to console
-		set player's level to {feu.level.%player%}	
 		
 on death of zombie:
 	attacker is a player
@@ -112,11 +117,27 @@ on death of zombie:
 		else:			
 			if {feu.fixedspawn.isSpawned.%{_Victim ID}%} exists:
 				set {feu.fixedspawn.isSpawned.%{_Victim ID}%} to false
+			else if {_Victim ID} is "SCZ":
+				message "ignore this, just a cheap hack..."
 			else:
 				message "{@err} Couldn't find any variable!" to attacker
-		if {feu.quest.starter.doorAThouse1.%player%} is true:
-			if {feu.quest.starter.house1.zombiesKilled.%attacker%} is less than 6:
-				add 1 to {feu.quest.starter.house1.zombiesKilled.%attacker%}
+		#		
+		# Quests:		
+		#		
+		
+		if {feu.quest.starter.doorAThouse1.%attacker%} is true:
+			if {feu.quest.zombiesKilled.%attacker%} is less than 6:
+				add 1 to {feu.quest.zombiesKilled.%attacker%}
+			
+		else if {feu.quest.Crazy_house.3.%attacker%} is true:
+			message "%{feu.quest.zombiesKilled.%attacker%}%" to attacker
+			if {feu.quest.zombiesKilled.%attacker%} is 10:
+				set {feu.quest.Crazy_house.3.%attacker%} to false 
+				set {feu.quest.Crazy_house.4.%attacker%} to true
+				message "<light red>???<r>: Great, you seem stronger than the other peasants!" to attacker
+				message "<light red>???<r>: Now run to the next room." to attacker
+			else:
+				add 1 to {feu.quest.zombiesKilled.%attacker%}	
 				
 	if {feu.currXP.%attacker%} is greater than {feu.maxXP.%attacker%}:
 		set {_levelUp} to true
@@ -163,7 +184,8 @@ on death of zombie:
 			message "level: <yellow>%{feu.level.%attacker%}%"
 			message "old max: <yellow>%{feu.oldMaxXP.%attacker%}%"
 			message "And you need <yellow>%{_feu.XPtoNextLevel.%attacker%}% <r>till next level"
-		execute console command "addxp %{_fixLvL}% %attacker%"
+		if {_fixLvL} is greater than 0:
+			execute console command "addxp %{_fixLvL}% %attacker%"
 	else:
 		if {feu.level.%attacker%} isn't 1:
 			set {_newMax} to {feu.maxXP.%attacker%}-{feu.oldMaxXP.%attacker%}

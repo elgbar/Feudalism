@@ -1,0 +1,171 @@
+options:
+	debug: false
+	
+	prefix: <gold>[&aFeudalism<gold>]<r>
+	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
+	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
+	
+	allowedMobs: zombie or villager
+	You: <green>%player%<r>:<r>
+	
+on skript load:
+	set {feu.version} to "0.1.0 Build 6"
+	set {feu.disable.enemies} to false
+	execute console command "gamerule keepInventory true"
+	execute console command "metadata"
+	wait 20 tick
+	execute console command "killall"
+
+on spawn:	
+	if entity isn't {@allowedMobs}:
+		cancel event
+		stop
+	if entity is zombie:
+		wait 4 tick
+		set {_ID} to metadata value "ID" of event-entity
+		if "%{_ID}%" is "<none>":
+			delete event-entity
+			{@debug} is true:
+				message "Unknown Zombie spawned, and killed" to console		
+on damage:
+	wait 2 tick
+	repair the attacker's tool
+	repair attacker's helmet
+	repair attacker's chestplate
+	repair attacker's legs
+	repair attacker's boots
+	
+On Level Change:
+	wait 20 tick
+	player's level isn't equal to {feu.level.%name of player%}:
+		Message "{@warn} Something went wrong! Your level shifted unexpectedly!"
+		message "{@warn} %name of player%'s level just changed unexpectedly" to console
+		set player's level to {feu.level.%name of player%}				
+				
+on death of player:	
+	set death message to ""
+	set {feu.xpBar.%name of player%} to level progress of the player
+	#if you loose your inventory use the command:
+	#/gamerule keepInventory true
+
+on respawn:
+	wait 2 tick
+	set player's level to {feu.level.%name of player%}
+	increase level progress of the player by {feu.xpBar.%name of player%}
+	if {feu.quest.Crazy_house.3.%name of player%} is true:
+		set {_ran1} to a random integer between 0.9 and 2.1
+		if {_ran1} is 1:
+			teleport player to {feu.quest.Crazy_house.roomExit1}
+		else:
+			teleport player to {feu.quest.Crazy_house.stairs1}
+	else if {feu.quest.Crazy_house.4.%name of player%} is true:
+		teleport player to {feu.quest.Crazy_house.roomExit1}
+#Stop if OP	
+on command "/help":
+	player is op:
+		stop
+	cancel event
+	execute player command "/fhelp"	
+
+command /h:
+	trigger:
+		message "{@prefix} A poem!"
+		wait 20 tick
+		message "<green>Old pond..."
+		wait 60 tick
+		message "<light green>A frog leaps in"
+		wait 40 tick
+		message "<light blue>water's sound"
+	
+on break:
+	if player is op:
+		stop
+	cancel event
+
+on place:
+	if block is glowstone:
+		cancel event
+		stop
+	player is op:
+		stop
+	cancel event
+
+on drop:
+	player is op:
+		stop
+	cancel event	
+	
+on rightclick on any door:
+	if player is op:
+		stop
+	message "{@You} The door is locked. Maybe a button could work..." to player			
+	cancel event
+	
+on entity target:
+	set {_Victim ID} to metadata value "ID" of entity
+	if target isn't a player:
+		if name of target exists:
+			cancel event
+			stop
+	else if {feu.running.%{_Victim ID}%} is true:
+		message "canceling" to console
+		cancel event
+
+#	
+#One liners & cancel events
+#
+on drop:
+	cancel event
+	
+on pick up:
+	cancel event
+	
+on zombie break door:
+	cancel event 
+	
+on weather change:
+	set weather to sun
+
+on spread:
+	block is dirt or grass
+	cancel event
+	#stops dirt becoming grass and visa versa
+	
+On Burn:
+	cancel event
+	#stops burning down my castles :(
+
+on ignition:
+	if event-block is air:
+		stop trigger
+	cancel event
+	
+On Fade:
+	cancel event
+	#stops ice 'n' snow from smelting
+	
+On Form:
+	cancel event
+	#prevents ice and snow to form
+	
+on Explode:
+	cancel event
+	
+on death:
+	clear drops
+	
+on combust:
+	entity is zombie
+	cancel event
+	
+on xp spawn:
+	cancel event
+
+on hunger meter change:
+	set hunger of player to 10
+	
+on quit:
+	set leave message to ""	
+	
+on skript stop:
+	set {feu.disable.enemies} to true	
