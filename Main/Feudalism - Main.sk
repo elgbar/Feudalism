@@ -2,8 +2,11 @@ options:
 	debug: false
 	
 	prefix: <gold>[&aFeudalism<gold>]<r>
+	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
+	
 	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
 	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
+	
 #Commands	
 
 command /fhelp:
@@ -15,7 +18,9 @@ command /setMainSpawn:
 	permission: op
 	trigger:
 		set {feu.mainSpawn} to the player's location
-		message "The main spawn point is now at: %{feu.mainSpawn}%"
+		message "{@prefix} The main spawn point is now at your location."
+		{@debug} is true:
+			message "{@debugPrefix} Your location: %player's location%"
 		
 command /killall:
 	trigger:
@@ -30,6 +35,7 @@ command /killall:
 			message "{@err} Permission error!"
 			set {feu.permission.%name of player%} to "feu.player"
 			stop
+			
 		clear {_kills}
 		loop all entities in world "Feudalism_4":
 			loop-entity is not a player
@@ -102,8 +108,59 @@ command /permission <text="help"> [<player=%player%>]:
 
 		else if arg-1 is "help":
 			message "<yellow>------<gold>[&aFeudalism Permissions<gold>]<yellow>------"
-			message "<light red>Usable ranks: <yellow>Player, moderator (<light red>mod<yellow>), technician (<light red>tech<yellow>), administrator (<light red>admin<yellow>) or operator (<light red>op<yellow>)"
-			message "<light red>Players: <yellow>You have to choose an online player for this to work."
+			message ""
+			message "<gold>Usage: /permission <<light red>rank/help<gold>> [<<light red>player<gold>>]"
+			message ""
+			message "<light red>Usable ranks: <yellow>Player, moderator (mod), technician (tech), administrator (admin) or operator (op)"
+			message "<light red>Player: <yellow>You have to choose an online player for this to work."
 			message "<light red>Help: <yellow>Displays this help screen."
-			stop	
+			stop
+		else:
+			message "{@err} Unknown permission ""%arg-1%"""
+			stop
 		message "%arg-2% now have permission %{feu.permission.%arg-2%}%"
+#events
+		
+on rightclick on andesite:
+	if {feu.secret.%location of block%.%name of player%} is false:
+		message "{@prefix} You have already discovered this secret!"
+		stop
+	else:
+		set {feu.secret.%location of block%.%name of player%} to false
+		message "{@prefix} You just found a secret!"
+		set {_ran} to a random integer between 0.9 and 10.1
+		set {_5precent} to ({feu.currXP.%name of player%}/{feu.maxXP.%name of player%})*5
+		if {_ran} is 1:			
+			message "{@prefix} %{_5precent}% XP!"
+			execute console command "addxp %{_5precent}% %player% false"
+		else if {_ran} is 2:
+			set {_5precent} to {_5precent}*2 #ups it to 10%
+			message "{@prefix} %{_5precent}% XP!" 
+			execute console command "addxp %{_5precent}% %player% false"
+		else if {_ran} is 3:
+			message "{@prefix} Sadly it's already looted!"
+		else if {_ran} is 4:
+			message "{@prefix} But you can't find anything!"
+		else if {_ran} is 5:
+			message "{@prefix} it's all a hoax, nothing here!"
+		else if {_ran} is 6:
+			message "{@prefix} A poem!"
+			wait 20 tick
+			message "<green>Old pond..."
+			wait 60 tick
+			message "<light green>A frog leaps in"
+			wait 40 tick
+			message "<light blue>water's sound"
+		else if {_ran} is 7:
+			message "{@prefix} an iron sword!"
+			give player {feu.items.lucky_sword}		
+		else if {_ran} is 8:
+			message "{@prefix} some text!"
+		else if {_ran} is 9:
+			message "{@prefix} <light red>A ZOMBIE!"
+			run player command "/scz %{feu.level.%name of player%}% %name of player%'s_Zombie_Buddy chain stone" as op
+		else if {_ran} is 10:
+			message "{@prefix} A hug!"
+		else:
+			message "{@prefix} <light red> An ERROR ^^. Oh and and 10 xp"
+			execute console command "addxp 10 %player%"

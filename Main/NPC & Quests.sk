@@ -2,6 +2,8 @@ options:
 	debug: false
 	
 	prefix: <gold>[&aFeudalism<gold>]<r>
+	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
+	
 	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
 	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
 	
@@ -106,7 +108,7 @@ command /metadata:
 		loop {feu.metadata.loc::*}:
 			set metadata value "BlockInfo" of block {feu.metadata.below.%loop-value%} below loop-value to "%{feu.metadata.txt.%loop-value%}%"
 			{@debug} is true:
-				message "<gold>loc: %loop-value% | TxT: %{feu.metadata.txt.%loop-value%}% | Location set" to console
+				message "{@debugPrefix} <gold>loc: %loop-value% | TxT: %{feu.metadata.txt.%loop-value%}% | Location set" to console
 
 command /setTeleport <text> <text>:
 	usage: /setTeleport <quest> <name>
@@ -128,7 +130,7 @@ command /quest <text> <player> [<boolean=false>]:
 			clear {feu.quest.starter.4.%arg-2%}
 			clear {feu.quest.starter.doorAThouse1.%name of player%}			
 			{@debug} is true:
-				message "{@prefix} Enabling quest starter for %arg-2%" to arg-2
+				message "{@debugPrefix} Enabling quest starter for %arg-2%" to arg-2
 		else if arg-1 is "Crazy_house":
 			#This quest is dependent on that the player have finished "starter" quest
 			if arg-3 is true:
@@ -137,7 +139,7 @@ command /quest <text> <player> [<boolean=false>]:
 					set {feu.quest.starter.1.%arg-2%} to false
 					set {feu.quest.Crazy_house.%arg-2%} to "In progress"
 					{@debug} is true:
-						message "{@prefix} Enabling quest Crazy_house for %arg-2%" to arg-2
+						message "{@debugPrefix} Enabling quest Crazy_house for %arg-2%" to arg-2
 			clear {feu.quest.Crazy_house.%arg-2%}
 			clear {feu.quest.Crazy_house.1.%arg-2%}
 			clear {feu.quest.Crazy_house.2.%arg-2%}
@@ -274,49 +276,7 @@ on rightclick on chest:
 		else:
 			message "{@You} I should first kill some more zombies." to player
 	#else if "%{_BlockInfo}%" is equal to "starter.chest1":	
-on rightclick on andesite:
-	if true is false: #{feu.secret.%location of block%.%name of player%} is false:
-		message "{@prefix} You have already discovered this secret!"
-		stop
-	else:
-		set {feu.secret.%location of block%.%name of player%} to false
-		message "{@prefix} You just found a secret!"
-		set {_ran} to a random integer between 0.9 and 10.1
-		set {_5precent} to ({feu.currXP.%name of player%}/{feu.maxXP.%name of player%})*5
-		if {_ran} is 1:			
-			message "{@prefix} %{_5precent}% XP!"
-			execute console command "addxp %{_5precent}% %player% false"
-		else if {_ran} is 2:
-			set {_5precent} to {_5precent}*2 #ups it to 10%
-			message "{@prefix} %{_5precent}% XP!" 
-			execute console command "addxp %{_5precent}% %player% false"
-		else if {_ran} is 3:
-			message "{@prefix} Sadly it's already looted!"
-		else if {_ran} is 4:
-			message "{@prefix} But you can't find anything!"
-		else if {_ran} is 5:
-			message "{@prefix} its been all a hoax, nothing here!"
-		else if {_ran} is 6:
-			message "{@prefix} A poem!"
-			wait 20 tick
-			message "<green>Old pond..."
-			wait 60 tick
-			message "<light green>A frog leaps in"
-			wait 40 tick
-			message "<light blue>water's sound"
-		else if {_ran} is 7:
-			message "{@prefix} an iron sword!"
-			give player {feu.items.lucky_sword}		
-		else if {_ran} is 8:
-			message "{@prefix} some text!"
-		else if {_ran} is 9:
-			message "{@prefix} <light red>A ZOMBIE!"
-			run player command "/scz %{feu.level.%name of player%}% %name of player%'s_Zombie_Buddy chain stone" as op
-		else if {_ran} is 10:
-			message "{@prefix} A hug!"
-		else:
-			message "{@prefix} <light red> An ERROR ^^. Oh and and 10 xp"
-			execute console command "addxp 10 %player%"
+
 on rightclick on entity:
 	#Test entity to check if this works
 	#default chat: message "{@NPC} " to player

@@ -2,9 +2,11 @@ options:
 	debug: false
 	
 	prefix: <gold>[&aFeudalism<gold>]<r>
+	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
+	
 	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
 	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
-
+	
 #Commands
 command /resetPlayer <text="help"> [<text="help">]:
 	executable by: console

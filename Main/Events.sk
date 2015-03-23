@@ -2,6 +2,8 @@ options:
 	debug: false
 	
 	prefix: <gold>[&aFeudalism<gold>]<r>
+	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
+	
 	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
 	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
 	
@@ -9,7 +11,7 @@ options:
 	You: <green>%player%<r>:<r>
 	
 on skript load:
-	set {feu.version} to "0.1.0 Build 6"
+	set {feu.version} to "0.1.0 Build 7"
 	set {feu.disable.enemies} to false
 	execute console command "gamerule keepInventory true"
 	execute console command "metadata"
@@ -26,7 +28,7 @@ on spawn:
 		if "%{_ID}%" is "<none>":
 			delete event-entity
 			{@debug} is true:
-				message "Unknown Zombie spawned, and killed" to console		
+				message "{@debugPrefix} Unknown Zombie spawned, and killed" to console		
 on damage:
 	wait 2 tick
 	repair the attacker's tool
@@ -66,16 +68,6 @@ on command "/help":
 		stop
 	cancel event
 	execute player command "/fhelp"	
-
-command /h:
-	trigger:
-		message "{@prefix} A poem!"
-		wait 20 tick
-		message "<green>Old pond..."
-		wait 60 tick
-		message "<light green>A frog leaps in"
-		wait 40 tick
-		message "<light blue>water's sound"
 	
 on break:
 	if player is op:
@@ -108,12 +100,24 @@ on entity target:
 			cancel event
 			stop
 	else if {feu.running.%{_Victim ID}%} is true:
-		message "canceling" to console
+		message "{@debugPrefix} Cancelling target of player" to console
 		cancel event
 
 #	
 #One liners & cancel events
 #
+on consume:
+	stop
+	#Need to fix this
+	cancel event
+	player is holding a potion of:
+		message "holding" to player
+		delete player's tool
+		add 2 to player's health
+	
+on heal:
+	cancel event
+	
 on drop:
 	cancel event
 	

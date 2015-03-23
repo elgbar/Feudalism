@@ -2,9 +2,11 @@ options:
 	debug: false
 	
 	prefix: <gold>[&aFeudalism<gold>]<r>
+	debugPrefixfix: <gold>[<yellow>Debug<gold>]<r>
+	
 	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
 	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
-
+	
 #Commands 	
 			
 command /addXP <number=5> [<player=%player%>] [<boolean=true>]:
@@ -56,13 +58,13 @@ command /addXP <number=5> [<player=%player%>] [<boolean=true>]:
 			loop all players in radius 20 around arg-2:
 				message "{@prefix}<b><gold> %arg-2% <yellow>just levelled up!" to loop-player
 			{@debug} is true:
-				message "{_fixLvL}: %{_fixLvL}% | curr: %{feu.currXP.%arg-2%}% | Max: %{feu.maxXP.%arg-2%}%"
+				message "{@debugPrefixfix} {_fixLvL}: %{_fixLvL}% | curr: %{feu.currXP.%arg-2%}% | Max: %{feu.maxXP.%arg-2%}%"
 				set {_feu.XPtoNextLevel.%arg-2%} to {feu.maxXP.%arg-2%}-{feu.currXP.%arg-2%}	
-				message "max: <yellow>%{feu.maxXP.%arg-2%}%"
-				message "curr: <yellow>%{feu.currXP.%arg-2%}%"
-				message "level: <yellow>%{feu.level.%arg-2%}%"
-				message "old max: <yellow>%{feu.oldMaxXP.%arg-2%}%"
-				message "And you need <yellow>%{_feu.XPtoNextLevel.%arg-2%}% <r>till next level"
+				message "{@debugPrefixfix} max: <yellow>%{feu.maxXP.%arg-2%}%"
+				message "{@debugPrefixfix} curr: <yellow>%{feu.currXP.%arg-2%}%"
+				message "{@debugPrefixfix} level: <yellow>%{feu.level.%arg-2%}%"
+				message "{@debugPrefixfix} old max: <yellow>%{feu.oldMaxXP.%arg-2%}%"
+				message "{@debugPrefixfix} And you need <yellow>%{_feu.XPtoNextLevel.%arg-2%}% <r>till next level"
 			wait 1 tick
 			execute console command "addxp %{_fixLvL}% %arg-2%"
 		else:
@@ -76,8 +78,8 @@ command /addXP <number=5> [<player=%player%>] [<boolean=true>]:
 			{@debug} is true:
 				set {_precent} to {_temp}*100
 				set {_feu.XPtoNextLevel.%arg-2%} to {feu.maxXP.%arg-2%}-{feu.currXP.%arg-2%}
-				message "You're at %{_precent}%%%" to arg-2
-				message "And you need %{_feu.XPtoNextLevel.%arg-2%}% till next level" to arg-2
+				message "{@debugPrefixfix} You're at %{_precent}%%%" to arg-2
+				message "{@debugPrefixfix} And you need %{_feu.XPtoNextLevel.%arg-2%}% till next level" to arg-2
 
 command /stats [<player=%player%>]:
 	trigger:
@@ -109,8 +111,9 @@ on death of zombie:
 		set {_victim level} to "%{_victim level}%" parsed as a number
 		set {_xp} to floor(1+{_victim level}^1.1)
 		add {_xp} to {feu.currXP.%attacker%}
-		{@debug} is true:
-			message "{@prefix} You gained <light green>%{_xp}%<r> xp" to attacker
+		
+		#This could be toggled
+		message "{@debugPrefixfix} You gained <light green>%{_xp}%<r> xp" to attacker
 			
 		if 	"%{_victim ID}%" is equal to "<none>":
 			Message "{@warn} Didn't find any ID on the zombie." to attacker
@@ -179,11 +182,11 @@ on death of zombie:
 		#debug stuff that reports stats 
 		{@debug} is true:
 			set {_feu.XPtoNextLevel.%attacker%} to {feu.maxXP.%attacker%}-{feu.currXP.%attacker%}	
-			message "max: <yellow>%{feu.maxXP.%attacker%}%"
-			message "curr: <yellow>%{feu.currXP.%attacker%}%"
-			message "level: <yellow>%{feu.level.%attacker%}%"
-			message "old max: <yellow>%{feu.oldMaxXP.%attacker%}%"
-			message "And you need <yellow>%{_feu.XPtoNextLevel.%attacker%}% <r>till next level"
+			message "{@debugPrefixfix} max: <yellow>%{feu.maxXP.%attacker%}%"
+			message "{@debugPrefixfix} curr: <yellow>%{feu.currXP.%attacker%}%"
+			message "{@debugPrefixfix} level: <yellow>%{feu.level.%attacker%}%"
+			message "{@debugPrefixfix} old max: <yellow>%{feu.oldMaxXP.%attacker%}%"
+			message "{@debugPrefixfix} And you need <yellow>%{_feu.XPtoNextLevel.%attacker%}% <r>till next level"
 		if {_fixLvL} is greater than 0:
 			execute console command "addxp %{_fixLvL}% %attacker%"
 	else:
@@ -196,8 +199,8 @@ on death of zombie:
 		set the attacker's level progress to {_lvlProgress}
 		{@debug} is true:
 			set {_precent} to {_temp}*100
-			message "You're at %{_precent}%%%"
-			Message "And you need %{_feu.XPtoNextLevel.%attacker%}% till next level"
+			message "{@debugPrefixfix} You're at %{_precent}%%%"
+			message "{@debugPrefixfix} And you need %{_feu.XPtoNextLevel.%attacker%}% till next level"
 	
 
 		
