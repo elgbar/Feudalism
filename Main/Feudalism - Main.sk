@@ -11,7 +11,115 @@ options:
 
 command /fhelp:
 	trigger:
-		message "TODO: add a help screen, credit, how to play (tutorial), buycraft page, kiste skal lage denne"
+		message "<yellow>------<gold>[&aFeudalism Commands<gold>]<yellow>------"
+		
+		#player commands
+		message "<light red>/printExperiencePoints<r>: <yellow>enable or disable the xp count."
+		message "<light red>/stats<r>: <yellow>Show your stats."
+		
+		if {feu.permission.%name of player%} is "feu.player":
+			stop
+			
+		#Mod commands
+		message "<yellow>------<gold>[&aStaff Commands<gold>]<yellow>------"
+		message "<light red>/killall <player>: <yellow>kills every mob in the world"
+		message "<light red>/fullyClear : <yellow>removes everything from the player"
+		message "<light red>/spawnCostumsZombies : <yellow>spawn a custom zombie"
+		message "<light red>/fixZombieSpawns : <yellow>make a zombie spawn with the argument's number (at its location)"
+		message "<light red>/targetInfo : <yellow>Lists variables of the target zombie"
+		
+		if {feu.permission.%name of player%} is "feu.mod":
+			stop
+			
+		#Tech commands
+		message "<light red>/spawnNPC : <yellow>spawn a NPC (villager)"
+		message "<light red>/setFixedZombieSpawn : <yellow>sets a new spawn point for zombies to spawn"
+		message "<light red>/removeFixedSpawn : <yellow>remove the fixed zombie spawn at the player's location "
+		message "<light red>/setCheckpoint : <yellow>sets a checkpoint used in quests"
+		message "<light red>/delCheckpoint : <yellow>Removes the checkpoint at player's location"
+		message "<light red>/setLocation : <yellow>Sets a location (can be used for teleportation) with the format ""{feu.arg-1.arg-2}"""
+		message "<light red>/saveItem <name of saved item> : <yellow>saves items OR block with specials tags on them (like enchantment and a name)"
+		
+		if {feu.permission.%name of player%} is "feu.tech":
+			stop
+			
+		#admin commands
+		message "<light red>/permission : <yellow>sets the permission of a player"
+		message "<light red>/fixAllZombieSpawns : <yellow>makes all the fixed spawn points enable spawning"
+		
+		if {feu.permission.%name of player%} is "feu.admin":
+			stop
+		
+		#OP commands
+		message "<light red>/setMainSpawn : <yellow>set the main spawn of feudalism"
+		message "<light red>/addXP : <yellow>adds xp to a player"
+		
+		if "%name of player%" is "<none>":
+			#Console commands
+			message "<light red>/setup : <yellow>reset a player"
+			#message "<light red>/resetPlayer : Doesn't work yet"
+			message "<light red>/removeAllFixedSpawns : <yellow>remove every singe one of the fixed spawn points for zombies"
+			message "<light red>/delAllMetadata : <yellow>remove all checkpoints used by quests"
+			message "<light red>/quest : <yellow>set the progress of quests for a player"
+
+command /saveItem <text>:
+	usage: /saveItem <(random text)|name>
+	executable by: player
+	trigger:
+		if player is holding air:
+			message "{@err} You need to hold something!"
+			stop
+		if {feu.permission.%name of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%name of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%name of player%} to "feu.player"
+			stop
+		if arg-1 is "name":
+			if {feu.items.%name of tool%} exists:
+				message "{@warn} This tool already exits, but is now overwritten by your new tool. If this was a mistake you have received the old item."
+				give {feu.items.%name of tool%} to player
+			add name of tool to {feu.AllItems::*}
+			set {feu.items.%name of tool%} to player's tool
+			message "{@prefix} To receive this item from skript use: <light green>{feu.items.%name of tool%}"	
+		else:
+			if {feu.items.%arg-1%} exists:
+				message "{@warn} This tool already exits, but is now overwritten by your new tool. If this was a mistake you have received the old item."
+				give {feu.items.%arg-1%} to player
+			add arg-1 to {feu.AllItems::*}
+			set {feu.items.%arg-1%} to player's tool
+			message "{@prefix} To receive this item from skript use: <light green>{feu.items.%arg-1%}"		
+
+command /setLocation <text> <text>:
+	usage: /setLocation <text 1> <text 2>
+	executable by: player
+	trigger:
+		if {feu.permission.%name of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%name of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%name of player%} to "feu.player"
+			stop
+		if {feu.%arg-1%.%arg-2%} exists:
+			message "{@warn} The name of this location is set to somewhere else! But it's set to here now."
+		set {feu.%arg-1%.%arg-2%} to player's location
+		message "{@prefix} Done!"
+		
+command /printExperiencePoints <text>:
+	aliases: pxp
+	usage: /pxp <true|false>
+	trigger:
+		if "%arg-1%" is "true":
+			set {feu.printXP.%name of player%} to true
+			message "{@prefix} You will now see how much xp you gain."
+		else if "%arg-1%" is "false":
+			set {feu.printXP.%name of player%} to false
+			message "{@prefix} You will now <bold>not <r>see how much xp you gain."
+		else:
+			message "usage: /xp <true|false>"
+			stop
 			
 command /setMainSpawn:
 	executable by: players
@@ -69,6 +177,7 @@ command /spawnNPC <text> <text>:
 			
 		if arg-2 isn't "priest", "blacksmith", "librarian", "butcher" or "farmer":
 			message "{@err} Unknown profession" to player
+			message "{@prefix} Valid professions: priest, blacksmith, librarian, butcher or farmer"
 			stop
 			
 		set {_name} to arg-1
@@ -77,6 +186,7 @@ command /spawnNPC <text> <text>:
 		execute player command "npc profession %arg-2%"
 		execute player command "npc lookclose"
 		execute player command "npc respawn 1"
+		execute player command "npc gravity"
 		
 command /permission <text="help"> [<player=%player%>]:
 	usage: /permission <rank/help> [<player>]
@@ -104,6 +214,9 @@ command /permission <text="help"> [<player=%player%>]:
 			set {feu.permission.%arg-2%} to "feu.admin"
 			
 		else if arg-1 is "operator" or "op":
+			if {feu.permission.%name of player%} is "feu.admin":
+				message "{@err} You set someones permission to higher than your own!"
+				stop
 			set {feu.permission.%arg-2%} to "op"
 
 		else if arg-1 is "help":
@@ -116,9 +229,10 @@ command /permission <text="help"> [<player=%player%>]:
 			message "<light red>Help: <yellow>Displays this help screen."
 			stop
 		else:
-			message "{@err} Unknown permission ""%arg-1%"""
+			message "{@err} Unknown rank ""%arg-1%"""
+			message "<light red>Usable ranks: <yellow>Player, moderator (mod), technician (tech), administrator (admin) or operator (op)"
 			stop
-		message "%arg-2% now have permission %{feu.permission.%arg-2%}%"
+		message "{@prefix} %arg-2% now have permission %{feu.permission.%arg-2%}%"
 #events
 		
 on rightclick on andesite:
@@ -129,13 +243,15 @@ on rightclick on andesite:
 		set {feu.secret.%location of block%.%name of player%} to false
 		message "{@prefix} You just found a secret!"
 		set {_ran} to a random integer between 0.9 and 10.1
-		set {_5precent} to ({feu.currXP.%name of player%}/{feu.maxXP.%name of player%})*5
+		
 		if {_ran} is 1:			
 			message "{@prefix} %{_5precent}% XP!"
+			set {_5precent} to ({feu.currXP.%name of player%}/{feu.maxXP.%name of player%})*5
 			execute console command "addxp %{_5precent}% %player% false"
 		else if {_ran} is 2:
+			set {_5precent} to ({feu.currXP.%name of player%}/{feu.maxXP.%name of player%})*5
 			set {_5precent} to {_5precent}*2 #ups it to 10%
-			message "{@prefix} %{_5precent}% XP!" 
+			message "{@prefix} %{_5precent}% XP!" 		
 			execute console command "addxp %{_5precent}% %player% false"
 		else if {_ran} is 3:
 			message "{@prefix} Sadly it's already looted!"
@@ -158,7 +274,7 @@ on rightclick on andesite:
 			message "{@prefix} some text!"
 		else if {_ran} is 9:
 			message "{@prefix} <light red>A ZOMBIE!"
-			run player command "/scz %{feu.level.%name of player%}% %name of player%'s_Zombie_Buddy chain stone" as op
+			run player command "/scz %{feu.level.%name of player%}% %name of player%'s_Zombie_Buddy leather stone" as op
 		else if {_ran} is 10:
 			message "{@prefix} A hug!"
 		else:

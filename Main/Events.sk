@@ -23,7 +23,7 @@ on spawn:
 		cancel event
 		stop
 	if entity is zombie:
-		wait 4 tick
+		wait 10 tick
 		set {_ID} to metadata value "ID" of event-entity
 		if "%{_ID}%" is "<none>":
 			delete event-entity
@@ -85,7 +85,12 @@ on place:
 on drop:
 	player is op:
 		stop
-	cancel event	
+	cancel event
+	
+on pick up:
+	player is op:
+		stop
+	cancel event
 	
 on rightclick on any door:
 	if player is op:
@@ -95,17 +100,17 @@ on rightclick on any door:
 	
 on entity target:
 	set {_Victim ID} to metadata value "ID" of entity
-	if target isn't a player:
+	if target is a villager:
+		cancel event
+		stop
+	else if target isn't a player:
 		if name of target exists:
 			cancel event
 			stop
-	else if {feu.running.%{_Victim ID}%} is true:
-		message "{@debugPrefix} Cancelling target of player" to console
-		cancel event
-
-#	
-#One liners & cancel events
-#
+	{@debug} is true:
+		if {feu.running.%{_Victim ID}%} is true:
+			message "{@debugPrefix} Cancelling target of player" to console
+			cancel event
 on consume:
 	stop
 	#Need to fix this
@@ -114,14 +119,12 @@ on consume:
 		message "holding" to player
 		delete player's tool
 		add 2 to player's health
+		
+#	
+#One liners & cancel events
+#
 	
 on heal:
-	cancel event
-	
-on drop:
-	cancel event
-	
-on pick up:
 	cancel event
 	
 on zombie break door:

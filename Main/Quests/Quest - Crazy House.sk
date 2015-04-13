@@ -1,0 +1,99 @@
+options:
+	debug: false
+	
+	prefix: <gold>[&aFeudalism<gold>]<r>
+	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
+	
+	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
+	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
+	
+	You: <green>%arg-1%<r>:<r>
+	
+command /Crazy_house.house1 <player>:
+	#action: on any movement
+	executable by: console
+	trigger:
+		if {feu.quest.Crazy_house.2.%arg-1%} is true:
+			stop
+		else if {feu.quest.Crazy_house.%arg-1%} is "Completed":
+			stop
+		else:
+			teleport arg-1 to {feu.quest.Crazy_house.house1}
+			message "<green>House Guard<r>: No one can enter, say those with Lord Willson permission." to arg-1
+			stop
+			
+command /Crazy_house.stairs1 <player>:
+	#action: on any movement
+	executable by: console
+	trigger:
+		if {feu.quest.Crazy_house.2.%arg-1%} is true:
+			teleport arg-1 to {feu.quest.Crazy_house.stairs1}
+			set {feu.quest.Crazy_house.3.%arg-1%} to true
+			set {feu.quest.Crazy_house.2.%arg-1%} to false
+			message "<light red>???<r>: Hello %arg-1%. I was looking forward to your visit." to arg-1
+			message "<light red>???<r>: It is always fun to watch Willson's peasants die." to arg-1			
+			stop
+		else if {feu.quest.Crazy_house.%arg-1%} is "Completed":
+			stop
+		else:
+			teleport arg-1 to {feu.quest.Crazy_house.stairs1}
+			message "<light red>???<r>: You cannot leave now!" to arg-1
+			stop
+				
+command /Crazy_house.roomExit1 <player>:
+	#action: on any movement
+	executable by: console
+	trigger:
+		if {feu.quest.Crazy_house.3.%arg-1%} is true:
+			teleport arg-1 to {feu.quest.Crazy_house.roomExit1}
+			message "<light red>???<r>: kill the zombies first!" to arg-1
+			stop
+		else if {feu.quest.Crazy_house.4.%arg-1%} is true:
+			if {end.%name of player%} doesn't exist:
+				message "{@debugPrefix} This is as far as I have come in the quest... -kh498" to arg-1
+				set {end.%name of player%} to true
+command /NPCLordWilson_CrazyHouse <player>:
+	#action: on rightclick on entity
+	executable by: console
+	trigger:
+		set {_name} to "<green>Lord Wilson<r>:<r>"
+		
+		if {feu.quest.Crazy_house.1.%arg-1%} doesn't exist:
+			set {feu.quest.Crazy_house.%arg-1%} to "In progress"
+			set {feu.quest.Crazy_house.1.%arg-1%} to true
+			message "%{_name}% Hello again %arg-1%. I have a new problem." to arg-1
+			wait 20 tick
+		if {feu.level.%arg-1%} is less than 5:
+			message "%{_name}% This time it might be a bit harder than the first time, you need to be a higher level" to arg-1
+			stop
+		else if {feu.quest.Crazy_house.1.%arg-1%} is true:
+			set {feu.quest.Crazy_house.1.%arg-1%} to false
+			set {feu.quest.Crazy_house.2.%arg-1%} to true
+			clear {feu.quest.zombiesKilled.%arg-1%}
+			message "%{_name}% An old friend of mine, <green>Lazarus<r>, went behind my back and started to reanimate corpses." to arg-1
+			wait 20 tick
+			message "%{_name}% I have confined him to his house, but none of my guards want to enter his house!" to arg-1
+			wait 20 tick
+			message "%{_name}% I need you to <gold>run straight ahead <r> and <gold>speak to him in his cellar<r>." to arg-1
+			stop
+		else if {feu.quest.Crazy_house.2.%arg-1%} is true:
+			message "%{_name}% I need you to <gold>run straight ahead <r> and <gold>speak to Lazarus in his cellar<r>." to arg-1
+			stop	
+		else:
+			message "%{_name}% Hello."
+			message "{@err} Else triggered at %{_name}% for %arg-1%, at quest Crazy_house" to console
+			stop
+command /NPCHouseGuard_CrazyHouse <player>:
+	#action: on rightclick on entity
+	executable by: console
+	trigger:
+		set {_name} to "<green>House Guard<r>:<r>"			
+		
+		if {feu.quest.Crazy_house.2.%arg-1%} is true:
+			message "%{_name}% He is locked in the cellar." to arg-1
+			stop
+		else if {feu.quest.Crazy_house.%arg-1%} is "Completed":
+			message "%{_name}% Back to hunt some monsters?" to arg-1
+		else:
+			message "%{_name}% No one can enter, say those with Lord Willson permission." to arg-1
+			

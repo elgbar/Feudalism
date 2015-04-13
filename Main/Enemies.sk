@@ -56,7 +56,7 @@ command /spawnCostumsZombies <integer> <text="Zombie"> [<text="default">] [<text
 				message "{@warn} The entity is spawned with no armour!"
 		else:
 			message "{@err} Argument 3 (armour) is wrong!"
-			kill last spawned entity			
+			delete last spawned entity			
 			stop
 		#Weapon	
 			
@@ -76,7 +76,7 @@ command /spawnCostumsZombies <integer> <text="Zombie"> [<text="default">] [<text
 				message "{@warn} The entity is spawned with no arms!"
 		else:
 			message "{@err} Argument 4 (arms) is wrong!"
-			kill last spawned entity			
+			delete last spawned entity			
 			stop	
 			
 		#Health	
@@ -247,13 +247,10 @@ command /fixZombieSpawns <integer>:
 		else:
 			message "{@err} No variable here!"
 			
-command /targetInfo:	
+command /targetInfo:
+	executable by: player
 	trigger:
-		if "%name of player%" is "<none>":
-			set {_console} to true
-		if {_console} is true:
-			message "" to player
-		else if {feu.permission.%name of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%name of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%name of player%} doesn't exist:
@@ -294,8 +291,9 @@ every 5 second in world "Feudalism_4":
 		{@hardDebugging} is true:
 			message "{@debugPrefix} %{_ID}% | loop-entity-2 is a zombie" to console
 		set {_ID} to metadata value "ID" of loop-entity
-		
-		set {_location} to {feu.mainSpawn}
+		if "%{_ID}%" is "SCZ":
+			stop loop
+		set {_location} to {feu.quest.zombies.random}
 		set {_x} to metadata value "X" of loop-entity 
 		set {_y} to metadata value "Y" of loop-entity 
 		set {_z} to metadata value "Z" of loop-entity
@@ -416,7 +414,7 @@ every 20 second in world "Feudalism_4":
 
 					set {_health} to floor((16.09*{feu.fixedspawn.lvl.%loop-value-1%}^0.38)/2)
 					set the maximum health of the last spawned entity to {_health}
-					wait a tick
+					wait 2 tick
 					set health of the last spawned entity to {_health}					
 				else:
 					{@debug} is true:
@@ -426,7 +424,7 @@ every 20 second in world "Feudalism_4":
 								if distance between loop-entity-2 and loop-value-1 is greater than {feu.returnToSpawn.%{_round Coords}%}:
 									message "{@debugPrefix} %loop-index-1% | Making zombie run to its spawn" to console	
 								else:
-									message "{@debugPrefix} %loop-index-1% | A zombie is already spawned" to console						
+									message "{@debugPrefix} %loop-index-1% | A zombie is already spawned" to console											
 		if {_players} is 0:
 			loop entities in radius 15 around last spawned entity:
 				if {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%{_location}%}%} is true:

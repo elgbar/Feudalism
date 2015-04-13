@@ -2,15 +2,15 @@ options:
 	debug: false
 	
 	prefix: <gold>[&aFeudalism<gold>]<r>
-	debugPrefixfix: <gold>[<yellow>Debug<gold>]<r>
+	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
 	
 	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
 	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
 	
 #Commands 	
 			
-command /addXP <number=5> [<player=%player%>] [<boolean=true>]:
-	usage: /addXP <XP gained> [<player>]
+command /addXP <number> [<player=%player%>] [<boolean=true>]:
+	usage: /addXP <XP> [<player>]
 	trigger:
 		if "%name of player%" is "<none>":
 			set {_console} to true
@@ -27,9 +27,11 @@ command /addXP <number=5> [<player=%player%>] [<boolean=true>]:
 		if arg-1 is greater than 2500:
 			message "{@err} You cannot add more than 2500 xp at a time!"
 			stop
+			
 		if arg-3 is true:
-			message "you just gained %arg-1% xp" to arg-2
+			message "{@prefix} you just gained %arg-1% xp" to arg-2
 		add arg-1 to {feu.currXP.%arg-2%}
+		
 		if {feu.currXP.%arg-2%} is greater than {feu.maxXP.%arg-2%}:
 			set {_levelUp} to true
 		else if {feu.currXP.%arg-2%} is equal to {feu.maxXP.%arg-2%}:
@@ -58,15 +60,15 @@ command /addXP <number=5> [<player=%player%>] [<boolean=true>]:
 			loop all players in radius 20 around arg-2:
 				message "{@prefix}<b><gold> %arg-2% <yellow>just levelled up!" to loop-player
 			{@debug} is true:
-				message "{@debugPrefixfix} {_fixLvL}: %{_fixLvL}% | curr: %{feu.currXP.%arg-2%}% | Max: %{feu.maxXP.%arg-2%}%"
+				message "{@debugPrefix} {_fixLvL}: %{_fixLvL}% | curr: %{feu.currXP.%arg-2%}% | Max: %{feu.maxXP.%arg-2%}%"
 				set {_feu.XPtoNextLevel.%arg-2%} to {feu.maxXP.%arg-2%}-{feu.currXP.%arg-2%}	
-				message "{@debugPrefixfix} max: <yellow>%{feu.maxXP.%arg-2%}%"
-				message "{@debugPrefixfix} curr: <yellow>%{feu.currXP.%arg-2%}%"
-				message "{@debugPrefixfix} level: <yellow>%{feu.level.%arg-2%}%"
-				message "{@debugPrefixfix} old max: <yellow>%{feu.oldMaxXP.%arg-2%}%"
-				message "{@debugPrefixfix} And you need <yellow>%{_feu.XPtoNextLevel.%arg-2%}% <r>till next level"
+				message "{@debugPrefix} max: <yellow>%{feu.maxXP.%arg-2%}%"
+				message "{@debugPrefix} curr: <yellow>%{feu.currXP.%arg-2%}%"
+				message "{@debugPrefix} level: <yellow>%{feu.level.%arg-2%}%"
+				message "{@debugPrefix} old max: <yellow>%{feu.oldMaxXP.%arg-2%}%"
+				message "{@debugPrefix} And you need <yellow>%{_feu.XPtoNextLevel.%arg-2%}% <r>till next level"
 			wait 1 tick
-			execute console command "addxp %{_fixLvL}% %arg-2%"
+			execute console command "addxp %{_fixLvL}% %arg-2% false"
 		else:
 			if {feu.level.%arg-2%} isn't 1:
 				set {_newMax} to {feu.maxXP.%arg-2%}-{feu.oldMaxXP.%arg-2%}
@@ -76,23 +78,28 @@ command /addXP <number=5> [<player=%player%>] [<boolean=true>]:
 				set {_temp} to {feu.currXP.%arg-2%}/{feu.maxXP.%arg-2%}
 			set the arg-2's level progress to {_temp}
 			{@debug} is true:
-				set {_precent} to {_temp}*100
+				set {_percent} to {_temp}*100
 				set {_feu.XPtoNextLevel.%arg-2%} to {feu.maxXP.%arg-2%}-{feu.currXP.%arg-2%}
-				message "{@debugPrefixfix} You're at %{_precent}%%%" to arg-2
-				message "{@debugPrefixfix} And you need %{_feu.XPtoNextLevel.%arg-2%}% till next level" to arg-2
+				message "{@debugPrefix} You're at %{_percent}%%%" to arg-2
+				message "{@debugPrefix} And you need %{_feu.XPtoNextLevel.%arg-2%}% till next level" to arg-2
 
 command /stats [<player=%player%>]:
 	trigger:
-		set {_nextLVL} to {feu.maxXP.%name of player%}-{feu.currXP.%name of player%}
-		set {_XPtoNextLevel} to {feu.maxXP.%name of player%}-{feu.currXP.%name of player%}
-		set {_newMax} to {feu.maxXP.%name of player%}-{feu.oldMaxXP.%name of player%}
-		set {_newCurr} to {feu.currXP.%name of player%}-{feu.oldMaxXP.%name of player%}
-		set {_precent} to ({_newCurr}/{_newMax})*100
+		set {_nextLVL} to {feu.maxXP.%arg-1%}-{feu.currXP.%arg-1%}
+		set {_XPtoNextLevel} to {feu.maxXP.%arg-1%}-{feu.currXP.%arg-1%}
+		if {feu.level.%arg-1%} isn't 1:
+			set {_newMax} to {feu.maxXP.%arg-1%}-{feu.oldMaxXP.%arg-1%}
+			set {_newCurr} to {feu.currXP.%arg-1%}-{feu.oldMaxXP.%arg-1%}
+			set {_percent} to {_newCurr}/{_newMax}*100	
+		else:
+			set {_percent} to {feu.currXP.%arg-1%}/{feu.maxXP.%arg-1%}*100
 		message "<gold>--<green>The stats of %arg-1%<gold>--"
-		message "Precent: %{_precent}%%%"
-		message "Current XP: %{feu.currXP.%name of player%}%"
-		message "Current Level: %{feu.level.%name of player%}%"
-		#message "Amount of XP need for next level: %{feu.maxXP.%name of player%}%"
+		if {feu.currXP.%arg-1%} is 0:
+			message "Percent: 0%%"
+		else:
+			message "Percent: %{_percent}%%%"
+		message "Current XP: %{feu.currXP.%arg-1%}%"
+		message "Current Level: %{feu.level.%arg-1%}%"
 		message "XP needed for next level: %{_XPtoNextLevel}%"	
 #events
 		
@@ -103,17 +110,17 @@ on death of zombie:
 	#message "%{feu.fixedspawn.isSpawned.%{feu.IDtoLocation.%{_victim level}%}%}%" to attacker
 	#message "ID: %{_Victim ID}% | Lvl: %{_victim level}%" to attacker
 	if "%{_victim level}%" is equal to "<none>":
-		add 1 to {feu.currXP.%attacker%}
+		add 1 to {feu.currXP.%name of attacker%}
 		{@debug} is true:
 			message "{@warn} Zombie at %attacker's location% isn't a custom spawned zombie. ID: %{_Victim ID}%" to attacker
 			message "{@prefix} You gained <light green>1<r> xp" to attacker
 	else:
 		set {_victim level} to "%{_victim level}%" parsed as a number
 		set {_xp} to floor(1+{_victim level}^1.1)
-		add {_xp} to {feu.currXP.%attacker%}
+		add {_xp} to {feu.currXP.%name of attacker%}
 		
-		#This could be toggled
-		message "{@debugPrefixfix} You gained <light green>%{_xp}%<r> xp" to attacker
+		if {feu.printXP.%name of attacker%} is true:
+			message "{@prefix} You gained <light green>%{_xp}%<r> xp" to attacker
 			
 		if 	"%{_victim ID}%" is equal to "<none>":
 			Message "{@warn} Didn't find any ID on the zombie." to attacker
@@ -121,44 +128,45 @@ on death of zombie:
 			if {feu.fixedspawn.isSpawned.%{_Victim ID}%} exists:
 				set {feu.fixedspawn.isSpawned.%{_Victim ID}%} to false
 			else if {_Victim ID} is "SCZ":
-				message "ignore this, just a cheap hack..."
+				#ignore this, just a cheap hack... so zombies can spawn without being spawned from skript
+				message ""
 			else:
 				message "{@err} Couldn't find any variable!" to attacker
 		#		
 		# Quests:		
 		#		
 		
-		if {feu.quest.starter.doorAThouse1.%attacker%} is true:
-			if {feu.quest.zombiesKilled.%attacker%} is less than 6:
-				add 1 to {feu.quest.zombiesKilled.%attacker%}
+		if {feu.quest.starter.doorAThouse1.%name of attacker%} is true:
+			if {feu.quest.zombiesKilled.%name of attacker%} is less than 6:
+				add 1 to {feu.quest.zombiesKilled.%name of attacker%}
 			
-		else if {feu.quest.Crazy_house.3.%attacker%} is true:
-			message "%{feu.quest.zombiesKilled.%attacker%}%" to attacker
-			if {feu.quest.zombiesKilled.%attacker%} is 10:
-				set {feu.quest.Crazy_house.3.%attacker%} to false 
-				set {feu.quest.Crazy_house.4.%attacker%} to true
+		else if {feu.quest.Crazy_house.3.%name of attacker%} is true:
+			#message "%{feu.quest.zombiesKilled.%name of attacker%}%" to attacker
+			if {feu.quest.zombiesKilled.%name of attacker%} is 10:
+				set {feu.quest.Crazy_house.3.%name of attacker%} to false 
+				set {feu.quest.Crazy_house.4.%name of attacker%} to true
 				message "<light red>???<r>: Great, you seem stronger than the other peasants!" to attacker
 				message "<light red>???<r>: Now run to the next room." to attacker
 			else:
-				add 1 to {feu.quest.zombiesKilled.%attacker%}	
+				add 1 to {feu.quest.zombiesKilled.%name of attacker%}	
 				
-	if {feu.currXP.%attacker%} is greater than {feu.maxXP.%attacker%}:
+	if {feu.currXP.%name of attacker%} is greater than {feu.maxXP.%name of attacker%}:
 		set {_levelUp} to true
-	else if {feu.currXP.%attacker%} is equal to {feu.maxXP.%attacker%}:
+	else if {feu.currXP.%name of attacker%} is equal to {feu.maxXP.%name of attacker%}:
 		set {_levelUp} to true
 	else:
 		set {_levelUp} to false
 			
 	if {_levelUp} is true:
 		#level up the player
-		add 1 to {feu.level.%attacker%}
-		message "variable: %{feu.level.%attacker%}% | Bar: %attacker's level%"
-		set attacker's level to {feu.level.%attacker%}
+		add 1 to {feu.level.%name of attacker%}
+		message "variable: %{feu.level.%name of attacker%}% | Bar: %attacker's level%"
+		set attacker's level to {feu.level.%name of attacker%}
 		
 		#reset the percentage bar of the player
-		set {_newMax} to {feu.maxXP.%attacker%}-{feu.oldMaxXP.%attacker%}
-		set {_newMax} to {feu.maxXP.%attacker%}-{feu.oldMaxXP.%attacker%}
-		set {_newCurr} to {feu.currXP.%attacker%}-{feu.oldMaxXP.%attacker%}
+		set {_newMax} to {feu.maxXP.%name of attacker%}-{feu.oldMaxXP.%name of attacker%}
+		set {_newMax} to {feu.maxXP.%name of attacker%}-{feu.oldMaxXP.%name of attacker%}
+		set {_newCurr} to {feu.currXP.%name of attacker%}-{feu.oldMaxXP.%name of attacker%}
 		set {_lvlProgress} to {_newCurr}/{_newMax}	
 		if {_lvlProgress} is 1:
 			set the attacker's level progress to 0
@@ -168,39 +176,39 @@ on death of zombie:
 			set the attacker's level progress to {_lvlProgress}
 		
 		#This makes use the xp is what it is supposed to be (if you f.eks have too much xp)
-		set {feu.oldMaxXP.%attacker%} to {feu.maxXP.%attacker%}
+		set {feu.oldMaxXP.%name of attacker%} to {feu.maxXP.%name of attacker%}
 		
 		#This calculates how much xp need till next level
-		set {feu.maxXP.%attacker%} to floor((({feu.level.%attacker%}+300*(2^({feu.level.%attacker%}/10)))/4)+{feu.oldMaxXP.%attacker%})
+		set {feu.maxXP.%name of attacker%} to floor((({feu.level.%name of attacker%}+300*(2^({feu.level.%name of attacker%}/10)))/4)+{feu.oldMaxXP.%name of attacker%})
 		
-		set {feu.currXP.%attacker%} to {feu.oldMaxXP.%attacker%}
+		set {feu.currXP.%name of attacker%} to {feu.oldMaxXP.%name of attacker%}
 		
 		#says to all players in radius set that the player levelled up
 		message "{@prefix}<yellow> You just levelled up!" to attacker
 		loop all players in radius 20 around attacker:
-			message "{@prefix}<b><gold> %attacker% <yellow>just levelled up!" to loop-player
+			message "{@prefix}<b><gold> %name of attacker% <yellow>just levelled up!" to loop-player
 		#debug stuff that reports stats 
 		{@debug} is true:
-			set {_feu.XPtoNextLevel.%attacker%} to {feu.maxXP.%attacker%}-{feu.currXP.%attacker%}	
-			message "{@debugPrefixfix} max: <yellow>%{feu.maxXP.%attacker%}%"
-			message "{@debugPrefixfix} curr: <yellow>%{feu.currXP.%attacker%}%"
-			message "{@debugPrefixfix} level: <yellow>%{feu.level.%attacker%}%"
-			message "{@debugPrefixfix} old max: <yellow>%{feu.oldMaxXP.%attacker%}%"
-			message "{@debugPrefixfix} And you need <yellow>%{_feu.XPtoNextLevel.%attacker%}% <r>till next level"
+			set {_feu.XPtoNextLevel.%name of attacker%} to {feu.maxXP.%name of attacker%}-{feu.currXP.%name of attacker%}	
+			message "{@debugPrefix} max: <yellow>%{feu.maxXP.%name of attacker%}%"
+			message "{@debugPrefix} curr: <yellow>%{feu.currXP.%name of attacker%}%"
+			message "{@debugPrefix} level: <yellow>%{feu.level.%name of attacker%}%"
+			message "{@debugPrefix} old max: <yellow>%{feu.oldMaxXP.%name of attacker%}%"
+			message "{@debugPrefix} And you need <yellow>%{_feu.XPtoNextLevel.%name of attacker%}% <r>till next level"
 		if {_fixLvL} is greater than 0:
-			execute console command "addxp %{_fixLvL}% %attacker%"
+			execute console command "addxp %{_fixLvL}% %name of attacker%"
 	else:
-		if {feu.level.%attacker%} isn't 1:
-			set {_newMax} to {feu.maxXP.%attacker%}-{feu.oldMaxXP.%attacker%}
-			set {_newCurr} to {feu.currXP.%attacker%}-{feu.oldMaxXP.%attacker%}
+		if {feu.level.%name of attacker%} isn't 1:
+			set {_newMax} to {feu.maxXP.%name of attacker%}-{feu.oldMaxXP.%name of attacker%}
+			set {_newCurr} to {feu.currXP.%name of attacker%}-{feu.oldMaxXP.%name of attacker%}
 			set {_lvlProgress} to {_newCurr}/{_newMax}		
 		else:
-			set {_lvlProgress} to {feu.currXP.%attacker%}/{feu.maxXP.%attacker%}
+			set {_lvlProgress} to {feu.currXP.%name of attacker%}/{feu.maxXP.%name of attacker%}
 		set the attacker's level progress to {_lvlProgress}
 		{@debug} is true:
-			set {_precent} to {_temp}*100
-			message "{@debugPrefixfix} You're at %{_precent}%%%"
-			message "{@debugPrefixfix} And you need %{_feu.XPtoNextLevel.%attacker%}% till next level"
+			set {_percent} to {_temp}*100
+			message "{@debugPrefix} You're at %{_percent}%%%"
+			message "{@debugPrefix} And you need %{_feu.XPtoNextLevel.%name of attacker%}% till next level"
 	
 
 		

@@ -42,7 +42,8 @@ command /resetPlayer <text="help"> [<text="help">]:
 			stop
 		add arg-1 to {resetPlayer::*}
 				
-command /fullyClear [<player=%player%>] [<text>]:
+command /fullyClear <player> [<text>]:
+	usage: /fc player 
 	aliases: fc
 	trigger:
 		if "%name of player%" is "<none>":
@@ -56,7 +57,6 @@ command /fullyClear [<player=%player%>] [<text>]:
 			message "{@err} Permission error!"
 			set {feu.permission.%name of player%} to "feu.player"
 			stop
-			
 		execute console command "clear %arg-1%"
 		set the helmet slot of arg-1 to air
 		set the chestplate slot of arg-1 to air
@@ -64,7 +64,7 @@ command /fullyClear [<player=%player%>] [<text>]:
 		set the boots slot of arg-1 to air
 		set the maximum health of arg-1 to 10
 		if "%arg-2%" isn't "Silent":
-			message "<green>Done!"
+			message "{@prefix} Done!"
 			
 command /setup <player>:
 	aliases: su
@@ -76,15 +76,18 @@ command /setup <player>:
 		set gamemode of arg-1 to adventure
 		execute console command "fc %arg-1% Silent" #fully clear
 		set the maximum health of the arg-1 to 10
+		heal the arg-1
 		set {feu.permission.%arg-1%} to "feu.player"
+		execute console command "ungod %arg-1%"
 		
 		#Level stuff
 		set {feu.level.%arg-1%} to 1
-		set arg-1's level to {feu.level.%arg-1%}
+		set arg-1's level to 1
 		set level progress of the arg-1 to 0
 		set {feu.maxXP.%arg-1%} to 80
 		set {feu.currXP.%arg-1%} to 0
 		set {feu.XPtoNextLevel.%arg-1%} to {feu.maxXP.%arg-1%}
+		set {feu.printXP.%name of player%} to true
 		
 		#Other
 		execute console command "quest starter %arg-1%"
