@@ -18,6 +18,7 @@ command /delAllMetadata:
 		message "Done! Restart to remove the values"
 		
 command /delCheckpoint:
+	aliases: /dcp
 	executable by: player
 	trigger:
 		if {feu.permission.%name of player%} isn't "feu.tech", "feu.admin" or "op":

@@ -30,6 +30,9 @@ on spawn:
 			{@debug} is true:
 				message "{@debugPrefix} Unknown Zombie spawned, and killed" to console		
 on damage:
+	if damage cause is fall:
+		cancel event 
+		stop
 	wait 2 tick
 	repair the attacker's tool
 	repair attacker's helmet
@@ -112,14 +115,18 @@ on entity target:
 			message "{@debugPrefix} Cancelling target of player" to console
 			cancel event
 on consume:
-	stop
 	#Need to fix this
 	cancel event
+	#This is a skript/minecraft bug:
 	player is holding a potion of:
-		message "holding" to player
+		#though this fixes it
+		if name of tool is "Instant health I":
+			add 2 to player's health
+		else if name of tool is "Instant health II":
+			add 3 to player's health
+		else if name of tool is "Instant health III":
+			add 4.5 to player's health
 		delete player's tool
-		add 2 to player's health
-		
 #	
 #One liners & cancel events
 #
@@ -128,7 +135,7 @@ on heal:
 	cancel event
 	
 on zombie break door:
-	cancel event 
+	cancel event
 	
 on weather change:
 	set weather to sun
@@ -149,7 +156,7 @@ on ignition:
 	
 On Fade:
 	cancel event
-	#stops ice 'n' snow from smelting
+	#stops ice and snow from smelting
 	
 On Form:
 	cancel event

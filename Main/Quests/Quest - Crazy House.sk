@@ -70,14 +70,14 @@ command /NPCLordWilson_CrazyHouse <player>:
 			set {feu.quest.Crazy_house.1.%arg-1%} to false
 			set {feu.quest.Crazy_house.2.%arg-1%} to true
 			clear {feu.quest.zombiesKilled.%arg-1%}
-			message "%{_name}% An old friend of mine, <green>Lazarus<r>, went behind my back and started to reanimate corpses." to arg-1
+			message "%{_name}% An old friend of mine, <light green>Lazarus<r>, went behind my back and started to reanimate corpses." to arg-1
 			wait 20 tick
-			message "%{_name}% I have confined him to his house, but none of my guards want to enter his house!" to arg-1
+			message "%{_name}% I have confined him to his house, but none of my men wants to enter his house!" to arg-1
 			wait 20 tick
-			message "%{_name}% I need you to <gold>run straight ahead <r> and <gold>speak to him in his cellar<r>." to arg-1
+			message "%{_name}% I need you to <gold>run straight ahead over the bridge<r> and <gold>speak to him in his cellar<r>." to arg-1
 			stop
 		else if {feu.quest.Crazy_house.2.%arg-1%} is true:
-			message "%{_name}% I need you to <gold>run straight ahead <r> and <gold>speak to Lazarus in his cellar<r>." to arg-1
+			message "%{_name}% I need you to <gold>run straight ahead over the bridge<r> and <gold>speak to him in his cellar<r>." to arg-1
 			stop	
 		else:
 			message "%{_name}% Hello."

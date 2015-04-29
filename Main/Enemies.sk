@@ -37,7 +37,7 @@ command /spawnCostumsZombies <integer> <text="Zombie"> [<text="default">] [<text
 		set metadata value "Level" of last spawned entity to arg-1
 		#Armour
 		
-		if arg-2 is "leather":
+		if arg-3 is "leather":
 			equip last spawned entity with all leather armour
 		else if arg-3 is "chain":
 			equip last spawned entity with all chain armour
@@ -47,7 +47,7 @@ command /spawnCostumsZombies <integer> <text="Zombie"> [<text="default">] [<text
 			equip last spawned entity with all gold armour	
 		else if arg-3 is "diamond":
 			equip last spawned entity with all diamond armour
-		else if arg-3 is "none" or "default":
+		else if arg-3 is "none", "air" or "default":
 			set helmet slot of last spawned entity to air
 			set chestplate slot of last spawned entity to air
 			set legging slot of last spawned entity to air
@@ -70,7 +70,7 @@ command /spawnCostumsZombies <integer> <text="Zombie"> [<text="default">] [<text
 			set tool of the last spawned entity to a gold sword
 		else if arg-4 is "diamond":
 			set tool of the last spawned entity to a diamond sword
-		else if arg-4 is "none" or "default":
+		else if arg-4 is "none", "air" or "default":
 			set tool of the last spawned entity to air
 			if arg-4 is "default":
 				message "{@warn} The entity is spawned with no arms!"
@@ -302,6 +302,7 @@ every 5 second in world "Feudalism_4":
 		set z coordinate of {_location} to ({_z}) parsed as number
 
 		if "%{_ID}%" isn't "<none>":
+			#needs optimizing
 			{@hardDebugging} is true:
 				message "{@debugPrefix} %{_ID}% | selected the right zombie" to console
 			if distance between loop-entity and {_location} is greater than 14:
@@ -333,7 +334,6 @@ every 5 second in world "Feudalism_4":
 				set {feu.running.%{feu.fixedspawn.ID.%{_location}%}%} to true
 				{@debug} is true:
 					message "{@debugPrefix} %{_ID}% | <yellow>too far from home, running home" to console
-				#stop
 			else:
 				{@hardDebugging} is true:
 					message "{@debugPrefix} <green>Nothing to report on %{_ID}%" to console
@@ -411,10 +411,9 @@ every 20 second in world "Feudalism_4":
 						set tool of the last spawned entity to air
 					else:
 						message "{@err} An error was retuned from auto spawn at %loop-value-1%: <red>Wrong argument! <light red>The entity is spawned with no arms!" to console
-
+					wait 2 tick
 					set {_health} to floor((16.09*{feu.fixedspawn.lvl.%loop-value-1%}^0.38)/2)
 					set the maximum health of the last spawned entity to {_health}
-					wait 2 tick
 					set health of the last spawned entity to {_health}					
 				else:
 					{@debug} is true:

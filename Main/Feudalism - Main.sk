@@ -14,53 +14,53 @@ command /fhelp:
 		message "<yellow>------<gold>[&aFeudalism Commands<gold>]<yellow>------"
 		
 		#player commands
-		message "<light red>/printExperiencePoints<r>: <yellow>enable or disable the xp count."
-		message "<light red>/stats<r>: <yellow>Show your stats."
+		message "<light red>/printExperiencePoints <light green>(<r>pxp<light green>)<r> : <yellow>enable or disable the xp count."
+		message "<light red>/stats<r> : <yellow>Show your stats."
 		
 		if {feu.permission.%name of player%} is "feu.player":
 			stop
 			
 		#Mod commands
 		message "<yellow>------<gold>[&aStaff Commands<gold>]<yellow>------"
-		message "<light red>/killall <player>: <yellow>kills every mob in the world"
-		message "<light red>/fullyClear : <yellow>removes everything from the player"
-		message "<light red>/spawnCostumsZombies : <yellow>spawn a custom zombie"
-		message "<light red>/fixZombieSpawns : <yellow>make a zombie spawn with the argument's number (at its location)"
-		message "<light red>/targetInfo : <yellow>Lists variables of the target zombie"
+		message "<light red>/killall <player> <r> : <yellow>kills every mob in the world"
+		message "<light red>/fullyClear <light green>(<r>fc<light green>)<r> : <yellow>removes everything from the player"
+		message "<light red>/spawnCostumsZombies <light green>(<r>SCZ<light green>)<r> : <yellow>spawn a custom zombie"
+		message "<light red>/fixZombieSpawns <light green>(<r>FZS<light green>)<r> : <yellow>make a zombie spawn with the argument's number (at its location)"
+		message "<light red>/targetInfo <r>: <yellow>Lists variables of the target zombie"
 		
 		if {feu.permission.%name of player%} is "feu.mod":
 			stop
 			
 		#Tech commands
-		message "<light red>/spawnNPC : <yellow>spawn a NPC (villager)"
-		message "<light red>/setFixedZombieSpawn : <yellow>sets a new spawn point for zombies to spawn"
-		message "<light red>/removeFixedSpawn : <yellow>remove the fixed zombie spawn at the player's location "
-		message "<light red>/setCheckpoint : <yellow>sets a checkpoint used in quests"
-		message "<light red>/delCheckpoint : <yellow>Removes the checkpoint at player's location"
-		message "<light red>/setLocation : <yellow>Sets a location (can be used for teleportation) with the format ""{feu.arg-1.arg-2}"""
-		message "<light red>/saveItem <name of saved item> : <yellow>saves items OR block with specials tags on them (like enchantment and a name)"
+		message "<light red>/spawnNPC <r>: <yellow>spawn a NPC (villager)"
+		message "<light red>/setFixedZombieSpawn <light green>(<r>SFZS<light green>)<r> : <yellow>sets a new spawn point for zombies to spawn"
+		message "<light red>/removeFixedSpawn <light green>(<r>RFS<light green>)<r> : <yellow>remove the fixed zombie spawn at the player's location "
+		message "<light red>/setCheckpoint <light green>(<r>SCP<light green>)<r> : <yellow>sets a checkpoint used in quests"
+		message "<light red>/delCheckpoint <light green>(<r>DCP<light green>)<r> : <yellow>Removes the checkpoint at player's location"
+		message "<light red>/setLocation <r>: <yellow>Sets a location (can be used for teleportation) with the format ""{feu.arg-1.arg-2}"""
+		message "<light red>/saveItem <name of saved item> <r>: <yellow>saves items OR block with specials tags on them (like enchantment and a name)"
 		
 		if {feu.permission.%name of player%} is "feu.tech":
 			stop
 			
 		#admin commands
-		message "<light red>/permission : <yellow>sets the permission of a player"
-		message "<light red>/fixAllZombieSpawns : <yellow>makes all the fixed spawn points enable spawning"
+		message "<light red>/permission <r>: <yellow>sets the permission of a player"
+		message "<light red>/fixAllZombieSpawns <r>: <yellow>makes all the fixed spawn points enable spawning"
 		
 		if {feu.permission.%name of player%} is "feu.admin":
 			stop
 		
 		#OP commands
-		message "<light red>/setMainSpawn : <yellow>set the main spawn of feudalism"
-		message "<light red>/addXP : <yellow>adds xp to a player"
+		message "<light red>/setMainSpawn <r>: <yellow>set the main spawn of feudalism"
+		message "<light red>/addXP <r>: <yellow>adds xp to a player"
 		
 		if "%name of player%" is "<none>":
 			#Console commands
-			message "<light red>/setup : <yellow>reset a player"
-			#message "<light red>/resetPlayer : Doesn't work yet"
-			message "<light red>/removeAllFixedSpawns : <yellow>remove every singe one of the fixed spawn points for zombies"
-			message "<light red>/delAllMetadata : <yellow>remove all checkpoints used by quests"
-			message "<light red>/quest : <yellow>set the progress of quests for a player"
+			message "<light red>/setup <r>: <yellow>reset a player"
+			#message "<light red>/resetPlayer <r>: Doesn't work yet"
+			message "<light red>/removeAllFixedSpawns <r>: <yellow>remove every singe one of the fixed spawn points for zombies"
+			message "<light red>/delAllMetadata <r>: <yellow>remove all checkpoints used by quests"
+			message "<light red>/quest <r>: <yellow>set the progress of quests for a player"
 
 command /saveItem <text>:
 	usage: /saveItem <(random text)|name>
@@ -118,7 +118,7 @@ command /printExperiencePoints <text>:
 			set {feu.printXP.%name of player%} to false
 			message "{@prefix} You will now <bold>not <r>see how much xp you gain."
 		else:
-			message "usage: /xp <true|false>"
+			message "usage: /pxp <true|false>"
 			stop
 			
 command /setMainSpawn:
