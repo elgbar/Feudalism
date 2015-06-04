@@ -17,51 +17,54 @@ command /delAllMetadata:
 		clear {feu.metadata.loc::*}
 		message "Done! Restart to remove the values"
 		
-command /delCheckpoint:
-	aliases: /dcp
+command /delMetadata:
+	aliases: /dmd
 	executable by: player
-	trigger:
-		if {feu.permission.%name of player%} isn't "feu.tech", "feu.admin" or "op":
+	trigger: 
+		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%name of player%} doesn't exist:
+		else if {feu.permission.%uuid of player%} doesn't exist:
 			message "{@err} Permission error!"
-			set {feu.permission.%name of player%} to "feu.player"
-			stop
-			
-		set {_round Coords} to location 1 below player
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop			
+		set {_round Coords} to location of player
 		set {_x} to x coordinate of {_round Coords}
 		set {_y} to y coordinate of {_round Coords}
 		set {_z} to z coordinate of {_round Coords}
 		set x coordinate of {_round Coords} to floor({_x})
 		set y coordinate of {_round Coords} to floor({_y})
 		set z coordinate of {_round Coords} to floor({_z})
-		if {feu.metadata.txt.%{_round Coords}%} exists:
-			delete {feu.metadata.txt.%{_round Coords}%}
-			delete {feu.metadata.below.%{_round Coords}%}
-			remove {_round Coords} from {feu.metadata.loc::*}
-		else:
-			message "{@prefix} No checkpoint here. Remember its the block you're standing on!"
+		set {_spoted} to false
+		loop {feu.metadata.loc::*}:
+			if "%{_round Coords}%" is equal to "%loop-value%":
+				delete {feu.metadata.txt.%{_round Coords}%}
+				delete {feu.metadata.below.%{_round Coords}%}
+				remove {_round Coords} from {feu.metadata.loc::*}
+				message "{@prefix} Removed it!"
+				set {_spoted} to true
+		if {_spoted} is false:
+			message "{@prefix} No metadata here. Remember its the block you're standing on!"
 			stop
 		message "{@prefix} Done!"
 		
-command /setCheckpoint <text> [<integer=0>]:
-	usage: /setCheckpoint <Info> [<How many blocks below (0=at player's feets)>]
-	aliases: /scp
+command /setMetadata <text> [<integer=2>]:
+	usage: /setMetadata <Info> [<How many blocks below (0=inside player's feet) (d=2)>]
+	aliases: /smd
 	executable by: player
 	trigger:
-		if {feu.permission.%name of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%name of player%} doesn't exist:
+		else if {feu.permission.%uuid of player%} doesn't exist:
 			message "{@err} Permission error!"
-			set {feu.permission.%name of player%} to "feu.player"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+		if block arg-2 below player isn't bedrock:
+			message "{@err} No bedrock %arg-2% below you."
 			stop
 		set {_arg-2} to arg-2
-		if block below player is chest:
-			if arg-2 is 1:
-				message "{@warn} Chests are glitched, autofixing it for you ;)"
-				set {_arg-2} to 0
+				
 		set {_round Coords} to location of player
 		set {_x} to x coordinate of {_round Coords}
 		set {_y} to y coordinate of {_round Coords}
@@ -91,33 +94,33 @@ command /quest <text> <player> [<boolean=false>]:
 	usage: /quest <quest> <player> [<boolean, true: done previous quests, false: fully reset>]
 	trigger:
 		if arg-1 is "starter":
-			set {feu.quest.starter.%arg-2%} to "In progress"	
+			set {feu.quest.starter.%uuid of arg-2%} to "In progress"	
 			
-			set {feu.quest.starter.1.%arg-2%} to true
-			clear {feu.quest.starter.2.%arg-2%}
-			clear {feu.quest.starter.3.%arg-2%}
-			clear {feu.quest.starter.4.%arg-2%}
-			clear {feu.quest.starter.doorAThouse1.%name of player%}			
+			set {feu.quest.starter.1.%uuid of arg-2%} to true
+			clear {feu.quest.starter.2.%uuid of arg-2%}
+			clear {feu.quest.starter.3.%uuid of arg-2%}
+			clear {feu.quest.starter.4.%uuid of arg-2%}
+			clear {feu.quest.starter.doorAThouse1.%uuid of player%}			
 			{@debug} is true:
 				message "{@debugPrefix} Enabling quest starter for %arg-2%" to arg-2
 		else if arg-1 is "Crazy_house":
 			#This quest is dependent on that the player have finished "starter" quest
 			if arg-3 is true:
-				if {feu.quest.starter.%arg-2%} isn't "Completed":
-					set {feu.quest.starter.%arg-2%} to "Completed"
-					set {feu.quest.starter.1.%arg-2%} to false
-					set {feu.quest.Crazy_house.%arg-2%} to "In progress"
+				if {feu.quest.starter.%uuid of arg-2%} isn't "Completed":
+					set {feu.quest.starter.%uuid of arg-2%} to "Completed"
+					set {feu.quest.starter.1.%uuid of arg-2%} to false
+					set {feu.quest.Crazy_house.%uuid of arg-2%} to "In progress"
 					{@debug} is true:
 						message "{@debugPrefix} Enabling quest Crazy_house for %arg-2%" to arg-2
-			clear {feu.quest.Crazy_house.%arg-2%}
-			clear {feu.quest.Crazy_house.1.%arg-2%}
-			clear {feu.quest.Crazy_house.2.%arg-2%}
-			clear {feu.quest.Crazy_house.3.%arg-2%}
+			clear {feu.quest.Crazy_house.%uuid of arg-2%}
+			clear {feu.quest.Crazy_house.1.%uuid of arg-2%}
+			clear {feu.quest.Crazy_house.2.%uuid of arg-2%}
+			clear {feu.quest.Crazy_house.3.%uuid of arg-2%}
+			clear {feu.quest.Crazy_house.4.%uuid of arg-2%}
 			
 		else:
 			message "usage: /quest <quest> <player>"
 			stop
 			
 		#Global variables	
-		set {feu.quest.zombiesKilled.%arg-2%} to 0	
-	
+		set {feu.quest.zombiesKilled.%uuid of arg-2%} to 0	

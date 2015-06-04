@@ -13,9 +13,9 @@ command /Crazy_house.house1 <player>:
 	#action: on any movement
 	executable by: console
 	trigger:
-		if {feu.quest.Crazy_house.2.%arg-1%} is true:
+		if {feu.quest.Crazy_house.1.%uuid of arg-1%} is true:
 			stop
-		else if {feu.quest.Crazy_house.%arg-1%} is "Completed":
+		else if {feu.quest.Crazy_house.%uuid of arg-1%} is "Completed":
 			stop
 		else:
 			teleport arg-1 to {feu.quest.Crazy_house.house1}
@@ -26,74 +26,113 @@ command /Crazy_house.stairs1 <player>:
 	#action: on any movement
 	executable by: console
 	trigger:
-		if {feu.quest.Crazy_house.2.%arg-1%} is true:
+		if {feu.quest.Crazy_house.1.%uuid of arg-1%} is true:
 			teleport arg-1 to {feu.quest.Crazy_house.stairs1}
-			set {feu.quest.Crazy_house.3.%arg-1%} to true
-			set {feu.quest.Crazy_house.2.%arg-1%} to false
+			loop entities in radius 3 around player:#{feu.quest.Crazy_house.roomExit1}:	
+				#message "hello" to console
+				set {_ID} to metadata value "ID" of loop-entity
+				if {feu.fixedspawn.isSpawned.%{_ID}%} exists:
+					delete loop-entity
+					set {feu.fixedspawn.isSpawned.%{_ID}%} to false
+			set {feu.godMode.%uuid of player%} to false	
+			set {feu.godMode.%uuid of player%} to false	
+			set {feu.quest.Crazy_house.2.%uuid of arg-1%} to true
+			set {feu.quest.Crazy_house.1.%uuid of arg-1%} to false
 			message "<light red>???<r>: Hello %arg-1%. I was looking forward to your visit." to arg-1
 			message "<light red>???<r>: It is always fun to watch Willson's peasants die." to arg-1			
 			stop
-		else if {feu.quest.Crazy_house.%arg-1%} is "Completed":
+		else if {feu.quest.Crazy_house.%uuid of arg-1%} is "Completed":
 			stop
 		else:
 			teleport arg-1 to {feu.quest.Crazy_house.stairs1}
 			message "<light red>???<r>: You cannot leave now!" to arg-1
 			stop
+	
+command /Crazy_house.Boss.Enter1 <player>:
+	#action: on any movement
+	executable by: console
+	trigger:
+		Teleport arg-1 to {feu.quest.Crazy_house.boss1}
+		message "<light red>Lazarus<r>: So we finally meet face to face! Too bad you will die!" to player
+		#wait 20 second
+		#message "{@You} I should watch out for his minions"
+
+command /Crazy_house.Boss.exit1 <player>:
+	#action: Boss death
+	executable by: console
+	trigger:
+		message "{@prefix} Quest complete!" to arg-1
+		teleport player to {feu.mainSpawn}
 				
 command /Crazy_house.roomExit1 <player>:
 	#action: on any movement
 	executable by: console
 	trigger:
-		if {feu.quest.Crazy_house.3.%arg-1%} is true:
+		#message "1" to console
+		if {feu.quest.Crazy_house.2.%uuid of arg-1%} is true:
 			teleport arg-1 to {feu.quest.Crazy_house.roomExit1}
 			message "<light red>???<r>: kill the zombies first!" to arg-1
 			stop
-		else if {feu.quest.Crazy_house.4.%arg-1%} is true:
-			if {end.%name of player%} doesn't exist:
-				message "{@debugPrefix} This is as far as I have come in the quest... -kh498" to arg-1
-				set {end.%name of player%} to true
+				
 command /NPCLordWilson_CrazyHouse <player>:
 	#action: on rightclick on entity
 	executable by: console
 	trigger:
 		set {_name} to "<green>Lord Wilson<r>:<r>"
 		
-		if {feu.quest.Crazy_house.1.%arg-1%} doesn't exist:
-			set {feu.quest.Crazy_house.%arg-1%} to "In progress"
-			set {feu.quest.Crazy_house.1.%arg-1%} to true
+		#if {feu.level.%uuid of arg-1%} is less than 5:
+		#	message "%{_name}% This time it might be a bit harder than the first time, you need to be a higher level." to arg-1
+		if {feu.quest.Crazy_house.1.%uuid of arg-1%} doesn't exist:
+			if {feu.level.%uuid of arg-1%} is less than 10:
+				message "%{_name}% This is still hard for you, but I am willing to give you a shot." to arg-1
+				wait 20 tick
+			set {feu.quest.Crazy_house.%uuid of arg-1%} to "In progress"
+			set {feu.quest.Crazy_house.1.%uuid of arg-1%} to true
+			clear {feu.quest.zombiesKilled.%uuid of arg-1%}
 			message "%{_name}% Hello again %arg-1%. I have a new problem." to arg-1
-			wait 20 tick
-		if {feu.level.%arg-1%} is less than 5:
-			message "%{_name}% This time it might be a bit harder than the first time, you need to be a higher level" to arg-1
-			stop
-		else if {feu.quest.Crazy_house.1.%arg-1%} is true:
-			set {feu.quest.Crazy_house.1.%arg-1%} to false
-			set {feu.quest.Crazy_house.2.%arg-1%} to true
-			clear {feu.quest.zombiesKilled.%arg-1%}
+			wait 15 tick
 			message "%{_name}% An old friend of mine, <light green>Lazarus<r>, went behind my back and started to reanimate corpses." to arg-1
 			wait 20 tick
 			message "%{_name}% I have confined him to his house, but none of my men wants to enter his house!" to arg-1
 			wait 20 tick
 			message "%{_name}% I need you to <gold>run straight ahead over the bridge<r> and <gold>speak to him in his cellar<r>." to arg-1
 			stop
-		else if {feu.quest.Crazy_house.2.%arg-1%} is true:
+		else if {feu.quest.Crazy_house.1.%uuid of arg-1%} is true:
 			message "%{_name}% I need you to <gold>run straight ahead over the bridge<r> and <gold>speak to him in his cellar<r>." to arg-1
 			stop	
 		else:
-			message "%{_name}% Hello."
+			message "%{_name}% Hello." to arg-1
 			message "{@err} Else triggered at %{_name}% for %arg-1%, at quest Crazy_house" to console
 			stop
+			
 command /NPCHouseGuard_CrazyHouse <player>:
 	#action: on rightclick on entity
 	executable by: console
 	trigger:
 		set {_name} to "<green>House Guard<r>:<r>"			
 		
-		if {feu.quest.Crazy_house.2.%arg-1%} is true:
+		if {feu.quest.Crazy_house.1.%uuid of arg-1%} is true:
 			message "%{_name}% He is locked in the cellar." to arg-1
 			stop
-		else if {feu.quest.Crazy_house.%arg-1%} is "Completed":
+		else if {feu.quest.Crazy_house.%uuid of arg-1%} is "Completed":
 			message "%{_name}% Back to hunt some monsters?" to arg-1
 		else:
 			message "%{_name}% No one can enter, say those with Lord Willson permission." to arg-1
-			
+	
+command /Crazy_house.KilledZombies1 <player>:
+	#action: Killed enough zombies
+	executable by: console
+	trigger:	
+		set {feu.quest.Crazy_house.2.%uuid of arg-1%} to false 
+		#Temp:
+		set {feu.quest.Crazy_house.%uuid of arg-1%} to "Completed"
+		message "<green>Lord Wilson<r>:<r> You did it! Quest completed!" to arg-1
+		teleport arg-1 to {feu.mainSpawn}
+		
+		stop
+		#The real shit:
+		set {feu.quest.Crazy_house.2.%uuid of arg-1%} to false 
+		set {feu.quest.Crazy_house.3.%uuid of arg-1%} to true
+		message "<light red>???<r>: Great, you seem stronger than the other peasants!" to arg-1
+		message "<light red>???<r>: Now run to the next room." to arg-1
+		

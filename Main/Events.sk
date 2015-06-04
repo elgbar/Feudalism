@@ -7,16 +7,8 @@ options:
 	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
 	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
 	
-	allowedMobs: zombie or villager
+	allowedMobs: zombie, witch or villager
 	You: <green>%player%<r>:<r>
-	
-on skript load:
-	set {feu.version} to "0.1.0 Build 7"
-	set {feu.disable.enemies} to false
-	execute console command "gamerule keepInventory true"
-	execute console command "metadata"
-	wait 20 tick
-	execute console command "killall"
 
 on spawn:	
 	if entity isn't {@allowedMobs}:
@@ -33,6 +25,10 @@ on damage:
 	if damage cause is fall:
 		cancel event 
 		stop
+	if victim is a player:
+		if {feu.godMode.%uuid of victim%} is true:
+			cancel event
+		
 	wait 2 tick
 	repair the attacker's tool
 	repair attacker's helmet
@@ -42,29 +38,43 @@ on damage:
 	
 On Level Change:
 	wait 20 tick
-	player's level isn't equal to {feu.level.%name of player%}:
-		Message "{@warn} Something went wrong! Your level shifted unexpectedly!"
-		message "{@warn} %name of player%'s level just changed unexpectedly" to console
-		set player's level to {feu.level.%name of player%}				
+	player's level isn't equal to {feu.level.%uuid of player%}:
+		message "{@warn} Something went wrong! Your level shifted unexpectedly!"
+		message "{@warn} %uuid of player%'s level just changed unexpectedly" to console
+		set player's level to {feu.level.%uuid of player%}				
 				
 on death of player:	
 	set death message to ""
-	set {feu.xpBar.%name of player%} to level progress of the player
+	set {feu.xpBar.%uuid of player%} to level progress of the player
 	#if you loose your inventory use the command:
 	#/gamerule keepInventory true
 
 on respawn:
 	wait 2 tick
-	set player's level to {feu.level.%name of player%}
-	increase level progress of the player by {feu.xpBar.%name of player%}
-	if {feu.quest.Crazy_house.3.%name of player%} is true:
+	set player's level to {feu.level.%uuid of player%}
+	set level progress of the player to {feu.xpBar.%uuid of player%}
+	if {feu.quest.Crazy_house.2.%uuid of player%} is true:
 		set {_ran1} to a random integer between 0.9 and 2.1
-		if {_ran1} is 1:
-			teleport player to {feu.quest.Crazy_house.roomExit1}
-		else:
-			teleport player to {feu.quest.Crazy_house.stairs1}
-	else if {feu.quest.Crazy_house.4.%name of player%} is true:
+		set {feu.godMode.%uuid of player%} to true	
+		
+		if {_ran1} is 1:	
+			teleport player to {feu.quest.Crazy_house.roomExit1}	
+		else:	
+			teleport player to {feu.quest.Crazy_house.stairs1}		
+			
+		loop entities in radius 3 around player:#{feu.quest.Crazy_house.roomExit1}:	
+			#message "hello" to console
+			set {_ID} to metadata value "ID" of loop-entity
+			if {feu.fixedspawn.isSpawned.%{_ID}%} exists:
+				delete loop-entity
+				set {feu.fixedspawn.isSpawned.%{_ID}%} to false
+		set {feu.godMode.%uuid of player%} to false	
+		
+	else if {feu.quest.Crazy_house.3.%uuid of player%} is true:
 		teleport player to {feu.quest.Crazy_house.roomExit1}
+	else:	
+		teleport player to {feu.mainSpawn}
+		
 #Stop if OP	
 on command "/help":
 	player is op:
@@ -81,25 +91,42 @@ on place:
 	if block is glowstone:
 		cancel event
 		stop
+	else if block is item frame:
+		cancel event
+		stop
 	player is op:
 		stop
 	cancel event
+	
+#TODO: Can only drop custom items
 
-on drop:
-	player is op:
-		stop
-	cancel event
+#on drop:
+#	player is op:
+#		stop
+#	cancel event
 	
-on pick up:
-	player is op:
-		stop
-	cancel event
+#on pick up:
+#	player is op:
+#		stop
+#	cancel event
 	
-on rightclick on any door:
+on leftclick:
 	if player is op:
+		if player is holding a stick named "Debug":
+			execute player command "/blockInfo"
+			cancel event
+on rightclick:
+	if player is op:
+		if player is holding a stick named "Debug":
+			execute player command "/blockInfo"
+		else:	
+			stop
+	#The cancel event stops potions and buttons
+	#cancel event
+	if event-block is any door:
+		message "{@You} The door is locked. Maybe a button could work..." to player
+		cancel event
 		stop
-	message "{@You} The door is locked. Maybe a button could work..." to player			
-	cancel event
 	
 on entity target:
 	set {_Victim ID} to metadata value "ID" of entity
@@ -110,27 +137,52 @@ on entity target:
 		if name of target exists:
 			cancel event
 			stop
-	{@debug} is true:
-		if {feu.running.%{_Victim ID}%} is true:
+	if {feu.noTarget.%{_Victim ID}%} is true:
+		cancel event
+		{@debug} is true:
 			message "{@debugPrefix} Cancelling target of player" to console
-			cancel event
-on consume:
-	#Need to fix this
+			
+On consume:
 	cancel event
 	#This is a skript/minecraft bug:
-	player is holding a potion of:
-		#though this fixes it
-		if name of tool is "Instant health I":
+	if player is holding a potion of:
+		if name of tool is "Instant Health I":
 			add 2 to player's health
-		else if name of tool is "Instant health II":
+		else if name of tool is "Instant Health II":
 			add 3 to player's health
-		else if name of tool is "Instant health III":
+		else if name of tool is "Instant Health III":
 			add 4.5 to player's health
+		else:
+			message "%uuid of player% is drinking an unknown potion!" to console
 		delete player's tool
-#	
+
+on item break:
+	if event-entity isn't a player:
+		if event-item is a helmet:
+			set {_location} to spawn of "Feudalism_4"		
+			set {_x} to metadata value "X" of event-entity
+			set {_y} to metadata value "Y" of event-entity
+			set {_z} to metadata value "Z" of event-entity
+			set x coordinate of {_location} to ({_x}) parsed as number
+			set y coordinate of {_location} to ({_y}) parsed as number
+			set z coordinate of {_location} to ({_z}) parsed as number
+			if {feu.fixedspawn.armour.%{_location}%} is "leather":
+				equip event-entity with all leather armour			
+			else if {feu.fixedspawn.armour.%{_location}%} is "chain":
+				equip event-entity with all chain armour
+			else if {feu.fixedspawn.armour.%{_location}%} is "iron":
+				equip event-entity with all iron armour
+			else if {feu.fixedspawn.armour.%{_location}%} is "gold":
+				equip event-entity with all gold armour	
+			else if {feu.fixedspawn.armour.%{_location}%} is "diamond":
+				equip event-entity with all diamond armour
+			else:
+				message "{@err} unknown variable in replace item for entities" to console
+			message " unknown variable in replace item for entities" to console
+			stop					
+#			
 #One liners & cancel events
 #
-	
 on heal:
 	cancel event
 	
@@ -179,6 +231,7 @@ on hunger meter change:
 	set hunger of player to 10
 	
 on quit:
+	#cancel event #Doesn't work lol
 	set leave message to ""	
 	
 on skript stop:
