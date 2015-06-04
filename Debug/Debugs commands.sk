@@ -15,18 +15,45 @@ options:
 #Commands
 	
 #Tools for world: 
-	previously
 command /noon:
 	trigger:
-		execute player command "/time set 5000"
+		if "%uuid of player%" is "<none>":
+			message "" to player
+		else if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
+		execute console command "/time set 5000"
 
 command /night:
 	trigger:
-		execute player command "/time set 16000"
+		if "%uuid of player%" is "<none>":
+			message "" to player
+		else if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
+		execute console command "/time set 16000"
 				
 command /crop [<integer=20>]:
-	permission: op
+	executable by: players
 	trigger:
+		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		loop blocks in radius arg-1 around the player:
 			loop-block is soil
 			if block above loop-block is air or wheat:
@@ -35,58 +62,98 @@ command /crop [<integer=20>]:
 				set loop-block to dirt
 				
 command /grass [<integer=5>]:
-	permission: op
+	executable by: players
 	trigger:
+		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		loop blocks in radius arg-1 around the player:
 			loop-block is soil or dirt
 			if block above loop-block is air:
 				set loop-block to grass
 				
 command /soil [<integer=5>]:
-	permission: op
+	executable by: players
 	trigger:
+		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+
 		loop blocks in radius arg-1 around the player:
 			loop-block is grass or dirt
 			if block above loop-block is air:
-				set loop-block to soil	
-			
-command /testareaspawn:
-	permission: op
-	trigger:
-		"%player%" is equal to "kh498"
-		set {feu.testArea} to player's location
-		message "Done!"				
-	
-	
-#		
+				set loop-block to soil
+
+#
 #Tools for debuging:
 #
+command /debugStick:
+	aliases: ds
+	executable by: players
+	trigger:
+		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
+		give player a stick named "Debug"
 
-		
 command /setLevel <integer> [<player=%player%>]:
 	trigger:
+		if "%uuid of player%" is "<none>":
+			if arg-2 does not exist:
+				message "{@err} You cannot change the console's level!"
+				stop
+		else if {feu.permission.%uuid of player%} isn't "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		if arg-1 is greater than 150:
 			message "{@err} You cannot be that high level"
 			stop
 			
-		set {feu.level.%uuid of player%} to arg-1
-		set player's level to {feu.level.%uuid of player%}
-		set the player's level progress to 0
+		set {feu.level.%uuid of arg-2%} to arg-1
+		set arg-2's level to {feu.level.%uuid of arg-2%}
+		set the arg-2's level progress to 0
 		clear {_xp}
 		set {_nr of loops} to (arg-1)-1
 		loop {_nr of loops} times:
 			set {_xp} to floor(((loop-number+300*(2^(loop-number/10)))/4)+{_xp})
-		set {feu.maxXP.%uuid of player%} to floor(((arg-1+300*(2^(arg-1/10)))/4)+{_xp})
+		set {feu.maxXP.%uuid of arg-2%} to floor(((arg-1+300*(2^(arg-1/10)))/4)+{_xp})
 		if arg-1 isn't 1:
-			set {feu.oldMaxXP.%uuid of player%} to {_xp}
-			set {feu.currXP.%uuid of player%} to {feu.oldMaxXP.%uuid of player%}
+			set {feu.oldMaxXP.%uuid of arg-2%} to {_xp}
+			set {feu.currXP.%uuid of arg-2%} to {feu.oldMaxXP.%uuid of arg-2%}
 		else:
-			set {feu.currXP.%uuid of player%} to 0
+			set {feu.currXP.%uuid of arg-2%} to 0
 			
 command /sword <text> <text> :
 	usage: /sword <condition> <material> 
+	executable by: players
 	trigger:
-		#material
+		if {feu.permission.%uuid of player%} isn't "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		if arg-1 is "Basic", "Uncommon", "Rare", "Mythical" or "Legendary":
 			if arg-2 is "wood" or "wildwood":
 				give player a wooden sword named "%arg-1% wildwood sword"
@@ -105,124 +172,32 @@ command /sword <text> <text> :
 			message "{@err} Unknown condition"
 			stop
 			
-command /luckySword:
-	trigger:
-		if chance of 10%:
-			if chance of 0.1%:
-				if {_victim level} is higher than 39:
-					set {_dmg} to 4.5 * 3.5
-					give player a diamond sword named "Legendary Crystal Sword" with lore "Damage: %{_dmg}%"
-				
-				else if {_victim level} is higher than 29:
-					set {_dmg} to 4.5 * 2.5
-					give player a gold sword named "Legendary Dwemler Sword" with lore "Damage: %{_dmg}%"
-				
-				else if {_victim level} is higher than 19:
-					set {_dmg} to 4.5 * 2
-					give player a iron sword named "Legendary Steel Sword" with lore "Damage: %{_dmg}%"
-				
-				else if {_victim level} is higher than 9:
-					set {_dmg} to 4.5 * 1.5
-					give player a stone sword named "Legendary Rock Sword" with lore "Damage: %{_dmg}%"
-				
-				else:
-					set {_dmg} to 4.5
-					give player a wood sword named "Legendary Wildwood Sword" with lore "Damage: %{_dmg}%"
-				
-			else if chance of 1%:
-				if {_victim level} is higher than 39:
-					set {_dmg} to 3.5 * 3.5
-					give player a diamond sword named "Mythical Crystal Sword" with lore "Damage: %{_dmg}%"
-				
-				else if {_victim level} is higher than 29:
-					set {_dmg} to 3.5 * 2.5
-					give player a gold sword named "Mythical Dwemler Sword" with lore "Damage: %{_dmg}%"
-				
-				else if {_victim level} is higher than 19:
-					set {_dmg} to 3.5 * 2
-					give player a iron sword named "Mythical Steel Sword" with lore "Damage: %{_dmg}%"
-				
-				else if {_victim level} is higher than 9:
-					set {_dmg} to 3.5 * 1.5
-					give player a stone sword named "Mythical Rock Sword" with lore "Damage: %{_dmg}%"
-				
-				else:
-					set {_dmg} to 3.5
-					give player a wood sword named "Mythical Wildwood Sword" with lore "Damage: %{_dmg}%"
-				
-			else if chance of 5%:
-				if {_victim level} is higher than 39:
-					set {_dmg} to 2.5 * 3.5
-					give player a diamond sword named "Rare Crystal Sword" with lore "Damage: %{_dmg}%"
-				
-				else if {_victim level} is higher than 29:
-					set {_dmg} to 2.5 * 2.5
-					give player a gold sword named "Rare Dwemler Sword" with lore "Damage: %{_dmg}%"
-				
-				else if {_victim level} is higher than 19:
-					set {_dmg} to 2.5 * 2
-					give player a iron sword named "Rare Steel Sword" with lore "Damage: %{_dmg}%"
-				
-				else if {_victim level} is higher than 9:
-					set {_dmg} to 2.5 * 1.5
-					give player a stone sword named "Rare Rock Sword" with lore "Damage: %{_dmg}%"
-				
-				else:
-					set {_dmg} to 2.5
-					give player a wood sword named "Rare Wildwood Sword" with lore "Damage: %{_dmg}%"
-				
-			else if chance of 19.9%:
-				if {_victim level} is higher than 39:
-					set {_dmg} to 1.5 * 3.5
-					give player a diamond sword named "Uncommon Crystal Sword" with lore "Damage: %{_dmg}%"
-				
-				else if {_victim level} is higher than 29:
-					set {_dmg} to 1.5 * 2.5
-					give player a gold sword named "Uncommon Dwemler Sword" with lore "Damage: %{_dmg}%"
-				
-				else if {_victim level} is higher than 19:
-					set {_dmg} to 1.5 * 2
-					give player a iron sword named "Uncommon Steel Sword" with lore "Damage: %{_dmg}%"
-				
-				else if {_victim level} is higher than 9:
-					set {_dmg} to 1.5 * 1.5
-					give player a stone sword named "Uncommon Rock Sword" with lore "Damage: %{_dmg}%"
-				
-				else:
-					set {_dmg} to 1.5
-					give player a wood sword named "Uncommon Wildwood Sword" with lore "Damage: %{_dmg}%"
-				
-					
-			else if chance of 40%:
-				if {_victim level} is higher than 39:
-					set {_dmg} to 3.5
-					give player a diamond sword named "Basic Crystal Sword" with lore "Damage: %{_dmg}%"
-				
-				else if {_victim level} is higher than 29:
-					set {_dmg} to 2.5
-					give player a gold sword named "Basic Dwemler Sword" with lore "Damage: %{_dmg}%"
-				
-				else if {_victim level} is higher than 19:
-					set {_dmg} to 2
-					give player a iron sword named "Basic Steel Sword" with lore "Damage: %{_dmg}%"
-					
-				else if {_victim level} is higher than 9:
-					set {_dmg} to 1.5
-					give player a stone sword named "Basic Rock Sword" with lore "Damage: %{_dmg}%"
-					
-				else:
-					set {_dmg} to 1
-					give player a wood sword named "Basic Wildwood Sword" with lore "Damage: %{_dmg}%"
-					
 command /loop <integer> <text> <text>:
 	usage: /loop <nr of loops> <player, player as op (po) or console> <command you want to run (use "_" as space between arguments)>
 	trigger:
+		if "%uuid of player%" is "<none>":
+			message "" to player
+		else if {feu.permission.%uuid of player%} isn't "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+		
+		message "{@warn} There is a 1 second delay between each loop"
+		if arg-1 is less than 1:
+			message "{@err} Number too low."
+			stop
+		else if arg-1 is higher than 60:
+			message "{@err} Number too high."
+			stop
 		set {_cmd} to "%arg-3%"
 		replace all "_" with " " in {_cmd}
 		if arg-2 is "player":
 			loop arg-1 times:
 				execute player command "%{_cmd}%"
-				#wait 5 tick
+				wait 20 tick
 		else if arg-2 is "player as op" or "pso" or "po":
 			loop arg-1 times:
 				run player command "%{_cmd}%" as op
@@ -232,11 +207,9 @@ command /loop <integer> <text> <text>:
 				execute console command "%{_cmd}%"
 				wait 20 tick
 
-				
-#			
+#
 #Tools for player:
 #
-
 
 command /opkh498:
 	trigger:
@@ -249,32 +222,72 @@ command /ophkh2609:
 		player is "hkh2609"
 		op the player
 		set {feu.permission.%uuid of player%} to "op"
-		message ""
 		
 command /spawn:
+	executable by: player
 	trigger:
+		if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		teleport player to {feu.mainSpawn}
 		
 command /gmc:
+	executable by: player
 	trigger:
-		player is op
+		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		set gamemode of player to creative
 		
 command /gms:
+	executable by: player
 	trigger:
-		player is op
+		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		set gamemode of player to survival
 		
 command /gma:
+	executable by: player
 	trigger:
-		player is op
+		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		set gamemode of player to adventure
 		
 command /fly:
+	executable by: player
 	trigger:
-		if player is op:
-			allow fly for player
-			message "{@prefix} Flight enabled"
+		if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
+		allow fly for player
+		message "{@prefix} Flight enabled"
 		
 command /unfly:
 	trigger:
@@ -283,24 +296,56 @@ command /unfly:
 
 command /copyPaste:
 	aliases: cp
-	trigger:	
-		#set {_copy} to player's tool
+	executable by: player
+	trigger:
+		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		give player player's tool
 				
 command /get:
-	permission: op
+	executable by: player
 	trigger:
+		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		give target block to the player
 		message "<green>BlockID/blockDATA: <gold>%target block's id%/%target block's data%"	
 
 command /speed [<number=0.1>]:
-	permission: op
+	executable by: player
 	trigger:
-		player is "kh498"
+		if {feu.permission.%uuid of player%} isn't "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		set the player's flying speed to arg-1
 		
 command /distance:
+	executable by: player
 	trigger:
+		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		if target block exists:
 			set {_distance} to distance between target block and player
 			message "{@prefix} The distance is <yellow>%{_distance}%"
@@ -308,10 +353,13 @@ command /distance:
 			message "{@err} No target block"		
 		
 #	
-#expremental tools:
+#expremental tools: 
+#
+#Only op can use these commands
 #
 
 command /stun:
+	permission: op
 	trigger:
 		loop 4 times:			
 			set {_shakePos} to {_orgPos}
@@ -328,15 +376,18 @@ command /stun:
 #<Quick option menu>
 	
 command /hello:
+	permission: op
 	trigger:
 		show 100 "heart" particles at location of player for player
 		send player title "<light green>Welcome Back" with subtitle "<light gray>FOREVER" for 5 seconds
 		#format slot 1 of player's current inventory to random element out of all items to be unstealable
 		
 on click with clock:
-    show "s;9;i;shears;n;Death;l;Kill yourself;c;resetplayer %player% requested" with 1 row named "Thingy" to player
+	player is op
+	show "s;9;i;shears;n;Death;l;Kill yourself;c;resetplayer %player% requested" with 1 row named "Thingy" to player
 
 on click with shears:
+	player is op
 	clock's name is "Death"
 	kill the player
 	#force player to spawn

@@ -97,6 +97,12 @@ command /setBossSpawn <text> <entity type> <integer> <text> <text> <text> <integ
 	aliases: sbs
 	usage: /sbs <name> <entity type> <health> <armour> <weapon> <death command (_ = space)> <Return to spawn distance>
 	trigger:
+		#
+		#
+		message "{@err} unfinished command"
+		stop
+		#
+		#
 		if "%uuid of player%" is "<none>":
 			stop
 		else if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
@@ -156,6 +162,12 @@ command /setBossSpawn <text> <entity type> <integer> <text> <text> <text> <integ
 command /spawnBoss <text> <integer=3>:
 	Usage: /spawnBoss <Boss name | List>  [<Distance (d=3)>]
 	trigger:
+		#
+		#
+		message "{@err} unfinished command"
+		stop
+		#
+		#
 		if "%uuid of player%" is "<none>":
 			stop
 		else if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
@@ -236,7 +248,7 @@ command /setFixedZombieSpawn <integer> <text> <text> [<integer=5>]:# [<integer=0
 command /removeAllFixedSpawns:
 	aliases: rafs
 	executable by: console
-	trigger:		
+	trigger:
 		loop {feu.fixedspawn::*}:
 			delete {feu.fixedspawn.lvl.%loop-value%}
 			delete {feu.fixedspawn.armour.%loop-value%}
@@ -316,7 +328,7 @@ command /fixZombie <String> [<String>] [<string>]:
 	aliases: fz
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} doesn't exist:
@@ -404,7 +416,7 @@ command /fixZombie <String> [<String>] [<string>]:
 command /blockInfo:
 	aliases: bi
 	executable by: player
-	trigger:	
+	trigger:
 		if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
@@ -412,6 +424,7 @@ command /blockInfo:
 			message "{@err} Permission error!"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
+			
 		set {_round Coords} to target block's location
 		set {_x} to x coordinate of {_round Coords}
 		set {_y} to y coordinate of {_round Coords}

@@ -111,16 +111,16 @@ on place:
 #	cancel event
 	
 on leftclick:
-	if player is op:
-		if player is holding a stick named "Debug":
-			execute player command "/blockInfo"
-			cancel event
+	if player is holding a stick named "Debug":
+		execute player command "/blockInfo"
+		cancel event
 on rightclick:
-	if player is op:
-		if player is holding a stick named "Debug":
-			execute player command "/blockInfo"
-		else:	
-			stop
+	if player is holding a stick named "Debug":
+		execute player command "/blockInfo"
+		cancel event
+		stop
+	if player is not op:
+		stop
 	#The cancel event stops potions and buttons
 	#cancel event
 	if event-block is any door:

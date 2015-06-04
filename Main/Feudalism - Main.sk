@@ -14,8 +14,9 @@ command /fhelp:
 		message "<yellow>------<gold>[&aFeudalism Commands<gold>]<yellow>------"
 		
 		#player commands
-		message "<light red>/printExperiencePoints <light green>(<r>pxp<light green>)<r> : <yellow>enable or disable the xp count."
+		message "<light red>/printExperiencePoints <light green>(<r>pxp<light green>)<r> : <yellow>Enable or disable the xp count."
 		message "<light red>/stats<r> : <yellow>Show your stats."
+		message "<light red>/credit<r> : <yellow> List the credits."
 		
 		if {feu.permission.%uuid of player%} is "feu.player":
 			stop
@@ -62,10 +63,34 @@ command /fhelp:
 			message "<light red>/delAllMetadata <r>: <yellow>remove all Metadata used by quests"
 			message "<light red>/quest <r>: <yellow>set the progress of quests for a player"
 
+command /credit:
+	aliases: /credits
+	trigger:
+		message "<yellow>------<gold>[&aFeudalism Credits<gold>]<yellow>------"
+		message "<gold>Version <light red>%{feu.version}%"
+		message "<gold>Idea & creator: <green>kh498"
+		message "<gold>Builders:<green> kh498, HkisteH, maxi698"
+		message "<gold>Coder:<green> kh498"
+		message "<gold>Quest makers:<green> kh498"
+		message "<gold>Admins:<red> none"
+		message "<gold>Mods:<red> none"
+		message "<gold>Testers:<green> HkisteH, kh498, Leern5"
+		message "<gold>Donators:<red> none"
+			
 command /saveItem <text>:
 	usage: /saveItem <(random text)|name|help>
 	executable by: player
 	trigger:
+		if "%uuid of player%" is "<none>":
+			message "" to player
+		else if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		if player is holding air:
 			message "{@err} You need to hold something!"
 			stop
@@ -117,8 +142,17 @@ command /setLocation <text> <text> <text>:
 			
 command /HealthPotion <integer>:
 	aliases: hp
+	executable by: console
 	usage: HP <1,2 or 3>
 	trigger:
+		if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		if arg-1 is less than 1:
 			message "{@prefix} Usage: HP <1,2 or 3>"
 			stop
@@ -131,7 +165,7 @@ command /HealthPotion <integer>:
 			else if arg-1 is 2:
 				set {_converted number} to "II"
 			else:
-				set {_converted number} to "III"				
+				set {_converted number} to "III"
 			give player a potion of health named "Instant Health %{_converted number}%"
 		
 command /printExperiencePoints <text>:
@@ -150,8 +184,15 @@ command /printExperiencePoints <text>:
 			
 command /setMainSpawn:
 	executable by: players
-	permission: op
 	trigger:
+		if {feu.permission.%uuid of player%} isn't "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		set {feu.mainSpawn} to the player's location
 		message "{@prefix} The main spawn point is now at your location."
 		{@debug} is true:
@@ -185,15 +226,19 @@ command /killall [<boolean=false>]:
 			set {_kills} to "none"
 		if arg-1 is false:
 			message "<yellow>Killed <light red>%{_kills}% <yellow>mobs!"
-			
-command /debugStick:
-	aliases: ds
-	trigger:
-		give player a stick named "Debug"
 	
 command /seeSpawns <boolean>:
+	executable by: console
 	aliases: sp
 	trigger:
+		if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		set {feu.seeSpawnBlocks.%uuid of player%} to arg-1
 		if arg-1 is true:
 			message "{@warn} Blocks will be reverted once you either relog or update the block (eg. break it)"
@@ -240,6 +285,7 @@ command /spawnNPC <text> <text>:
 		execute player command "npc gravity"
 		
 command /permission <text="help"> [<player=%player%>]:
+	aliases: perm
 	usage: /permission <rank/help> [<player>]
 	trigger:
 		if "%uuid of player%" is "<none>":
@@ -251,6 +297,7 @@ command /permission <text="help"> [<player=%player%>]:
 			message "{@err} Permission error!"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
+			
 		if arg-1 is "player":
 			set {feu.permission.%uuid of arg-2%} to "feu.player"
 		else if arg-1 is "moderator" or "mod":
@@ -281,7 +328,7 @@ command /permission <text="help"> [<player=%player%>]:
 			message "{@err} Unknown rank ""%arg-1%"""
 			message "<light red>Usable ranks: <yellow>Player, moderator (mod), technician (tech), administrator (admin) or operator (op)"
 			stop
-		message "{@prefix} %arg-2% now have permission %{feu.permission.%uuid of arg-2%}%"
+		message "{@prefix} You now have permission ""<gold>%{feu.permission.%uuid of arg-2%}%<r>""" to arg-2
 		
 command /ZombieSpawn <boolean>:
 	usage: /ZombieSpawn <boolean d=true>
@@ -300,11 +347,11 @@ on world load:
 		
 on skript load:
 	#general
-	#three states:
+	#three states:/z/
 		#STABLE : A stable build recommended used
 		#DEVELOP : Finished with a feature, can be multiple DEVELOP builds in one day
 		#UNCERTAIN : Quick upload after finishing for the day. Do not use builds witch is in this state.
-	set {feu.version} to "Release 1, Build 8 : DEVELOP"
+	set {feu.version} to "Build 9 : DEVELOP"
 	execute console command "ban <none>"
 	if {feu.mainSpawn} doesn't exist:
 		#teleport

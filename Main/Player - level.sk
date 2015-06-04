@@ -95,14 +95,14 @@ command /stats [<player=%player%>]:
 			set {_percent} to {_newCurr}/{_newMax}*100	
 		else:
 			set {_percent} to {feu.currXP.%uuid of arg-1%}/{feu.maxXP.%uuid of arg-1%}*100
-		message "<gold>--<green>The stats of %arg-1%<gold>--"
+		message "<yellow>------<gold>[&a%arg-1%'s stats<gold>]<yellow>------"
 		if {feu.currXP.%uuid of arg-1%} is 0:
-			message "Percent: 0%%"
+			message "<gold>Percent: <green>0%%"
 		else:
-			message "Percent: %{_percent}%%%"
-		message "Current XP: %{feu.currXP.%uuid of arg-1%}%"
-		message "Current Level: %{feu.level.%uuid of arg-1%}%"
-		message "XP needed for next level: %{_XPtoNextLevel}%"	
+			message "<gold>Percent: <green>%{_percent}%%%"
+		message "<gold>Current XP: <green>%{feu.currXP.%uuid of arg-1%}%"
+		message "<gold>Current Level: <green>%{feu.level.%uuid of arg-1%}%"
+		message "<gold>XP needed for next level: <green>%{_XPtoNextLevel}%"	
 #events
 on damage:
 	if victim is a zombie:

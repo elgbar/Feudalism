@@ -83,9 +83,9 @@ command /NPCLordWilson_CrazyHouse <player>:
 		#if {feu.level.%uuid of arg-1%} is less than 5:
 		#	message "%{_name}% This time it might be a bit harder than the first time, you need to be a higher level." to arg-1
 		if {feu.quest.Crazy_house.1.%uuid of arg-1%} doesn't exist:
-			if {feu.level.%uuid of arg-1%} is less than 10:
-				message "%{_name}% This is still hard for you, but I am willing to give you a shot." to arg-1
-				wait 20 tick
+			if {feu.level.%uuid of arg-1%} is less than 5:
+				message "%{_name}% Come talk to me again when you are a higher level." to arg-1
+				stop
 			set {feu.quest.Crazy_house.%uuid of arg-1%} to "In progress"
 			set {feu.quest.Crazy_house.1.%uuid of arg-1%} to true
 			clear {feu.quest.zombiesKilled.%uuid of arg-1%}

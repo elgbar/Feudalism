@@ -1,0 +1,24 @@
+options:
+	debug: false
+	
+	prefix: <gold>[&aFeudalism<gold>]<r>
+	AnnouncementPrefix: <gold>[&aAnnouncement<gold>]<r>
+	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
+	
+	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
+	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
+	
+variables:
+	{feu.ann.pre} = 0
+	
+every 10 real minutes:
+	set {_num} to a random integer between 1 and 3
+	while {_num} is {feu.ann.pre}:
+		set {_num} to a random integer between 1 and 3
+	set {feu.ann.pre} to {_num}
+	if {_num} is 1:
+		message "{@AnnouncementPrefix} Report bugs, we cant find them all without your help! Please use this link: https://github.com/kh498/Feudalism/issues" to all players in world "Feudalism_4"
+	if {_num} is 2:
+		message "{@AnnouncementPrefix} Thank you for testing out Feudalism!" to all players in world "Feudalism_4"
+	if {_num} is 3:
+		message "{@AnnouncementPrefix} We need Builders and skript coders! sign up here: (link coming soon..)" to all players in world "Feudalism_4"

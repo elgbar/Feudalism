@@ -55,7 +55,7 @@ command /fullyClear <player> [<text>]:
 	trigger:
 		if "%uuid of player%" is "<none>":
 			message "" to player
-		else if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+		else if {feu.permission.%uuid of player%} isn't "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} doesn't exist:
