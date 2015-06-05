@@ -396,12 +396,18 @@ command /fixZombie <String> [<String>] [<string>]:
 						else if {_convert} is greater than 10:
 							message "{@err} Too high!. valid numbers are 1-10"
 							stop
+						#make this nicer
 						if {feu.fixedspawn.returnToSpawn.%{_round Coords}%} exists:
 							set {feu.fixedspawn.returnToSpawn.%{_round Coords}%} to {_convert}
 							message "{@prefix} The entity spawned at %{_round Coords}% will return to it's spawn when it is <gold>%arg-3% <r>away from it."
 							stop
+						else if {feu.returnToSpawn.%{_round Coords}%} exists:
+							set {feu.fixedspawn.returnToSpawn.%{_round Coords}%} to {_convert}
+							message "{@prefix} The entity spawned at %{_round Coords}% will return to it's spawn when it is <gold>%arg-3% <r>away from it."	
+							stop
 						else:
-							set {_no go} to true						
+							set {_no go} to true
+							stop
 					if {_no go} is true:
 						message "{@err} No entity spawn here!"
 						stop

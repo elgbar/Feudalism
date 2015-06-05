@@ -99,7 +99,10 @@ command /NPCLordWilson_CrazyHouse <player>:
 			stop
 		else if {feu.quest.Crazy_house.1.%uuid of arg-1%} is true:
 			message "%{_name}% I need you to <gold>run straight ahead over the bridge<r> and <gold>speak to him in his cellar<r>." to arg-1
-			stop	
+			stop
+		else if {feu.quest.Crazy_house.%uuid of arg-1%} is "Completed":
+			message "%{_name}% I don't have any more quests for you. Talk to me again after an update" to arg-1
+			#Start third quest from here
 		else:
 			message "%{_name}% Hello." to arg-1
 			message "{@err} Else triggered at %{_name}% for %arg-1%, at quest Crazy_house" to console

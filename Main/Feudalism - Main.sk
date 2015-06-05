@@ -228,7 +228,7 @@ command /killall [<boolean=false>]:
 			message "<yellow>Killed <light red>%{_kills}% <yellow>mobs!"
 	
 command /seeSpawns <boolean>:
-	executable by: console
+	executable by: player
 	aliases: sp
 	trigger:
 		if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
@@ -351,7 +351,7 @@ on skript load:
 		#STABLE : A stable build recommended used
 		#DEVELOP : Finished with a feature, can be multiple DEVELOP builds in one day
 		#UNCERTAIN : Quick upload after finishing for the day. Do not use builds witch is in this state.
-	set {feu.version} to "Build 9 : DEVELOP"
+	set {feu.version} to "Build 10 : UNCERTAIN"
 	execute console command "ban <none>"
 	if {feu.mainSpawn} doesn't exist:
 		#teleport
@@ -406,17 +406,27 @@ on skript load:
 	
 on command "god":
 	cancel event
-	#TODO: permissions
-	if player is op:
-		set {feu.godMode.%uuid of player%} to true
-		message "{@prefix} Godmode is now enabled!"
+	if "%uuid of player%" is "<none>":
+		message "Cannot enable godmode for the console! IT IS GOD" to console
+		stop
+	if {_console} is true:
+		message "{@err} Console cannot use this command!" to console
+		stop
+	else if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+		message "{@err} You do not have permission for this command!"
+		stop
+	else if {feu.permission.%uuid of player%} doesn't exist:
+		message "{@err} Permission error!"
+		set {feu.permission.%uuid of player%} to "feu.player"
+		stop
+		
+	set {feu.godMode.%uuid of player%} to true
+	message "{@prefix} Godmode is now enabled!"
 
 on command "ungod":
 	cancel event
-	#TODO: permissions
-	if player is op:
-		set {feu.godMode.%uuid of player%} to false
-		message "{@prefix} Godmode is now disabled!"
+	set {feu.godMode.%uuid of player%} to false
+	message "{@prefix} Godmode is now disabled!"
 	
 on rightclick on andesite:
 	if {feu.secret.%location of block%.%uuid of player%} is false:

@@ -101,6 +101,7 @@ command /setup <player>:
 #Events
 every 30 seconds:	
 	loop all players in "Feudalism_4":
+		loop-player is alive
 		if loop-player's health is less than 5:
 			add 1 to loop-player's health
 		else:
