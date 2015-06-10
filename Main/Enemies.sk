@@ -282,6 +282,7 @@ command /removeFixedSpawn:
 		set x coordinate of {_round Coords} to floor({_x})+0.5
 		set y coordinate of {_round Coords} to floor({_y})+0.5
 		set z coordinate of {_round Coords} to floor({_z})+0.5
+		
 		if {feu.fixedspawn.ID.%{_round Coords}%} exists:	
 			#The number in the fixed spawn list is the same as the ID
 			delete {feu.fixedspawn::%{feu.fixedspawn.ID.%{_round Coords}%}%}		
@@ -294,7 +295,9 @@ command /removeFixedSpawn:
 			#old version
 			if {feu.returnToSpawn.%{_round Coords}%} exists:
 				delete {feu.returnToSpawn.%{_round Coords}%}	
-						
+			loop {feu.fixedspawn::*}:
+				if loop-value is {_round Coords}:
+					delete {feu.fixedspawn::%loop-index%}
 			block below player is iron block
 			set block below player to grass
 			message "{@prefix} Fixed spawned removed."
@@ -493,11 +496,11 @@ command /targetInfo:
 			else if {_victim level} doesn't exist:
 				message "{@warn} Not a custom spawned/corrupt entity or a player!"
 				stop			
-			message "<gold>[<green>Metadata values<gold>]<r>:"
+			message "<gold>[<green>Metadata values<gold>]"
 			message "{@prefix} Level: %{_victim level}%"
 			message "{@prefix} ID: %{_victim ID}%"
 			message ""
-			message "<gold>[<green>Calculated variables<gold>]<r>:"
+			message "<gold>[<green>Calculated variables<gold>]"
 			message "{@prefix} Max Health: %max health of target entity%"
 			message "{@prefix} Current Health: %health of target entity%"
 			
@@ -506,7 +509,7 @@ command /targetInfo:
 			stop
 #Events
 
-every 3 second in world "Feudalism_4":	
+every 3 second in world "Feudalism_4":
 	{@debug} is true:
 		set {_1stTime} to now
 		{@hardDebugging} is false:
@@ -581,7 +584,7 @@ every 3 second in world "Feudalism_4":
 					message "{@debugPrefix} <green>Nothing to report on %{_ID}%." to console
 	{@debug} is true:
 		set {_time} to difference between {_1stTime} and now
-		message "short periodical event took %{_time}%" to console		
+		message "short periodical event took %{_time}%" to console
 	
 every 15 second in world "Feudalism_4":	
 	if {feu.doZombiesSpawn} is false:
@@ -604,15 +607,15 @@ every 15 second in world "Feudalism_4":
 		loop players in radius 35 around {_loop entity}:
 			add 1 to {_players}
 		{@debug} is true:
-			message "{@debugPrefix} %loop-index-1% | player(s) found | players: %{_players}%" to console	
+			message "{@debugPrefix} %loop-index-1% | player(s) found | players: %{_players}%" to console
 		if {_players} is greater than 0:
 			if {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%loop-value-1%}%} is false:
 				loop players in radius 3 around {_loop entity}:
-					add 1 to {_n}					
+					add 1 to {_n}
 				if {_n} is greater than 0:
 					{@hardDebugging} is true:
 						message "{@debugPrefix} %loop-index-1% | Players too close" to console
-				else:	
+				else:
 					{@debug} is true:
 						message "{@debugPrefix} %loop-index-1% | Spawning a zombie" to console
 					spawn a zombie at loop-value-1
@@ -621,7 +624,7 @@ every 15 second in world "Feudalism_4":
 					wait 2 ticks
 					
 					#This CANNOT be {_entity}!!!! MC bug?
-					set the name of last spawned entity to "<light red>LvL %{feu.fixedspawn.lvl.%loop-value-1%}% Zombie"	
+					set the name of last spawned entity to "<light red>LvL %{feu.fixedspawn.lvl.%loop-value-1%}% Zombie"
 					
 					set age of {_entity} to adult
 					set {_health} to floor(16.09*{feu.fixedspawn.lvl.%loop-value-1%}^0.38)
@@ -634,11 +637,11 @@ every 15 second in world "Feudalism_4":
 						wait 10 tick
 						if {_entity} is alive:
 							{@debug} is true:
-								message "{@err} Entity with ID %{feu.fixedspawn.ID.%loop-value-1%}% has wrong maximum health! Location: %loop-value-1%, Level:%{feu.fixedspawn.lvl.%loop-value-1%}%, Maximum health: %{_entity}'s maximum health%. And is still alive" to console	
+								message "{@err} Entity with ID %{feu.fixedspawn.ID.%loop-value-1%}% has wrong maximum health! Location: %loop-value-1%, Level:%{feu.fixedspawn.lvl.%loop-value-1%}%, Maximum health: %{_entity}'s maximum health%. And is still alive" to console
 							delete {_entity}
 						else:
 							{@debug} is true:
-								message "{@err} Entity with ID %{feu.fixedspawn.ID.%loop-value-1%}% has wrong maximum health! Location: %loop-value-1%, Level:%{feu.fixedspawn.lvl.%loop-value-1%}%, Maximum health: %{_entity}'s maximum health%" to console	
+								message "{@err} Entity with ID %{feu.fixedspawn.ID.%loop-value-1%}% has wrong maximum health! Location: %loop-value-1%, Level:%{feu.fixedspawn.lvl.%loop-value-1%}%, Maximum health: %{_entity}'s maximum health%" to console
 						set {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%loop-value-1%}%} to false
 					
 					set metadata value "ID" of {_entity} to "%{feu.fixedspawn.ID.%loop-value-1%}%"
@@ -647,13 +650,13 @@ every 15 second in world "Feudalism_4":
 					set metadata value "Y" of {_entity} to "%y-coordinate of loop-value-1%"	
 					set metadata value "Z" of {_entity} to "%z-coordinate of loop-value-1%"	
 					if {feu.fixedspawn.armour.%loop-value-1%} is "leather":
-						equip {_entity} with all leather armour			
+						equip {_entity} with all leather armour
 					else if {feu.fixedspawn.armour.%loop-value-1%} is "chain":
 						equip {_entity} with all chain armour
 					else if {feu.fixedspawn.armour.%loop-value-1%} is "iron":
 						equip {_entity} with all iron armour
 					else if {feu.fixedspawn.armour.%loop-value-1%} is "gold":
-						equip {_entity} with all gold armour	
+						equip {_entity} with all gold armour
 					else if {feu.fixedspawn.armour.%loop-value-1%} is "diamond":
 						equip {_entity} with all diamond armour
 					else if {feu.fixedspawn.armour.%loop-value-1%} is "none" or "air":
@@ -679,7 +682,7 @@ every 15 second in world "Feudalism_4":
 					else if {feu.fixedspawn.weapon.%loop-value-1%} is "none" or "air":
 						set tool of {_entity} to air
 					else:
-						message "{@err} An error was retuned from auto spawn at %loop-value-1%: <red>Wrong argument! <light red>The entity is spawned with no arms!" to console					
+						message "{@err} An error was retuned from auto spawn at %loop-value-1%: <red>Wrong argument! <light red>The entity is spawned with no arms!" to console
 		if {_players} is 0:
 			loop entities in radius 25 around {_loop entity}:
 				if {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%{_location}%}%} is true:

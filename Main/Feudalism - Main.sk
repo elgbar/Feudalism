@@ -16,23 +16,41 @@ command /fhelp:
 		#player commands
 		message "<light red>/printExperiencePoints <light green>(<r>pxp<light green>)<r> : <yellow>Enable or disable the xp count."
 		message "<light red>/stats<r> : <yellow>Show your stats."
-		message "<light red>/credit<r> : <yellow> List the credits."
+		message "<light red>/credit<r> : <yellow>List the credits."
 		
 		if {feu.permission.%uuid of player%} is "feu.player":
 			stop
 			
 		#Mod commands
 		message "<yellow>------<gold>[&aStaff Commands<gold>]<yellow>------"
+		message "<light red>/god<r> : <yellow>Enable godmode for you"
+		message "<light red>/ungod<r> : <yellow>Disable godmode for you"
 		message "<light red>/killall<r> : <yellow>kills every mob in the world"
-		message "<light red>/fullyClear <light green>(<r>fc<light green>)<r> : <yellow>removes everything from the player"
 		message "<light red>/spawnCostumsZombies <light green>(<r>SCZ<light green>)<r> : <yellow>spawn a custom zombie"
-		message "<light red>/fixZombieSpawns <light green>(<r>FZS<light green>)<r> : <yellow>make a zombie spawn with the argument's number (at its location)"
+		#message "<light red>/fixZombieSpawns <light green>(<r>FZS<light green>)<r> : <yellow>make a zombie spawn with the argument's number (at its location)" #Unknown command, probably removed
 		message "<light red>/targetInfo <light green>(<r>TI<light green>)<r> : <yellow>Lists variables of the target zombie"
-		
+		message "<light red>/blockInfo<r> : <yellow>Show info about a block"
+		#message "<light red>/noon<r> : <yellow>Set the time to noon"
+		#message "<light red>/night<r> : <yellow>Set the time to night"
+		message "<light red>/spawn<r> : <yellow>Teleport any player to spawn"
+		message "<light red>/fly<r> : <yellow>Enable flight for yourself"
+		message "<light red>/unfly<r> : <yellow>Disable flight for yourself"
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "op":
+			message "<light red>/permission <r>: <yellow>Shows your permission level"
 		if {feu.permission.%uuid of player%} is "feu.mod":
 			stop
 			
 		#Tech commands
+		message "<light red>/distance <r>: <yellow>Shows you the distance to your target block"
+		message "<light red>/get <r>: <yellow>Gives you your current target block, and shows ID and DATA"
+		message "<light red>/copyPaste <r>: <yellow>Gives you a copy to your current tool"
+		message "<light red>/gms <r>: <yellow>Set your gamemode to survival"
+		message "<light red>/gma <r>: <yellow>Set your gamemode to adventure"
+		message "<light red>/gmc <r>: <yellow>Set your gamemode to creative"
+		message "<light red>/debugStick <r>: <yellow>Gives you a stick to automaticly use blockinfo and target info"
+		message "<light red>/crop <r>: <yellow>Make an circle around you to crops, if the block below is soil"
+		message "<light red>/grass <r>: <yellow>Make an circle around you to grass"
+		message "<light red>/soil <r>: <yellow>Make an circle around you to soil"
 		message "<light red>/spawnNPC <r>: <yellow>spawn a NPC (villager)"
 		message "<light red>/setFixedZombieSpawn <light green>(<r>SFZS<light green>)<r> : <yellow>sets a new spawn point for zombies to spawn"
 		message "<light red>/removeFixedSpawn <light green>(<r>RFS<light green>)<r> : <yellow>remove the fixed zombie spawn at the player's location "
@@ -45,18 +63,23 @@ command /fhelp:
 			stop
 			
 		#admin commands
+		message "<light red>/sword <r>: <yellow>Gives you a Feudalism sword"
+		message "<light red>/loop <r>: <yellow>Loops a command every second"
+		message "<light red>/speed <r>: <yellow>Change your flying speed"
 		message "<light red>/permission <r>: <yellow>sets the permission of a player"
-		message "<light red>/fixAllZombieSpawns <r>: <yellow>makes all the fixed spawn points enable spawning"
-		
+		message "<light red>/fixAllZombieSpawns <r>: <yellow>Makes all the fixed spawn points enable spawning"
+		message "<light red>/fullyClear <light green>(<r>fc<light green>)<r> : <yellow>removes everything from the player"
+		message "<light red>/op <light green>(<r>fc<light green>)<r> : <yellow>"
 		if {feu.permission.%uuid of player%} is "feu.admin":
 			stop
 		
 		#OP commands
+		message "<light red>/setLevel <r>: <yellow>Set a player's level, max 150. DO NOT MISUSE THIS"
 		message "<light red>/setMainSpawn <r>: <yellow>set the main spawn of feudalism"
 		message "<light red>/addXP <r>: <yellow>adds xp to a player"
-		
 		if "%uuid of player%" is "<none>":
 			#Console commands
+			message "<yellow>------<gold>[&aConsole Commands Only<gold>]<yellow>------"
 			message "<light red>/setup <r>: <yellow>reset a player"
 			#message "<light red>/resetPlayer <r>: Doesn't work yet"
 			message "<light red>/removeAllFixedSpawns <r>: <yellow>remove every singe one of the fixed spawn points for zombies"
@@ -284,20 +307,28 @@ command /spawnNPC <text> <text>:
 		execute player command "npc respawn 1"
 		execute player command "npc gravity"
 		
-command /permission <text="help"> [<player=%player%>]:
+command /permission <text="help"> [<player>]:
 	aliases: perm
 	usage: /permission <rank/help> [<player>]
 	trigger:
 		if "%uuid of player%" is "<none>":
 			message "" to player
 		else if {feu.permission.%uuid of player%} isn't "feu.admin" or "op":
-			message "{@err} You do not have permission for this command!"
+			message "{@prefix} You have the permission ""<gold>%{feu.permission.%uuid of arg-2%}%<r>"""
 			stop
 		else if {feu.permission.%uuid of player%} doesn't exist:
 			message "{@err} Permission error!"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-			
+		if "%arg-1%" is not "help":
+			if arg-2 doesn't exist:
+				message "{@err} You have to specify a player"
+				stop
+		if "%arg-2%" is "%name of player%":
+			if "%name of player%" is not "<none>":
+				message "{@warn} You cannot change your own permission"
+				#TODO: Make disable deranking of them self
+				stop
 		if arg-1 is "player":
 			set {feu.permission.%uuid of arg-2%} to "feu.player"
 		else if arg-1 is "moderator" or "mod":
@@ -310,11 +341,14 @@ command /permission <text="help"> [<player=%player%>]:
 			set {feu.permission.%uuid of arg-2%} to "feu.admin"
 			
 		else if arg-1 is "operator" or "op":
-			if {feu.permission.%uuid of arg-2%} is "feu.admin":
-				message "{@err} You set someones permission to higher than your own!"
-				stop
-			set {feu.permission.%uuid of arg-2%} to "op"
-
+			if "%name of player%" is not "<none>":
+				if {feu.permission.%uuid of player%} is "feu.admin":
+					message "{@err} You cannot set someone's permission to higher than your own!"
+					stop
+				set {feu.permission.%uuid of arg-2%} to "op"
+			else:
+				set {feu.permission.%uuid of arg-2%} to "op"
+				
 		else if arg-1 is "help":
 			message "<yellow>------<gold>[&aFeudalism Permissions<gold>]<yellow>------"
 			message ""
@@ -328,6 +362,7 @@ command /permission <text="help"> [<player=%player%>]:
 			message "{@err} Unknown rank ""%arg-1%"""
 			message "<light red>Usable ranks: <yellow>Player, moderator (mod), technician (tech), administrator (admin) or operator (op)"
 			stop
+		message "{@prefix} The permission of %arg-2% is now ""<gold>%{feu.permission.%uuid of arg-2%}%<r>"""
 		message "{@prefix} You now have permission ""<gold>%{feu.permission.%uuid of arg-2%}%<r>""" to arg-2
 		
 command /ZombieSpawn <boolean>:
@@ -347,15 +382,16 @@ on world load:
 		
 on skript load:
 	#general
-	#three states:/z/
+	#three states:
 		#STABLE : A stable build recommended used
 		#DEVELOP : Finished with a feature, can be multiple DEVELOP builds in one day
 		#UNCERTAIN : Quick upload after finishing for the day. Do not use builds witch is in this state.
-	set {feu.version} to "Build 10 : UNCERTAIN"
-	execute console command "ban <none>"
+	set {feu.version} to "Build 11 : UNCERTAIN"
+	execute console command "ban <none> Use another name!" #<none> is the console, too bad for the one who has that name :P
+	execute console command "permission op" #Makes the console to op
 	if {feu.mainSpawn} doesn't exist:
 		#teleport
-		message "{@warn} The required variable <gold>{feu.mainSpawn} <r>doesn't exist and will be set to the worlds spawn" to console
+		message "{@warn} The required variable<gold> {feu.mainSpawn}<r> doesn't exist and will be set to the worlds spawn" to console
 		set {feu.mainSpawn} to spawn location of "Feudalism_4"
 	
 	#announcements
@@ -472,3 +508,8 @@ on rightclick on andesite:
 		else:
 			message "{@prefix} <light red> An ERROR :S"
 			message "{@err} %uuid of player% found a bug with the andersite! Please report this."
+			
+command /showPerm [<player=%player%>]:
+	trigger:
+		#Hidden command
+		message "%arg-1% has the permission %{feu.permission.%uuid of arg-1%}%"

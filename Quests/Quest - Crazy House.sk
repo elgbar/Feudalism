@@ -112,7 +112,7 @@ command /NPCHouseGuard_CrazyHouse <player>:
 	#action: on rightclick on entity
 	executable by: console
 	trigger:
-		set {_name} to "<green>House Guard<r>:<r>"			
+		set {_name} to "<green>House Guard<r>:<r>"
 		
 		if {feu.quest.Crazy_house.1.%uuid of arg-1%} is true:
 			message "%{_name}% He is locked in the cellar." to arg-1

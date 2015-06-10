@@ -76,7 +76,7 @@ command /setup <player>:
 	executable by: console
 	trigger:
 		#make sure the arg-1 is really reset
-		{@debug} is false:			
+		{@debug} is false:
 			deop the arg-1 
 		set gamemode of arg-1 to adventure
 		execute console command "fc %arg-1% Silent" #fully clear
@@ -99,7 +99,7 @@ command /setup <player>:
 		teleport arg-1 to {feu.mainSpawn}
 
 #Events
-every 30 seconds:	
+every 30 seconds:
 	loop all players in "Feudalism_4":
 		loop-player is alive
 		if loop-player's health is less than 5:
@@ -133,7 +133,7 @@ on join:
 			else:
 				set {_feu.permissionLevel.%uuid of player%} to "Unknown"
 				set {feu.permission.%uuid of player%} to "feu.player"
-			message "<gold>Your current permission level: <red>%{_feu.permissionLevel.%uuid of player%}%"					
+			message "<gold>Your current permission level: <red>%{_feu.permissionLevel.%uuid of player%}%"
 		
 	else if {_players} is greater than 1:
 		kick player due to "Multiple entries in list of players - try to log back in again."
@@ -141,7 +141,7 @@ on join:
 		message "{@err} A player has been added multiple times to the allplayers variable!" to console
 	
 	else:
-		set join message to "<magenta>Welcome <b>%player%<r><magenta> to Feudalism!"
+		set join message to "<magenta>Welcome <b>%name of player%<r><magenta> to Feudalism!"
 		add "%uuid of player%" to {allplayers::*}
 		execute console command "setup %name of player%"
 	if {feu.seeSpawnBlocks.%uuid of player%} is true:

@@ -9,7 +9,9 @@ options:
 	
 	allowedMobs: zombie, witch or villager
 	You: <green>%player%<r>:<r>
-
+on crop trample:
+	cancel event
+	
 on spawn:	
 	if entity isn't {@allowedMobs}:
 		cancel event
@@ -20,7 +22,7 @@ on spawn:
 		if "%{_ID}%" is "<none>":
 			delete event-entity
 			{@debug} is true:
-				message "{@debugPrefix} Unknown Zombie spawned, and killed" to console		
+				message "{@debugPrefix} Unknown Zombie spawned, and killed" to console
 on damage:
 	if damage cause is fall:
 		cancel event 
@@ -41,9 +43,9 @@ On Level Change:
 	player's level isn't equal to {feu.level.%uuid of player%}:
 		message "{@warn} Something went wrong! Your level shifted unexpectedly!"
 		message "{@warn} %uuid of player%'s level just changed unexpectedly" to console
-		set player's level to {feu.level.%uuid of player%}				
+		set player's level to {feu.level.%uuid of player%}
 				
-on death of player:	
+on death of player:
 	set death message to ""
 	set {feu.xpBar.%uuid of player%} to level progress of the player
 	#if you loose your inventory use the command:
@@ -55,38 +57,36 @@ on respawn:
 	set level progress of the player to {feu.xpBar.%uuid of player%}
 	if {feu.quest.Crazy_house.2.%uuid of player%} is true:
 		set {_ran1} to a random integer between 0.9 and 2.1
-		set {feu.godMode.%uuid of player%} to true	
+		set {feu.godMode.%uuid of player%} to true
 		
-		if {_ran1} is 1:	
-			teleport player to {feu.quest.Crazy_house.roomExit1}	
-		else:	
-			teleport player to {feu.quest.Crazy_house.stairs1}		
+		if {_ran1} is 1:
+			teleport player to {feu.quest.Crazy_house.roomExit1}
+		else:
+			teleport player to {feu.quest.Crazy_house.stairs1}
 			
-		loop entities in radius 3 around player:#{feu.quest.Crazy_house.roomExit1}:	
-			#message "hello" to console
+		loop entities in radius 3 around player:
 			set {_ID} to metadata value "ID" of loop-entity
 			if {feu.fixedspawn.isSpawned.%{_ID}%} exists:
 				delete loop-entity
 				set {feu.fixedspawn.isSpawned.%{_ID}%} to false
-		set {feu.godMode.%uuid of player%} to false	
+		set {feu.godMode.%uuid of player%} to false
 		
 	else if {feu.quest.Crazy_house.3.%uuid of player%} is true:
 		teleport player to {feu.quest.Crazy_house.roomExit1}
 	else:	
 		teleport player to {feu.mainSpawn}
 		
-#Stop if OP	
+#Stop if OP
 on command "/help":
 	player is op:
 		stop
 	cancel event
-	execute player command "/fhelp"	
+	execute player command "/fhelp"
 	
 on break:
-	if player is op:
+	if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "op":
 		stop
 	cancel event
-
 on place:
 	if block is glowstone:
 		cancel event
@@ -94,7 +94,7 @@ on place:
 	else if block is item frame:
 		cancel event
 		stop
-	player is op:
+	if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "op":
 		stop
 	cancel event
 	
@@ -112,15 +112,25 @@ on place:
 	
 on leftclick:
 	if player is holding a stick named "Debug":
-		execute player command "/blockInfo"
+		if player's target exists:
+			execute player command "/targetinfo"
+		else if target block exists:
+			execute player command "/blockInfo"
+		else:
+			message "No target block or target, plz dont look at teh sky"
 		cancel event
 on rightclick:
 	if player is holding a stick named "Debug":
-		execute player command "/blockInfo"
+		if player's target exists:
+			execute player command "/targetinfo"
+		else if target block exists:
+			execute player command "/blockInfo"
+		else:
+			message "No target block or target, plz dont look at teh sky"
 		cancel event
 		stop
-	if player is not op:
-		stop
+	#if player is not op:
+	#	stop
 	#The cancel event stops potions and buttons
 	#cancel event
 	if event-block is any door:
@@ -159,7 +169,7 @@ On consume:
 on item break:
 	if event-entity isn't a player:
 		if event-item is a helmet:
-			set {_location} to spawn of "Feudalism_4"		
+			set {_location} to spawn of "Feudalism_4"
 			set {_x} to metadata value "X" of event-entity
 			set {_y} to metadata value "Y" of event-entity
 			set {_z} to metadata value "Z" of event-entity
@@ -167,7 +177,7 @@ on item break:
 			set y coordinate of {_location} to ({_y}) parsed as number
 			set z coordinate of {_location} to ({_z}) parsed as number
 			if {feu.fixedspawn.armour.%{_location}%} is "leather":
-				equip event-entity with all leather armour			
+				equip event-entity with all leather armour
 			else if {feu.fixedspawn.armour.%{_location}%} is "chain":
 				equip event-entity with all chain armour
 			else if {feu.fixedspawn.armour.%{_location}%} is "iron":
@@ -179,7 +189,7 @@ on item break:
 			else:
 				message "{@err} unknown variable in replace item for entities" to console
 			message " unknown variable in replace item for entities" to console
-			stop					
+			stop
 #			
 #One liners & cancel events
 #
@@ -202,8 +212,6 @@ On Burn:
 	#stops burning down my castles :(
 
 on ignition:
-	if event-block is air:
-		stop trigger
 	cancel event
 	
 On Fade:
@@ -232,7 +240,7 @@ on hunger meter change:
 	
 on quit:
 	#cancel event #Doesn't work lol
-	set leave message to ""	
+	set leave message to ""
 	
 on skript stop:
-	set {feu.disable.enemies} to true	
+	set {feu.disable.enemies} to true
