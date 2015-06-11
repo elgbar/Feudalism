@@ -22,7 +22,6 @@ on any movement:
 	#entity is a player
 	wait 2 tick
 	if block 2 below the player is bedrock:
-		#message "1" to player
 		set {_BlockInfo} to metadata value "BlockInfo" of block 2 below player
 		if 	"%{_BlockInfo}%" is equal to "Starter_house1":
 			execute console command "house1_door %name of player%"
@@ -32,12 +31,15 @@ on any movement:
 			stop
 		else if "%{_BlockInfo}%" is equal to "Crazy_house.house1":
 			execute console command "Crazy_house.house1 %name of player%"
-			stop								
+			stop
 		else if "%{_BlockInfo}%" is equal to "Crazy_house.stairs1":
 			execute console command "Crazy_house.stairs1 %name of player%"
-			stop									
+			stop
 		else if "%{_BlockInfo}%" is equal to "Crazy_house.roomExit1":
 			execute console command "Crazy_house.roomExit1 %name of player%"
+			stop
+		else if "%{_BlockInfo}%" is equal to "Crazy_house.roomExit2":
+			execute console command "Crazy_house.roomExit2 %name of player%"
 			stop
 		else if "%{_BlockInfo}%" is equal to "Crazy_house.Boss.Enter1":
 			execute console command "Crazy_house.Boss.Enter1 %name of player%"
@@ -46,9 +48,9 @@ on any movement:
 on rightclick on button:
 	#cancel events need to be here, there for this cannot be converted to a command
 	set {_BlockInfo} to metadata value "BlockInfo" of clicked block	
-	if 	"%{_BlockInfo}%" is equal to "Starter_house1":
+	if "%{_BlockInfo}%" is equal to "Starter_house1":
 		if {feu.quest.starter.doorAThouse1.%uuid of player%} is true:
-			message "{@You} This must be the house" to player					
+			message "{@You} This must be the house" to player
 			stop
 		else if {feu.quest.starter.%uuid of player%} is "Completed": 
 			message "{@You} Don't want to go inside there again.." to player
@@ -64,7 +66,7 @@ on rightclick on button:
 		else if {feu.quest.Crazy_house.%uuid of player%} is "Completed":
 			stop
 		else:
-			cancel event		
+			cancel event
 			
 on rightclick on chest:
 	if player is not op:
@@ -100,3 +102,4 @@ on rightclick on entity:
 	else if "%entity's name%" is "House Guard":
 		execute console command "NPCHouseGuard_CrazyHouse %name of player%"
 		stop
+		

@@ -386,9 +386,8 @@ on skript load:
 		#STABLE : A stable build recommended used
 		#DEVELOP : Finished with a feature, can be multiple DEVELOP builds in one day
 		#UNCERTAIN : Quick upload after finishing for the day. Do not use builds witch is in this state.
-	set {feu.version} to "Build 11 : UNCERTAIN"
+	set {feu.version} to "Build 12 - DEVELOP"
 	execute console command "ban <none> Use another name!" #<none> is the console, too bad for the one who has that name :P
-	execute console command "permission op" #Makes the console to op
 	if {feu.mainSpawn} doesn't exist:
 		#teleport
 		message "{@warn} The required variable<gold> {feu.mainSpawn}<r> doesn't exist and will be set to the worlds spawn" to console
@@ -425,7 +424,7 @@ on skript load:
 		message "{@err} The required variable <gold>{feu.quest.Crazy_house.stairs1} <r>doesn't exist" to console
 	if {feu.quest.Crazy_house.roomExit1} doesn't exist:
 		#teleport
-		message "{@err} The required variable <gold>{feu.quest.Crazy_house.boss1} <r>doesn't exist" to console
+		message "{@err} The required variable <gold>{feu.quest.Crazy_house.roomExit1} <r>doesn't exist" to console
 		
 	if {feu.quest.Crazy_house.boss1} doesn't exist:
 		#teleport
@@ -443,7 +442,7 @@ on skript load:
 on command "god":
 	cancel event
 	if "%uuid of player%" is "<none>":
-		message "Cannot enable godmode for the console! IT IS GOD" to console
+		message "Cannot enable godmode for the console. IT IS GOD!" to console
 		stop
 	if {_console} is true:
 		message "{@err} Console cannot use this command!" to console
@@ -457,12 +456,12 @@ on command "god":
 		stop
 		
 	set {feu.godMode.%uuid of player%} to true
-	message "{@prefix} Godmode is now enabled!"
+	message "{@prefix} Godmode enabled"
 
 on command "ungod":
 	cancel event
 	set {feu.godMode.%uuid of player%} to false
-	message "{@prefix} Godmode is now disabled!"
+	message "{@prefix} Godmode disabled"
 	
 on rightclick on andesite:
 	if {feu.secret.%location of block%.%uuid of player%} is false:

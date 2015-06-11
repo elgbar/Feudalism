@@ -9,6 +9,7 @@ options:
 	
 	allowedMobs: zombie, witch or villager
 	You: <green>%player%<r>:<r>
+	
 on crop trample:
 	cancel event
 	
@@ -42,9 +43,9 @@ On Level Change:
 	wait 20 tick
 	player's level isn't equal to {feu.level.%uuid of player%}:
 		message "{@warn} Something went wrong! Your level shifted unexpectedly!"
-		message "{@warn} %uuid of player%'s level just changed unexpectedly" to console
+		message "{@warn} %player%'s level just changed unexpectedly" to console
 		set player's level to {feu.level.%uuid of player%}
-				
+		
 on death of player:
 	set death message to ""
 	set {feu.xpBar.%uuid of player%} to level progress of the player
@@ -73,10 +74,9 @@ on respawn:
 		
 	else if {feu.quest.Crazy_house.3.%uuid of player%} is true:
 		teleport player to {feu.quest.Crazy_house.roomExit1}
-	else:	
+	else:
 		teleport player to {feu.mainSpawn}
 		
-#Stop if OP
 on command "/help":
 	player is op:
 		stop
@@ -87,6 +87,7 @@ on break:
 	if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "op":
 		stop
 	cancel event
+	
 on place:
 	if block is glowstone:
 		cancel event
@@ -99,16 +100,6 @@ on place:
 	cancel event
 	
 #TODO: Can only drop custom items
-
-#on drop:
-#	player is op:
-#		stop
-#	cancel event
-	
-#on pick up:
-#	player is op:
-#		stop
-#	cancel event
 	
 on leftclick:
 	if player is holding a stick named "Debug":
@@ -119,6 +110,7 @@ on leftclick:
 		else:
 			message "No target block or target, plz dont look at teh sky"
 		cancel event
+		
 on rightclick:
 	if player is holding a stick named "Debug":
 		if player's target exists:
@@ -129,15 +121,11 @@ on rightclick:
 			message "No target block or target, plz dont look at teh sky"
 		cancel event
 		stop
-	#if player is not op:
-	#	stop
-	#The cancel event stops potions and buttons
-	#cancel event
 	if event-block is any door:
-		message "{@You} The door is locked. Maybe a button could work..." to player
-		cancel event
-		stop
-	
+		if {feu.permission.%uuid of player%} is "feu.player":
+			message "{@You} The door is locked. Maybe a button could work..." to player
+			cancel event
+			
 on entity target:
 	set {_Victim ID} to metadata value "ID" of entity
 	if target is a villager:
@@ -163,7 +151,7 @@ On consume:
 		else if name of tool is "Instant Health III":
 			add 4.5 to player's health
 		else:
-			message "%uuid of player% is drinking an unknown potion!" to console
+			message "%player% is drinking an unknown potion!" to console
 		delete player's tool
 
 on item break:
@@ -188,11 +176,12 @@ on item break:
 				equip event-entity with all diamond armour
 			else:
 				message "{@err} unknown variable in replace item for entities" to console
-			message " unknown variable in replace item for entities" to console
+			message "Unknown variable in replace item for entities" to console
 			stop
 #			
 #One liners & cancel events
 #
+
 on heal:
 	cancel event
 	
@@ -201,26 +190,25 @@ on zombie break door:
 	
 on weather change:
 	set weather to sun
+	
+On Physics:
+	if block is dirt or grass:
+		cancel event
 
 on spread:
-	block is dirt or grass
 	cancel event
-	#stops dirt becoming grass and visa versa
 	
 On Burn:
 	cancel event
-	#stops burning down my castles :(
 
 on ignition:
 	cancel event
 	
 On Fade:
 	cancel event
-	#stops ice and snow from smelting
 	
 On Form:
 	cancel event
-	#prevents ice and snow to form
 	
 on Explode:
 	cancel event
@@ -239,7 +227,6 @@ on hunger meter change:
 	set hunger of player to 10
 	
 on quit:
-	#cancel event #Doesn't work lol
 	set leave message to ""
 	
 on skript stop:

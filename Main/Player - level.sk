@@ -221,7 +221,7 @@ on damage:
 					message "<light red>You need to be a higher level to wield this material" to attacker
 					stop
 			else:
-				set {_material} to 2					
+				set {_material} to 2
 		#Dwemler
 		else if attacker is holding a gold sword:
 			if attacker is a player:
@@ -260,7 +260,7 @@ on damage:
 				#hack for starter sword
 				message ""
 			else:
-				message "{@err} No known condition on player's tool. In ""on damage of zombie"" under ""name of tool of attacker contains""" to console
+				message "{@err} No known condition on %attacker%'s tool. In ""on damage of zombie"" under ""name of tool of attacker contains""" to console
 
 			
 		if attacker is a player:
@@ -295,7 +295,7 @@ on damage:
 	damage the victim by {_total damage} hearts
 	if the health of the victim is less than 1:
 		kill the victim
-	{@debug} is true:	
+	{@debug} is true:
 		message "invid damage: %{_material}% %{_condition}% %{_dmg percent}%" to console
 		message "damage: %{_damage}%" to console
 		message "<white>calc armour: %{_calcArmour}%" to console
@@ -306,9 +306,9 @@ on damage:
 			push the victim in horizontal direction of attacker with speed 0.7
 			#Makes the zombies behaving weird, fly up too far
 			#push the victim up with speed 0.3
-	if the victim is dead:	
+	if the victim is dead:
 		if victim is player:
-			#Basicly this makes zombies not gain xp
+			#Basically this makes zombies not gain xp
 			stop
 		else:
 			set name of victim to "<light red>LvL %{_victim level}% zombie <r>- 0/%max health of victim%"
@@ -426,9 +426,9 @@ on damage:
 			set {feu.quest.zombiesKilled.%uuid of attacker%} to 0
 		if {feu.quest.starter.%uuid of attacker%} is "In progress":
 			if {feu.quest.starter.doorAThouse1.%uuid of attacker%} is true:
-				if {feu.quest.zombiesKilled.%uuid of attacker%} is less than 4:
+				if {feu.quest.zombiesKilled.%uuid of attacker%} is less than 3:
 					add 1 to {feu.quest.zombiesKilled.%uuid of attacker%}
-				else:
+				if {feu.quest.zombiesKilled.%uuid of attacker%} is 3:
 					message "{@You} I think I can check the chest now." to attacker
 			
 		else if {feu.quest.Crazy_house.%uuid of attacker%} is "In progress":

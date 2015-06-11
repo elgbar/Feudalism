@@ -13,7 +13,7 @@ options:
 # Chat radius
 
 #Commands
-	
+
 #Tools for world: 
 command /noon:
 	trigger:
@@ -30,7 +30,7 @@ command /noon:
 			stop
 			
 		execute console command "/time set 5000"
-
+		
 command /night:
 	trigger:
 		stop
@@ -46,7 +46,7 @@ command /night:
 			stop
 			
 		execute console command "/time set 16000"
-				
+		
 command /crop [<integer=20>]:
 	usage: /crop [<radius d:20>]
 	executable by: players
@@ -77,10 +77,9 @@ command /grass [<integer=5>]:
 			message "{@err} Permission error!"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-			
 		loop blocks in radius arg-1 around the player:
 			loop-block is soil or dirt
-			if block above loop-block is air:
+			if block above loop-block is air, grass, fern, sunflower, large fern, oxeye daisy, dandelion, rose bush, any tall grass or lilac:
 				set loop-block to grass
 				
 command /soil [<integer=5>]:
@@ -148,6 +147,7 @@ command /setLevel <integer> [<player=%player%>]:
 			set {feu.currXP.%uuid of arg-2%} to {feu.oldMaxXP.%uuid of arg-2%}
 		else:
 			set {feu.currXP.%uuid of arg-2%} to 0
+		message "{@prefix} You are now level %arg-1%"
 			
 command /sword <text> <text> :
 	usage: /sword <condition (Basic, Uncommon, Rare, Mythical or Legendary)> <material> 
@@ -392,11 +392,12 @@ command /stun:
 		
 #<Quick option menu>
 	
-command /hello:
-	permission: op
-	trigger:
-		show 100 "heart" particles at location of player for player
-		send player title "<light green>Welcome Back" with subtitle "<light gray>FOREVER" for 5 seconds
+#command /hello:
+	#permission: op
+	#trigger:
+		#doesnt work after 1.8.6 update...
+		#show 100 "heart" particles at location of player for player
+		#send player title "<light green>Welcome Back" with subtitle "<light gray>FOREVER" for 5 seconds
 		#format slot 1 of player's current inventory to random element out of all items to be unstealable
 		
 on click with clock:

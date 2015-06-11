@@ -62,16 +62,25 @@ command /Crazy_house.Boss.exit1 <player>:
 	executable by: console
 	trigger:
 		message "{@prefix} Quest complete!" to arg-1
+		#TODO Reward
 		teleport player to {feu.mainSpawn}
 				
 command /Crazy_house.roomExit1 <player>:
 	#action: on any movement
 	executable by: console
 	trigger:
-		#message "1" to console
 		if {feu.quest.Crazy_house.2.%uuid of arg-1%} is true:
 			teleport arg-1 to {feu.quest.Crazy_house.roomExit1}
-			message "<light red>???<r>: kill the zombies first!" to arg-1
+			message "<light red>???<r>: Kill the zombies first!" to arg-1
+			stop
+			
+command /Crazy_house.roomExit2 <player>:
+	#action: on any movement
+	executable by: console
+	trigger:
+		if {feu.quest.Crazy_house.2.%uuid of arg-1%} is true:
+			teleport arg-1 to {feu.quest.Crazy_house.stairs1}
+			message "<light red>???<r>: Kill the zombies first!" to arg-1
 			stop
 				
 command /NPCLordWilson_CrazyHouse <player>:
@@ -91,7 +100,7 @@ command /NPCLordWilson_CrazyHouse <player>:
 			clear {feu.quest.zombiesKilled.%uuid of arg-1%}
 			message "%{_name}% Hello again %arg-1%. I have a new problem." to arg-1
 			wait 15 tick
-			message "%{_name}% An old friend of mine, <light green>Lazarus<r>, went behind my back and started to reanimate corpses." to arg-1
+			message "%{_name}% An old friend of mine, <light red>Lazarus<r>, went behind my back and started to reanimate corpses." to arg-1
 			wait 20 tick
 			message "%{_name}% I have confined him to his house, but none of my men wants to enter his house!" to arg-1
 			wait 20 tick
@@ -125,12 +134,15 @@ command /NPCHouseGuard_CrazyHouse <player>:
 command /Crazy_house.KilledZombies1 <player>:
 	#action: Killed enough zombies
 	executable by: console
-	trigger:	
+	trigger:
 		set {feu.quest.Crazy_house.2.%uuid of arg-1%} to false 
 		#Temp:
 		set {feu.quest.Crazy_house.%uuid of arg-1%} to "Completed"
 		message "<green>Lord Wilson<r>:<r> You did it! Quest completed!" to arg-1
 		teleport arg-1 to {feu.mainSpawn}
+		wait 20 tick
+		message "{@warn} This quest is not done." to arg-1
+		message "{@prefix} You can go back and kill more zombies at the mansion" to arg-1
 		
 		stop
 		#The real shit:
