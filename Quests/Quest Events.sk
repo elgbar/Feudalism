@@ -15,7 +15,7 @@ options:
 #where %text% is explanation
 
 #Check where you stand on a quest: {feu.quest.%uuid of quest%.%uuid of player%} 
-#Three stages of quests: "Not stated", "In progress" and "Completed"	
+#Three stages of quests: "Not stated", "In progress" and "Completed"
 #Events
 	
 on any movement:

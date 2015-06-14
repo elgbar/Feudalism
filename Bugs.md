@@ -1,10 +1,9 @@
 Bugs:
 +After levelling up the XP bar is full (cannot reproduce) 
 +zombies falling trough floor (minecraft bug?) (less frequent as of 19.05.15)
-+After removing a fixed spawn it will still show up when using the "/seespawns true" command
 +Helmets might despawn on zombies (mc feature)
 
-+Zombie spawn with wrong armour 
++Zombie spawn with wrong armour
 ++Cases:
 +++full gold (with some enchantment) on a lvl 2 air air zombie (as of 11.05.15 ID 18)
 +++Full Leather (with some enchantment) on a lvl 2 air air zombie (as of 19.05.15 ID 19)
@@ -20,14 +19,15 @@ suggestions:
 
 Missing features:
 
-+No regeneration what-so-ever (added potions)
-++Regeneration once per minute?
-++Full heath at certain places (with delay)?
++potion related:
+++Full heath at certain places (with less delay)?
 ++Buying potions
 +No penalty for dying
 
 Fixed: 
 
++No regeneration what-so-ever (added potions, and slow regeneration)
++After removing a fixed spawn it  when using the "/seespawns true" will still show upcommand (fixed)
 +No alias for the PXP command (fixed)
 +Double zombie spawn (walking away, then coming back) (fixed)
 +Zombies randomly looses interest for you during a battle (functioning as normal)

@@ -54,8 +54,8 @@ command /Crazy_house.Boss.Enter1 <player>:
 	trigger:
 		Teleport arg-1 to {feu.quest.Crazy_house.boss1}
 		message "<light red>Lazarus<r>: So we finally meet face to face! Too bad you will die!" to player
-		#wait 20 second
-		#message "{@You} I should watch out for his minions"
+		wait 20 second
+		message "{@You} I should watch out for his minions"
 
 command /Crazy_house.Boss.exit1 <player>:
 	#action: Boss death
@@ -64,7 +64,7 @@ command /Crazy_house.Boss.exit1 <player>:
 		message "{@prefix} Quest complete!" to arg-1
 		#TODO Reward
 		teleport player to {feu.mainSpawn}
-				
+		
 command /Crazy_house.roomExit1 <player>:
 	#action: on any movement
 	executable by: console
@@ -73,6 +73,8 @@ command /Crazy_house.roomExit1 <player>:
 			teleport arg-1 to {feu.quest.Crazy_house.roomExit1}
 			message "<light red>???<r>: Kill the zombies first!" to arg-1
 			stop
+		else if {feu.quest.Crazy_house.3.%uuid of arg-1%} is true:
+			teleport arg-1 to {feu.quest.Crazy_house.bossExit1}
 			
 command /Crazy_house.roomExit2 <player>:
 	#action: on any movement
@@ -82,15 +84,12 @@ command /Crazy_house.roomExit2 <player>:
 			teleport arg-1 to {feu.quest.Crazy_house.stairs1}
 			message "<light red>???<r>: Kill the zombies first!" to arg-1
 			stop
-				
+			
 command /NPCLordWilson_CrazyHouse <player>:
 	#action: on rightclick on entity
 	executable by: console
 	trigger:
 		set {_name} to "<green>Lord Wilson<r>:<r>"
-		
-		#if {feu.level.%uuid of arg-1%} is less than 5:
-		#	message "%{_name}% This time it might be a bit harder than the first time, you need to be a higher level." to arg-1
 		if {feu.quest.Crazy_house.1.%uuid of arg-1%} doesn't exist:
 			if {feu.level.%uuid of arg-1%} is less than 5:
 				message "%{_name}% Come talk to me again when you are a higher level." to arg-1
@@ -122,7 +121,6 @@ command /NPCHouseGuard_CrazyHouse <player>:
 	executable by: console
 	trigger:
 		set {_name} to "<green>House Guard<r>:<r>"
-		
 		if {feu.quest.Crazy_house.1.%uuid of arg-1%} is true:
 			message "%{_name}% He is locked in the cellar." to arg-1
 			stop
@@ -135,18 +133,17 @@ command /Crazy_house.KilledZombies1 <player>:
 	#action: Killed enough zombies
 	executable by: console
 	trigger:
-		set {feu.quest.Crazy_house.2.%uuid of arg-1%} to false 
+		#set {feu.quest.Crazy_house.2.%uuid of arg-1%} to false 
 		#Temp:
-		set {feu.quest.Crazy_house.%uuid of arg-1%} to "Completed"
-		message "<green>Lord Wilson<r>:<r> You did it! Quest completed!" to arg-1
-		teleport arg-1 to {feu.mainSpawn}
-		wait 20 tick
-		message "{@warn} This quest is not done." to arg-1
-		message "{@prefix} You can go back and kill more zombies at the mansion" to arg-1
-		
-		stop
+		#set {feu.quest.Crazy_house.%uuid of arg-1%} to "Completed"
+		#message "<green>Lord Wilson<r>:<r> You did it! Quest completed!" to arg-1
+		#teleport arg-1 to {feu.mainSpawn}
+		#wait 20 tick
+		#message "{@warn} This quest is not done." to arg-1
+		#message "{@prefix} You can go back and kill more zombies at the mansion" to arg-1
+		#stop
 		#The real shit:
-		set {feu.quest.Crazy_house.2.%uuid of arg-1%} to false 
+		set {feu.quest.Crazy_house.2.%uuid of arg-1%} to false
 		set {feu.quest.Crazy_house.3.%uuid of arg-1%} to true
 		message "<light red>???<r>: Great, you seem stronger than the other peasants!" to arg-1
 		message "<light red>???<r>: Now run to the next room." to arg-1

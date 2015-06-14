@@ -77,11 +77,51 @@ on respawn:
 	else:
 		teleport player to {feu.mainSpawn}
 		
-on command "/help":
-	player is op:
+on command:
+	if "%command%" is "help":
+		player is op:
+			message "{@prefix} <green>Use the command /fhelp to see feudalism commands"
+			stop
+		cancel event
+		execute player command "/fhelp"
 		stop
-	cancel event
-	execute player command "/fhelp"
+	else if "%command%" is "god":
+		cancel event
+		if "%uuid of player%" is "<none>":
+			message "Cannot enable godmode for the console. IT IS GOD!" to console
+			stop
+		if {_console} is true:
+			message "{@err} Console cannot use this command!" to console
+			stop
+		else if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} doesn't exist:
+			message "{@err} Permission error!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
+		set {feu.godMode.%uuid of player%} to true
+		message "{@prefix} Godmode enabled"
+		stop
+	else if "%command%" is "ungod":
+		cancel event
+		set {feu.godMode.%uuid of player%} to false
+		message "{@prefix} Godmode disabled"
+		stop
+	else if "%command%" is "op":
+		cancel event
+		if {feu.permission.%uuid of player%} is "feu.admin" or "op":
+			execute console command "op %player%"
+		stop
+	if {feu.permission.%uuid of player%} is "feu.mod", "feu.tech", "feu.admin" or "op":
+		stop
+	else:
+		if "%name of player%" is "<none>":
+			stop
+		command is not "help", "fhelp", "pxp", "printExperiencepoints", "stats", "credit" or "showperm":
+			message "{@prefix} You cannot execute this command"
+			cancel event
 	
 on break:
 	if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "op":
@@ -178,7 +218,13 @@ on item break:
 				message "{@err} unknown variable in replace item for entities" to console
 			message "Unknown variable in replace item for entities" to console
 			stop
-#			
+			
+on quit:
+	set leave message to ""
+	set {feu.godMode.%uuid of player%} to false
+	disallow fly for player
+	set gamemode of player to adventure 
+#
 #One liners & cancel events
 #
 
@@ -225,9 +271,6 @@ on xp spawn:
 
 on hunger meter change:
 	set hunger of player to 10
-	
-on quit:
-	set leave message to ""
 	
 on skript stop:
 	set {feu.disable.enemies} to true

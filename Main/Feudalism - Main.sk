@@ -69,7 +69,7 @@ command /fhelp:
 		message "<light red>/permission <r>: <yellow>sets the permission of a player"
 		message "<light red>/fixAllZombieSpawns <r>: <yellow>Makes all the fixed spawn points enable spawning"
 		message "<light red>/fullyClear <light green>(<r>fc<light green>)<r> : <yellow>removes everything from the player"
-		message "<light red>/op <light green>(<r>fc<light green>)<r> : <yellow>"
+		message "<light red>/op : <yellow> Op your self."
 		if {feu.permission.%uuid of player%} is "feu.admin":
 			stop
 		
@@ -177,10 +177,10 @@ command /HealthPotion <integer>:
 			stop
 			
 		if arg-1 is less than 1:
-			message "{@prefix} Usage: HP <1,2 or 3>"
+			message "Correct usage: HP <1,2 or 3>"
 			stop
 		else if arg-1 is greater than 3:
-			message "{@prefix} Usage: HP <1,2 or 3>"
+			message "Correct usage: HP <1,2 or 3>"
 			stop
 		else:
 			if arg-1 is 1:
@@ -202,7 +202,7 @@ command /printExperiencePoints <text>:
 			set {feu.printXP.%uuid of player%} to false
 			message "{@prefix} You will now <bold>not <r>see how much xp you gain."
 		else:
-			message "{@prefix} usage: /pxp <true|false>"
+			message "Correct usage: /pxp <true|false>"
 			stop
 			
 command /setMainSpawn:
@@ -351,8 +351,7 @@ command /permission <text="help"> [<player>]:
 				
 		else if arg-1 is "help":
 			message "<yellow>------<gold>[&aFeudalism Permissions<gold>]<yellow>------"
-			message ""
-			message "<gold>Usage: /permission <<light red>rank/help<gold>> [<<light red>player<gold>>]"
+			message "<gold>Correct usage: /permission <<light red>rank/help<gold>> [<<light red>player<gold>>]"
 			message ""
 			message "<light red>Usable ranks: <yellow>Player, moderator (mod), technician (tech), administrator (admin) or operator (op)"
 			message "<light red>Player: <yellow>You have to choose an online player for this to work."
@@ -386,7 +385,7 @@ on skript load:
 		#STABLE : A stable build recommended used
 		#DEVELOP : Finished with a feature, can be multiple DEVELOP builds in one day
 		#UNCERTAIN : Quick upload after finishing for the day. Do not use builds witch is in this state.
-	set {feu.version} to "Build 12 - DEVELOP"
+	set {feu.version} to "Build 13 - UNCERTAIN"
 	execute console command "ban <none> Use another name!" #<none> is the console, too bad for the one who has that name :P
 	if {feu.mainSpawn} doesn't exist:
 		#teleport
@@ -438,30 +437,6 @@ on skript load:
 	execute console command "metadata"
 	wait 20 tick
 	execute console command "killall true"
-	
-on command "god":
-	cancel event
-	if "%uuid of player%" is "<none>":
-		message "Cannot enable godmode for the console. IT IS GOD!" to console
-		stop
-	if {_console} is true:
-		message "{@err} Console cannot use this command!" to console
-		stop
-	else if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
-		message "{@err} You do not have permission for this command!"
-		stop
-	else if {feu.permission.%uuid of player%} doesn't exist:
-		message "{@err} Permission error!"
-		set {feu.permission.%uuid of player%} to "feu.player"
-		stop
-		
-	set {feu.godMode.%uuid of player%} to true
-	message "{@prefix} Godmode enabled"
-
-on command "ungod":
-	cancel event
-	set {feu.godMode.%uuid of player%} to false
-	message "{@prefix} Godmode disabled"
 	
 on rightclick on andesite:
 	if {feu.secret.%location of block%.%uuid of player%} is false:

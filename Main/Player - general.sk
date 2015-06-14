@@ -33,7 +33,7 @@ command /resetPlayer <text="help"> [<text="help">]:
 			stop
 			
 		if arg-2 or arg-1 is "help":
-			message "usage: /resetPlayer <player> [<hacker|reset|requested>]"
+			message "Correct usage: /resetPlayer <player> [<hacker|reset|requested>]"
 			stop
 		else if arg-2 is "hacker" or "hack" or "h":
 			message "<light red>You have been reset because of <red>hacking<light red>!" #to arg-1

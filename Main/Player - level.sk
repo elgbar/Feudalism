@@ -8,8 +8,8 @@ options:
 	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
 	
 	You: <green>%attacker%<r>:<r>
-#Commands 	
-						#arg-3: print the amount of xp gained #arg-4: Silent level up = true
+#Commands
+#arg-3: print the amount of xp gained #arg-4: Silent level up = true
 command /addXP <number> [<player=%player%>] [<boolean=true>] [<boolean=false>]:
 	usage: /addXP <XP> [<player>]
 	trigger:
@@ -102,23 +102,24 @@ command /stats [<player=%player%>]:
 			message "<gold>Percent: <green>%{_percent}%%%"
 		message "<gold>Current XP: <green>%{feu.currXP.%uuid of arg-1%}%"
 		message "<gold>Current Level: <green>%{feu.level.%uuid of arg-1%}%"
-		message "<gold>XP needed for next level: <green>%{_XPtoNextLevel}%"	
+		message "<gold>XP needed for next level: <green>%{_XPtoNextLevel}%"
+		
 #events
 on damage:
+	victim is alive
+	attacker is alive #there is a bug where the player is revived this stops all this
 	if victim is a zombie:
 		attacker isn't a player
 		stop
 	else if victim is a player:
+		if {feu.godMode.%uuid of victim%} is true:
+			stop
 		if attacker is a player:
 			cancel event
 			stop
 		attacker isn't a zombie
 		stop
 	cancel event
-	
-	if {feu.godMode.%uuid of victim%} is true:
-		stop
-		
 	if victim is a zombie:
 		set {_Victim ID} to metadata value "ID" of victim
 		set {_victim ID} to "%{_victim ID}%" parsed as a number
@@ -131,7 +132,28 @@ on damage:
 			make victim pathfind to attacker with speed 1.5
 	else if victim is a player:
 		set {_dmg percent} to 1+({_victim level}/10)
-		
+	else if victim is a witch:
+		if name of victim contains "Lazarus":
+			set {_victim level} to 50
+			set {_dmg percent} to 6
+			set {_victim ID} to "Lazarus"
+			set {_lazarus} to victim's location
+			if {feu.boss.Lazarus.minions.time} is not set:
+				set {feu.boss.Lazarus.minions.time} to now
+			set {_time} to difference between {feu.boss.Lazarus.minions.time} and now
+			if {_time} is greater than 20 seconds:
+				message "%{_time}%" to console
+				set {feu.boss.Lazarus.minions.time} to now
+				loop 4 times:
+					spawn a zombie at {_lazarus}
+					set {_entity} to last spawned zombie
+					set metadata value "ID" of {_entity} to "Lazarus"
+					set age of {_entity} to baby
+					set {_health} to 30
+					set rf maximum health of {_entity} to {_health}*2
+					set health of {_entity} to {_health}
+					set metadata value "Level" of {_entity} to "50"
+					#Need tuning
 	if victim is wearing a helmet:
 		if victim is wearing an leather helmet:
 			set {_helmet} to 0.25
@@ -261,14 +283,12 @@ on damage:
 				message ""
 			else:
 				message "{@err} No known condition on %attacker%'s tool. In ""on damage of zombie"" under ""name of tool of attacker contains""" to console
-
 			
 		if attacker is a player:
 			if name of tool of attacker is "Old Rotten Sword":
 				set {_damage} to 1.5
 			else:
-
-				set {_damage} to ({_material}*{_condition})*{_dmg percent}
+				set {_damage} to {_material}*{_condition}*{_dmg percent}
 			
 		else if attacker is a zombie:
 			set {_damage} to {_material}+{_zombie level}/2
@@ -293,15 +313,17 @@ on damage:
 		if {_total damage} is less than 1:
 			set {_total damage} to 0
 	damage the victim by {_total damage} hearts
+	if victim is dead:
+		set name of victim to "<light gray>[<r>+%round(1+{_victim level}^1.1)% xp<light gray>]"
 	if the health of the victim is less than 1:
 		kill the victim
 	{@debug} is true:
-		message "invid damage: %{_material}% %{_condition}% %{_dmg percent}%" to console
+		message "invalid damage: %{_material}% %{_condition}% %{_dmg percent}%" to console
 		message "damage: %{_damage}%" to console
 		message "<white>calc armour: %{_calcArmour}%" to console
 		message "attacker level: %{feu.level.%uuid of attacker%}% || z: %{_victim level}%" to console
 		message "<white>d-ca: %{_total damage}%" to console
-	if victim is a zombie:
+	if victim is a zombie or witch:
 		if {_total damage} isn't 0:
 			push the victim in horizontal direction of attacker with speed 0.7
 			#Makes the zombies behaving weird, fly up too far
@@ -310,8 +332,6 @@ on damage:
 		if victim is player:
 			#Basically this makes zombies not gain xp
 			stop
-		else:
-			set name of victim to "<light red>LvL %{_victim level}% zombie <r>- 0/%max health of victim%"
 		if chance of 5%:
 			if chance of 0.1%:
 				if {_victim level} is higher than 39:
@@ -397,7 +417,6 @@ on damage:
 					set {_dmg} to 1.5
 					give attacker a wood sword named "Uncommon Wildwood Sword" with lore "Damage: %{_dmg}%"
 				
-					
 			else if chance of 20%:
 				if {_victim level} is higher than 39:
 					set {_dmg} to 3.5
@@ -419,9 +438,9 @@ on damage:
 					set {_dmg} to 1
 					give attacker a wood sword named "Basic Wildwood Sword" with lore "Damage: %{_dmg}%"
 
-		#		
-		# Quests:		
-		#		
+		#
+		# Quests:
+		#
 		if  {feu.quest.zombiesKilled.%uuid of attacker%} doesn't exist:
 			set {feu.quest.zombiesKilled.%uuid of attacker%} to 0
 		if {feu.quest.starter.%uuid of attacker%} is "In progress":
@@ -442,13 +461,13 @@ on damage:
 		#Quest stop
 		#
 		
-		set {_xp} to round(1+{_victim level}^1.1)		
-		if 	"%{_victim ID}%" is equal to "<none>":
-			Message "{@warn} Didn't find any ID on the zombie. In ""on damage of zombie"" under ""%{_victim ID}%"" is equal to ""<none>""" to console
-		else:			
+		set {_xp} to round(1+{_victim level}^1.1)
+		if "%{_victim ID}%" is "<none>":
+			Message "{@warn} Didn't find any ID on the zombie. In ""on damage of zombie"" under ""{_victim ID}"" is equal to ""<none>""" to console
+		else:
 			if {feu.fixedspawn.isSpawned.%{_Victim ID}%} exists:
 				set {feu.fixedspawn.isSpawned.%{_Victim ID}%} to false
-			else if {_Victim ID} is "SCZ":
+			else if {_Victim ID} is "SCZ", "Lazarus" or "Lazarus's minions":
 				#ignore this, just a cheap hack... so zombies can spawn without being spawned from skript
 				message ""
 			else:

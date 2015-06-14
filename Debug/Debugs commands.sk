@@ -348,7 +348,7 @@ command /speed [<number>]:
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 		if arg-1 does not exist:
-			message "usage: /speed [<number d: 0.1 | range -1 to 1>]"
+			message "Correct usage: /speed [<number d: 0.1 | range -1 to 1>]"
 		else:
 			set the player's flying speed to arg-1
 		

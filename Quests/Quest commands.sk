@@ -27,7 +27,7 @@ command /delMetadata:
 		else if {feu.permission.%uuid of player%} doesn't exist:
 			message "{@err} Permission error!"
 			set {feu.permission.%uuid of player%} to "feu.player"
-			stop			
+			stop
 		set {_round Coords} to location of player
 		set {_x} to x coordinate of {_round Coords}
 		set {_y} to y coordinate of {_round Coords}
@@ -64,7 +64,7 @@ command /setMetadata <text> [<integer=2>]:
 			message "{@err} No bedrock %arg-2% below you."
 			stop
 		set {_arg-2} to arg-2
-				
+		
 		set {_round Coords} to location of player
 		set {_x} to x coordinate of {_round Coords}
 		set {_y} to y coordinate of {_round Coords}
@@ -79,7 +79,7 @@ command /setMetadata <text> [<integer=2>]:
 		set metadata value "BlockInfo" of block {feu.metadata.below.%{_round Coords}%} below player to "%{feu.metadata.txt.%{_round Coords}%}%"
 		message "{@prefix} Done!"
 		
-#The command is executed because metadata values are reset on restart		
+#The command is executed because metadata values are reset on restart
 command /metadata:
 	executable by: console
 	trigger:
@@ -94,13 +94,13 @@ command /quest <text="Help"> [<player>] [<boolean=false>]:
 	usage: /quest <quest> <player> [<boolean, true: done previous quests, false: fully reset>]
 	trigger:
 		if arg-1 is "starter":
-			set {feu.quest.starter.%uuid of arg-2%} to "In progress"	
+			set {feu.quest.starter.%uuid of arg-2%} to "In progress"
 			
 			set {feu.quest.starter.1.%uuid of arg-2%} to true
 			clear {feu.quest.starter.2.%uuid of arg-2%}
 			clear {feu.quest.starter.3.%uuid of arg-2%}
 			clear {feu.quest.starter.4.%uuid of arg-2%}
-			clear {feu.quest.starter.doorAThouse1.%uuid of player%}			
+			clear {feu.quest.starter.doorAThouse1.%uuid of player%}
 			message "{@debugPrefix} Enabling quest starter for %arg-2%" to arg-2
 		else if arg-1 is "Crazy_house":
 			#This quest is dependent on that the player have finished "starter" quest
@@ -121,4 +121,4 @@ command /quest <text="Help"> [<player>] [<boolean=false>]:
 			stop
 			
 		#Global variables	
-		set {feu.quest.zombiesKilled.%uuid of arg-2%} to 0	
+		set {feu.quest.zombiesKilled.%uuid of arg-2%} to 0
