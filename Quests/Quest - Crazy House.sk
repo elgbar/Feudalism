@@ -39,7 +39,7 @@ command /Crazy_house.stairs1 <player>:
 			set {feu.quest.Crazy_house.2.%uuid of arg-1%} to true
 			set {feu.quest.Crazy_house.1.%uuid of arg-1%} to false
 			message "<light red>???<r>: Hello %arg-1%. I was looking forward to your visit." to arg-1
-			message "<light red>???<r>: It is always fun to watch Willson's peasants die." to arg-1			
+			message "<light red>???<r>: It is always fun to watch Willson's peasants die." to arg-1
 			stop
 		else if {feu.quest.Crazy_house.%uuid of arg-1%} is "Completed":
 			stop
@@ -52,10 +52,12 @@ command /Crazy_house.Boss.Enter1 <player>:
 	#action: on any movement
 	executable by: console
 	trigger:
+		#TODO: spawn boss
 		Teleport arg-1 to {feu.quest.Crazy_house.boss1}
-		message "<light red>Lazarus<r>: So we finally meet face to face! Too bad you will die!" to player
-		wait 20 second
-		message "{@You} I should watch out for his minions"
+		message "<light red>Lazarus<r>: So we finally meet face to face! Too bad you will die!" to arg-1
+		wait 20 tick
+		message "{@You} I should watch out for his minions." to arg-1
+		
 
 command /Crazy_house.Boss.exit1 <player>:
 	#action: Boss death

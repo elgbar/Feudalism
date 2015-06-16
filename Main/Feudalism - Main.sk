@@ -385,7 +385,7 @@ on skript load:
 		#STABLE : A stable build recommended used
 		#DEVELOP : Finished with a feature, can be multiple DEVELOP builds in one day
 		#UNCERTAIN : Quick upload after finishing for the day. Do not use builds witch is in this state.
-	set {feu.version} to "Build 13 - UNCERTAIN"
+	set {feu.version} to "Build 14 - UNCERTAIN"
 	execute console command "ban <none> Use another name!" #<none> is the console, too bad for the one who has that name :P
 	if {feu.mainSpawn} doesn't exist:
 		#teleport

@@ -176,12 +176,12 @@ command /spawnBoss <text> <integer=3>:
 			Spawn a witch arg-2 in front of player
 			push the last spawned entity 0.5 up
 			set name of last spawned entity to "<red>Lazarus"
-			set rf maximum health of the last spawned entity to 142 #floor((16.09*50^0.38))*2 = 71*2 = 142
+			set rf maximum health of the last spawned entity to 200
 			heal last spawned entity
 			set {_entity} to last spawned entity
 			set metadata value "ID" of {_entity} to "Lazarus"
 			set metadata value "Level" of {_entity} to "50"
-		
+			
 		else if arg-1 is "list" or "l":
 			message "<green>Boss name: <yellow>Lazarus <r>| <green>Quest: <yellow>Crazy House"
 		else:
@@ -483,9 +483,9 @@ command /targetInfo:
 			stop
 			
 		if player's target is an entity:
-			if name of target entity doesn't exist:	
-				message "{@err} No ID or Level on this entity!"
-				stop
+			#if name of target entity doesn't exist:
+			#	message "{@err} No ID or Level on this entity!"
+			#	stop
 			set {_victim level} to metadata value "Level" of target entity
 			set {_Victim ID} to metadata value "ID" of target entity
 			if target is a villager:
@@ -518,9 +518,8 @@ every 3 second in world "Feudalism_4":
 		{@hardDebugging} is true:
 			message "{@debugPrefix} %{_ID}% | loop-entity-2 is a zombie" to console
 		set {_ID} to metadata value "ID" of loop-entity
-		if "%{_ID}%" is "SCZ", "Lazarus" or "Lazarus's minions":
+		if "%{_ID}%" is "SCZ", "Lazarus" or "Lazarus' minion":
 			stop loop
-			
 		#needs to be a location
 		set {_location} to spawn of "Feudalism_4"
 		
@@ -530,7 +529,7 @@ every 3 second in world "Feudalism_4":
 		set x coordinate of {_location} to ({_x}) parsed as number
 		set y coordinate of {_location} to ({_y}) parsed as number
 		set z coordinate of {_location} to ({_z}) parsed as number
-
+		
 		if "%{_ID}%" isn't "<none>":
 			#needs optimizing
 			if {feu.fixedspawn.returnToSpawn.%{_location}%} exists:
@@ -595,19 +594,19 @@ every 15 second in world "Feudalism_4":
 		{@hardDebugging} is true:
 			message "{@debugPrefix} %loop-index-1% | test 1 | %loop-value%" to console
 		#This method is the only one that works. And I know it's not pretty... 
-		spawn a witch 3 below loop-value
-		set {_loop entity} to last spawned entity
-		delete last spawned entity
-		
+		#spawn a witch 3 below loop-value
+		#set {_loop entity} to last spawned entity
+		#delete last spawned entity
+		#set {_location} to loop-value-1's location
 		set {_players} to 0
 		set {_location} to loop-value-1
-		loop players in radius 35 around {_loop entity}:
+		loop players in radius 35 around loop-value-1's location:
 			add 1 to {_players}
 		{@debug} is true:
 			message "{@debugPrefix} %loop-index-1% | player(s) found | players: %{_players}%" to console
 		if {_players} is greater than 0:
 			if {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%loop-value-1%}%} is false:
-				loop players in radius 3 around {_loop entity}:
+				loop players in radius 3 around loop-value-1's location:
 					add 1 to {_n}
 				if {_n} is greater than 0:
 					{@hardDebugging} is true:
@@ -681,7 +680,7 @@ every 15 second in world "Feudalism_4":
 					else:
 						message "{@err} An error was retuned from auto spawn at %loop-value-1%: <red>Wrong argument! <light red>The entity is spawned with no arms!" to console
 		if {_players} is 0:
-			loop entities in radius 25 around {_loop entity}:
+			loop entities in radius 25 around loop-value-1's location:
 				if {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%{_location}%}%} is true:
 					set {_ID} to metadata value "ID" of loop-entity
 					if "%{_ID}%" is "%{feu.fixedspawn.ID.%{_location}%}%":

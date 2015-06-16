@@ -3,6 +3,10 @@ Bugs:
 +zombies falling trough floor (minecraft bug?) (less frequent as of 19.05.15)
 +Helmets might despawn on zombies (mc feature)
 
++Zombie spawn without ID and Level
+++Cases:
+++A zombie spawned with none level and ID, the max health was 37.5 and it's spawning health was 16 (picture taken 2015-06-16_00.42.46.png) 
+
 +Zombie spawn with wrong armour
 ++Cases:
 +++full gold (with some enchantment) on a lvl 2 air air zombie (as of 11.05.15 ID 18)

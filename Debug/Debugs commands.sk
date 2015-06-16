@@ -14,39 +14,7 @@ options:
 
 #Commands
 
-#Tools for world: 
-command /noon:
-	trigger:
-		stop
-		#Have no need of this command
-		if "%uuid of player%" is "<none>":
-			message "" to player
-		else if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
-			message "{@err} You do not have permission for this command!"
-			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
-			set {feu.permission.%uuid of player%} to "feu.player"
-			stop
-			
-		execute console command "/time set 5000"
-		
-command /night:
-	trigger:
-		stop
-		#Have no need of this command
-		if "%uuid of player%" is "<none>":
-			message "" to player
-		else if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
-			message "{@err} You do not have permission for this command!"
-			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
-			set {feu.permission.%uuid of player%} to "feu.player"
-			stop
-			
-		execute console command "/time set 16000"
-		
+#Tools for world:
 command /crop [<integer=20>]:
 	usage: /crop [<radius d:20>]
 	executable by: players
@@ -163,22 +131,22 @@ command /sword <text> <text> :
 			
 		if arg-1 is "Basic", "Uncommon", "Rare", "Mythical" or "Legendary":
 			if arg-2 is "wood" or "wildwood":
-				give player a wooden sword named "%arg-1% wildwood sword"
+				give player a wooden sword named "%arg-1% Wildwood Sword"
 			else if arg-2 is "stone" or "rock":
-				give player a stone sword named "%arg-1% rock sword"
+				give player a stone sword named "%arg-1% Rock Sword"
 			else if arg-2 is "iron" or "steel":
-				give player a iron sword named "%arg-1% steel sword"
+				give player a iron sword named "%arg-1% Steel Sword"
 			else if arg-2 is "gold" or "Dwemler":
-				give player a gold sword named "%arg-1% dwemler sword"
+				give player a gold sword named "%arg-1% Dwemler Sword"
 			else if arg-2 is "diamond" or "Crystal":
-				give player a diamond sword named "%arg-1% crystal sword"
+				give player a diamond sword named "%arg-1% Crystal Sword"
 			else:
 				message "{@err} Unknown material"
-				message "{@prefix} Known: wood, wildwood, stone, rock, iron, steel, gold, Dwemler, diamond or Crystal"
+				message "{@prefix} Use: Wood, Wildwood, Stone, Rock, Iron, Steel, Gold, Dwemler, Diamond or Crystal"
 				stop
 		else:
 			message "{@err} Unknown condition"
-			message "{@prefix} Known: Basic, Uncommon, Rare, Mythical or Legendary"
+			message "{@prefix} Use: Basic, Uncommon, Rare, Mythical or Legendary"
 			stop
 			
 command /loop <integer> <text> <text>:
@@ -334,7 +302,7 @@ command /get:
 			stop
 			
 		give target block to the player
-		message "{@prefix} BlockID/blockDATA: <gold>%target block's id%/%target block's data%"	
+		message "{@prefix} BlockID/blockDATA: <gold>%target block's id%/%target block's data%"
 
 command /speed [<number>]:
 	usage: /speed [<number d:0.1 | range -1 to 1>]

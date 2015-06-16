@@ -12,9 +12,9 @@ variables:
 	{feu.ann.pre} = 0
 	
 every 10 real minutes:
-	set {_num} to a random integer between 1 and 3
+	set {_num} to a random integer between 0.9 and 3.1
 	while {_num} is {feu.ann.pre}:
-		set {_num} to a random integer between 1 and 3
+		set {_num} to a random integer between 0.9 and 3.1
 	set {feu.ann.pre} to {_num}
 	if {_num} is 1:
 		message "{@AnnouncementPrefix} Report bugs, we cant find them all without your help! Please use this link: https://github.com/kh498/Feudalism/issues" to all players in world "Feudalism_4"

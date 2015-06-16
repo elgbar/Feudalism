@@ -13,11 +13,11 @@ options:
 on crop trample:
 	cancel event
 	
-on spawn:	
+on spawn:
 	if entity isn't {@allowedMobs}:
 		cancel event
 		stop
-	if entity is zombie:
+	if entity isn't player:
 		wait 10 tick
 		set {_ID} to metadata value "ID" of event-entity
 		if "%{_ID}%" is "<none>":
@@ -73,7 +73,7 @@ on respawn:
 		set {feu.godMode.%uuid of player%} to false
 		
 	else if {feu.quest.Crazy_house.3.%uuid of player%} is true:
-		teleport player to {feu.quest.Crazy_house.roomExit1}
+		teleport player to {feu.quest.Crazy_house.bossExit1}
 	else:
 		teleport player to {feu.mainSpawn}
 		
