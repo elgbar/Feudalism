@@ -41,12 +41,11 @@ command /delMetadata:
 				delete {feu.metadata.txt.%{_round Coords}%}
 				delete {feu.metadata.below.%{_round Coords}%}
 				remove {_round Coords} from {feu.metadata.loc::*}
-				message "{@prefix} Removed it!"
+				message "{@prefix} Metadata removed!"
 				set {_spoted} to true
 		if {_spoted} is false:
 			message "{@prefix} No metadata here. Remember its the block you're standing on!"
 			stop
-		message "{@prefix} Done!"
 		
 command /setMetadata <text> [<integer=2>]:
 	usage: /setMetadata <Info> [<How many blocks below (0=inside player's feet) (d=2)>]
@@ -60,8 +59,8 @@ command /setMetadata <text> [<integer=2>]:
 			message "{@err} Permission error!"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-		if block arg-2 below player isn't bedrock:
-			message "{@err} No bedrock %arg-2% below you."
+		if block arg-2 below player isn't bedrock or chest:
+			message "{@err} No bedrock or chest %arg-2% blocks below you."
 			stop
 		set {_arg-2} to arg-2
 		
@@ -91,11 +90,13 @@ command /metadata:
 
 command /quest <text="Help"> [<player>] [<boolean=false>]:
 	executable by: console
-	usage: /quest <quest> <player> [<boolean, true: done previous quests, false: fully reset>]
+	usage: /quest <quest | help> <player> [<boolean, true: done previous quests, false: fully reset>]
 	trigger:
 		if arg-1 is "starter":
+			if arg-2 is not set:
+				message "{@err} You need to specify a player."
+				stop
 			set {feu.quest.starter.%uuid of arg-2%} to "In progress"
-			
 			set {feu.quest.starter.1.%uuid of arg-2%} to true
 			clear {feu.quest.starter.2.%uuid of arg-2%}
 			clear {feu.quest.starter.3.%uuid of arg-2%}
@@ -103,6 +104,9 @@ command /quest <text="Help"> [<player>] [<boolean=false>]:
 			clear {feu.quest.starter.doorAThouse1.%uuid of player%}
 			message "{@debugPrefix} Enabling quest starter for %arg-2%" to arg-2
 		else if arg-1 is "Crazy_house":
+			if arg-2 is not set:
+				message "{@err} You need to specify a player."
+				stop
 			#This quest is dependent on that the player have finished "starter" quest
 			if arg-3 is true:
 				if {feu.quest.starter.%uuid of arg-2%} isn't "Completed":
@@ -116,8 +120,8 @@ command /quest <text="Help"> [<player>] [<boolean=false>]:
 			clear {feu.quest.Crazy_house.4.%uuid of arg-2%}
 			message "{@debugPrefix} Enabling quest Crazy_house for %arg-2%" to arg-2
 		else:
-			message "/quest <quest> <player> [<boolean, true: done previous quests, false: fully reset>]"
-			message "{@prefix} Available quests: starter and Crazy_house"
+			message "/quest <quest> <player> [<boolean, true: done previous quests, false: fully reset>]" to console
+			message "Available quests: <light green>starter <r>and <light green>Crazy_house" to console
 			stop
 			
 		#Global variables	

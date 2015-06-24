@@ -20,7 +20,7 @@ on spawn:
 	if entity isn't player:
 		wait 10 tick
 		set {_ID} to metadata value "ID" of event-entity
-		if "%{_ID}%" is "<none>":
+		if {_ID} doesn't exist:
 			delete event-entity
 			{@debug} is true:
 				message "{@debugPrefix} Unknown Zombie spawned, and killed" to console
@@ -48,9 +48,9 @@ On Level Change:
 		
 on death of player:
 	set death message to ""
+	wait 1 tick
+	force the player to respawn
 	set {feu.xpBar.%uuid of player%} to level progress of the player
-	#if you loose your inventory use the command:
-	#/gamerule keepInventory true
 
 on respawn:
 	wait 2 tick
@@ -227,7 +227,9 @@ on quit:
 #
 #One liners & cancel events
 #
-
+#On Pick up:
+#	if event-entity is a player:
+#		cancel event
 on heal:
 	cancel event
 	

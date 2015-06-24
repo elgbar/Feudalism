@@ -44,6 +44,12 @@ on any movement:
 		else if "%{_BlockInfo}%" is equal to "Crazy_house.Boss.Enter1":
 			execute console command "Crazy_house.Boss.Enter1 %name of player%"
 			stop
+		else if "%{_BlockInfo}%" is equal to "Crazy_house.EnterWrong":
+			execute console command "Crazy_house.EnterWrong %name of player%"
+			stop
+		else if "%{_BlockInfo}%" is equal to "Crazy_house.Boss.exitInnerRoom":
+			execute console command "Crazy_house.Boss.exitInnerRoom %name of player%"
+			stop
 			
 on rightclick on button:
 	#cancel events need to be here, there for this cannot be converted to a command
@@ -69,17 +75,23 @@ on rightclick on button:
 			cancel event
 			
 on rightclick on chest:
-	if player is not op:
-		cancel event
+	cancel event
 	set {_BlockInfo} to metadata value "BlockInfo" of clicked block
 	if "%{_BlockInfo}%" is equal to "starter.chest1":
-		cancel event
 		execute console command "starter.chest1 %name of player%"
 		stop
+	else if "%{_BlockInfo}%" is equal to "Crazy_house.bossLoot":
+		if {feu.quest.Crazy_house.%location of block%.%uuid of player%} is false:
+			message "{@You} Why loot a looted chest again?"
+			stop
+		else:
+			set {feu.quest.Crazy_house.%location of block%.%uuid of player%} to false
+			execute console command "Crazy_house.bossLoot %name of player%"
+			stop
+	else if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "op":
+		uncancel event
 		
 on rightclick on entity:
-	#Test entity to check if this works
-	#default chat: message "%{_name}% " to player
 	entity's name exists
 	cancel event
 

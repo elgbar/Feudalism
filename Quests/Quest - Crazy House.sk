@@ -53,20 +53,37 @@ command /Crazy_house.Boss.Enter1 <player>:
 	executable by: console
 	trigger:
 		#TODO: spawn boss
+		execute console command "spawnBoss lazarus"
 		Teleport arg-1 to {feu.quest.Crazy_house.boss1}
 		message "<light red>Lazarus<r>: So we finally meet face to face! Too bad you will die!" to arg-1
 		wait 20 tick
 		message "{@You} I should watch out for his minions." to arg-1
 		
 
-command /Crazy_house.Boss.exit1 <player>:
+command /Crazy_house.Boss.finish <player>:
 	#action: Boss death
 	executable by: console
 	trigger:
 		message "{@prefix} Quest complete!" to arg-1
-		#TODO Reward
-		teleport player to {feu.mainSpawn}
+		message "{@You} I think I can exit through the the other side now." to arg-1
+		set {feu.quest.Crazy_house.%uuid of arg-1%} to "Completed"
 		
+command /Crazy_house.Boss.exitInnerRoom <player>:
+	#action: on any movement
+	executable by: console
+	trigger:
+		if {feu.quest.Crazy_house.%uuid of arg-1%} isn't "Completed":
+			teleport arg-1 to {feu.quest.Crazy_house.innerRoom}
+			message "<light red>Lazarus<r>: You cannot leave now!" to arg-1
+		
+command /Crazy_house.EnterWrong <player>:
+	#action: on any movement
+	executable by: console
+	trigger:
+		if {feu.quest.Crazy_house.%uuid of arg-1%} isn't "Completed":
+			teleport arg-1 to {feu.quest.Crazy_house.outDoors}
+			message "{@You} This looks too dangerous." to arg-1
+			
 command /Crazy_house.roomExit1 <player>:
 	#action: on any movement
 	executable by: console
@@ -78,6 +95,16 @@ command /Crazy_house.roomExit1 <player>:
 		else if {feu.quest.Crazy_house.3.%uuid of arg-1%} is true:
 			teleport arg-1 to {feu.quest.Crazy_house.bossExit1}
 			
+command /Crazy_house.bossLoot <player>:
+	#action: on any movement
+	executable by: console
+	trigger:
+		if {feu.loot.basic::*} is not set:
+			execute console command "loot.basic"
+		loop 3 times:
+			set {_item} to a random element of {feu.loot.basic::*}
+			give {_item} to the arg-1
+
 command /Crazy_house.roomExit2 <player>:
 	#action: on any movement
 	executable by: console

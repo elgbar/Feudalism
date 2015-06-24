@@ -30,8 +30,6 @@ command /fhelp:
 		#message "<light red>/fixZombieSpawns <light green>(<r>FZS<light green>)<r> : <yellow>make a zombie spawn with the argument's number (at its location)" #Unknown command, probably removed
 		message "<light red>/targetInfo <light green>(<r>TI<light green>)<r> : <yellow>Lists variables of the target zombie"
 		message "<light red>/blockInfo<r> : <yellow>Show info about a block"
-		#message "<light red>/noon<r> : <yellow>Set the time to noon"
-		#message "<light red>/night<r> : <yellow>Set the time to night"
 		message "<light red>/spawn<r> : <yellow>Teleport any player to spawn"
 		message "<light red>/fly<r> : <yellow>Enable flight for yourself"
 		message "<light red>/unfly<r> : <yellow>Disable flight for yourself"
@@ -142,7 +140,7 @@ command /saveItem <text>:
 			message "{@prefix} To receive this item from skript use: <light green>{feu.items.%arg-1%}"		
 
 command /setLocation <text> <text> <text>:
-	usage: /setLocation <quest | other><text 1> <text 2>
+	usage: /setLocation <quest | other> <text 1> <text 2>
 	executable by: player
 	trigger:
 		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
@@ -156,12 +154,12 @@ command /setLocation <text> <text> <text>:
 			if {feu.quest.%arg-2%.%arg-3%} exists:
 				message "{@warn} The name of this location is set to somewhere else! But it have been overwritten."
 			set {feu.quest.%arg-2%.%arg-3%} to player's location
-			message "{@prefix} Location saved as <light green>{feu.quest.%arg-2%.%arg-3%}"
+			message "{@prefix} Location saved as <yellow>{feu.quest.%arg-2%.%arg-3%}"
 		else if arg-1 is "other":
 			set {feu.%arg-2%.%arg-3%} to player's location
-			message "{@prefix} Location saved as <light green>{feu.%arg-2%.%arg-3%}"
+			message "{@prefix} Location saved as <yellow>{feu.%arg-2%.%arg-3%}"
 		else:
-			message "/setLocation <quest | other><text 1> <text 2>"
+			message "/setLocation <quest | other> <text 1> <text 2>"
 			
 command /HealthPotion <integer>:
 	aliases: hp
@@ -370,14 +368,39 @@ command /ZombieSpawn <boolean>:
 	trigger:
 		set {feu.doZombiesSpawn} to arg-1
 		message "Zombie spawn set to: %arg-1%"
-
+		
+command /loot.basic:
+	description: Set red riding hood items
+	permission: command.special
+	trigger:
+		set {feu.loot.basic::1} to wooden sword named "Basic"
+		set {feu.loot.basic::2} to wooden sword named "Basic"
+		set {feu.loot.basic::3} to wooden sword named "Basic"
+		set {feu.loot.basic::4} to wooden sword named "Basic"
+		set {feu.loot.basic::5} to wooden sword named "Uncommon"
+		set {feu.loot.basic::6} to wooden sword named "Uncommon"
+		set {feu.loot.basic::8} to wooden sword named "Uncommon"
+		set {feu.loot.basic::7} to wooden sword named "Uncommon"
+		set {feu.loot.basic::9} to wooden sword named "Rare"
+		set {feu.loot.basic::10} to wooden sword named "Rare"
+		set {feu.loot.basic::11} to air
+		set {feu.loot.basic::12} to air
+		set {feu.loot.basic::13} to air
+		set {feu.loot.basic::14} to air
+		set {feu.loot.basic::15} to air
+		set {feu.loot.basic::16} to air
+		set {feu.loot.basic::17} to leather boots
+		set {feu.loot.basic::18} to chain helmet
+		set {feu.loot.basic::19} to leather chestplate
+		set {feu.loot.basic::20} to chain leggings
+		#message "%{feu.loot.basic::*}% are in Grandma's Basket"
 #events
 
 on world load:
 	if the world isn't "Feudalism_4":
 		message "{@err} You have the wrong name of the world! Use ""Feudalism_4""" to console
 	else if {@debug} is true:
-		message "{@debugPrefix} Loading Right world" to console
+		message "{@debugPrefix} Loading the right world" to console
 		
 on skript load:
 	#general
@@ -385,17 +408,12 @@ on skript load:
 		#STABLE : A stable build recommended used
 		#DEVELOP : Finished with a feature, can be multiple DEVELOP builds in one day
 		#UNCERTAIN : Quick upload after finishing for the day. Do not use builds witch is in this state.
-	set {feu.version} to "Build 14 - UNCERTAIN"
+	set {feu.version} to "Build 15 - UNCERTAIN"
 	execute console command "ban <none> Use another name!" #<none> is the console, too bad for the one who has that name :P
 	if {feu.mainSpawn} doesn't exist:
 		#teleport
 		message "{@warn} The required variable<gold> {feu.mainSpawn}<r> doesn't exist and will be set to the worlds spawn" to console
 		set {feu.mainSpawn} to spawn location of "Feudalism_4"
-	
-	#announcements
-	if {feu.announcements.periodical} doesn't exist:
-		set {feu.announcements.periodical} to true
-		set {feu.announcements.nr} to 1
 		
 	#Enemies
 	set {feu.doZombiesSpawn} to true
@@ -413,14 +431,15 @@ on skript load:
 		message "{@err} The required variable <gold>{feu.quest.starter.house1} <r>doesn't exist" to console
 		
 	#Crazy House
-	
+		
 	if {feu.quest.Crazy_house.house1} doesn't exist:
 		#teleport
 		message "{@err} The required variable <gold>{feu.quest.Crazy_house.house1} <r>doesn't exist" to console
-
+		
 	if {feu.quest.Crazy_house.stairs1} doesn't exist:
 		#teleport
 		message "{@err} The required variable <gold>{feu.quest.Crazy_house.stairs1} <r>doesn't exist" to console
+		
 	if {feu.quest.Crazy_house.roomExit1} doesn't exist:
 		#teleport
 		message "{@err} The required variable <gold>{feu.quest.Crazy_house.roomExit1} <r>doesn't exist" to console
@@ -428,7 +447,15 @@ on skript load:
 	if {feu.quest.Crazy_house.boss1} doesn't exist:
 		#teleport
 		message "{@err} The required variable <gold>{feu.quest.Crazy_house.boss1} <r>doesn't exist" to console
-			
+		
+	if {feu.quest.Crazy_house.innerRoom} doesn't exist:
+		#teleport
+		message "{@err} The required variable <gold>{feu.quest.Crazy_house.innerRoom} <r>doesn't exist" to console
+		
+	if {feu.quest.Crazy_house.outDoors} doesn't exist:
+		#teleport
+		message "{@err} The required variable <gold>{feu.quest.Crazy_house.outDoors} <r>doesn't exist" to console
+		
 	#unnamed quest:
 	if {feu.quest.alphaMap.Wall} doesn't exist:
 		message "{@err} The required variable <gold>{feu.quest.alphaMap.Wall} <r>doesn't exist" to console

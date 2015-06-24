@@ -123,6 +123,10 @@ on damage:
 	if victim is a zombie:
 		set {_Victim ID} to metadata value "ID" of victim
 		set {_victim ID} to "%{_victim ID}%" parsed as a number
+		if {_victim ID} doesn't exist:
+			delete victim
+			message "{@prefix} This is a known bug, sowwy (╯︵╰)" to attacker
+			stop
 		set {_victim level} to metadata value "Level" of victim
 		set {_victim level} to "%{_victim level}%" parsed as a number
 		set {_dmg percent} to 1+({feu.level.%uuid of attacker%}/10)
@@ -133,6 +137,8 @@ on damage:
 	else if victim is a player:
 		set {_dmg percent} to 1+({_victim level}/10)
 	else if victim is a witch:
+		attacker is holding a sword
+		name of tool of attacker contains "Basic", "Uncommon", "Rare", "Mythical" or "Legendary"
 		if name of victim contains "Lazarus":
 			set {_victim level} to 50
 			set {_dmg percent} to 6
@@ -142,28 +148,31 @@ on damage:
 				set {feu.boss.Lazarus.minions.time} to now
 			set {_time} to difference between {feu.boss.Lazarus.minions.time} and now
 			if {_time} is greater than 20 seconds:
-				message "%{_time}%" to console
+				#message "%{_time}%" to console
 				set {feu.boss.Lazarus.minions.time} to now
 				loop 4 times:
+					if {feu.boss.Lazarus.minions.spawned.%loop-number%} is true:
+						stop loop
 					spawn a zombie at {_lazarus}
 					set {_entity} to last spawned zombie
-					set metadata value "ID" of {_entity} to "Lazarus' minion"
+					set metadata value "ID" of {_entity} to "Lazarus' minion nr %loop-number%"
 					set metadata value "Level" of {_entity} to "25"
-					set age of {_entity} to baby
-					set {_health} to 30
-					set rf maximum health of {_entity} to {_health}*2
 					wait 2 tick
+					set age of {_entity} to baby
+					set rf maximum health of {_entity} to 60
 					heal {_entity}
 					set helmet slot of last spawned entity to air
 					set chestplate slot of last spawned entity to air
 					set legging slot of last spawned entity to air
 					set boots slot of last spawned entity to air
 					set tool of last spawned entity to air
-					if the maximum health of {_entity} isn't {_health}:
+					if the maximum health of {_entity} isn't 30:
 						if {_entity} is alive:
-							delete {_entity} 
-							#Made it easier cuz I can ;)
-					#Need tuning
+							delete {_entity}
+							#Made it easier for the player cuz I can ;)
+					else:
+						set {feu.boss.Lazarus.minions.spawned.%loop-number%} to true
+					
 	if victim is wearing a helmet:
 		if victim is wearing a leather helmet:
 			set {_helmet} to 0.25
@@ -326,17 +335,29 @@ on damage:
 	if the health of the victim is less than 1:
 		kill the victim
 		if {_Victim ID} is "Lazarus":
-			set name of victim to "<light gray>[<r>+75 xp<light gray>]"
+			set name of victim to "<light gray>[<r>+100 xp<light gray>]"
+			set {feu.boss.Lazarus.isSpawned} to false
 			loop entities in radius 35 around the victim:
 				loop-entity is a zombie
-				#message "%metadata value "ID" of loop-entity%" to console
-				if (metadata value "ID" of loop-entity) is "Lazarus' minion":
+				set {_minion nr} to metadata value "ID" of loop-entity
+				set {_minion nr} to "%{_minion nr}%"
+				if {_minion nr} contains "Lazarus' minion":
 					kill loop-entity
-		else if {_Victim ID} is "Lazarus' minion":
-			set name of victim to "<light gray>[<r>+5 xp<light gray>]"
+					#{feu.boss.Lazarus.minions.spawned.%{_minion nr}%} is set to false when lazarus spawn again
+			heal attacker
+			cure attacker
+			execute console command "Crazy_house.Boss.finish %name of attacker%"
+		else if {_Victim ID} contains "Lazarus' minion":
+			set name of victim to "<light gray>[<r>+3 xp<light gray>]"
+			set {_minion nr} to "%{_Victim ID}%"
+			replace all "Lazarus' minion nr " with "" in {_minion nr}
+			set {feu.boss.Lazarus.minions.spawned.%{_minion nr}%} to false
+			
 		else:
 			set name of victim to "<light gray>[<r>+%round(1+{_victim level}^1.1)% xp<light gray>]"
-
+	else:
+		if {_Victim ID} is "Lazarus":
+			set name of victim to "<red>Lazarus <light red>- %round(victim's health)%/%victim's max health%"
 	{@debug} is true:
 		message "invalid damage: %{_material}% %{_condition}% %{_dmg percent}%" to console
 		message "damage: %{_damage}%" to console
@@ -351,6 +372,13 @@ on damage:
 	if the victim is dead:
 		if victim is player:
 			#Basically this makes zombies not gain xp
+			if {feu.quest.Crazy_house.3.%uuid of victim%} is true:
+				loop entities in radius 35 around the victim:
+					loop-entity is a zombie or a witch
+					set {_minion nr} to metadata value "ID" of loop-entity
+					set {_minion nr} to "%{_minion nr}%"
+					if {_minion nr} contains "Lazarus":
+						kill loop-entity
 			stop
 		if chance of 5%:
 			if chance of 0.1%:
@@ -489,10 +517,10 @@ on damage:
 			#ignore this, just a cheap hack... so zombies can spawn without being spawned from skript
 			message ""
 		else if {_Victim ID} is "Lazarus":
-			execute console command "addxp 75 %name of attacker%"
+			execute console command "addxp 100 %name of attacker%"
 			stop
-		else if {_Victim ID} is "Lazarus' minion":
-			execute console command "addxp 5 %name of attacker%"
+		else if {_Victim ID} contains "Lazarus' minion":
+			execute console command "addxp 3 %name of attacker%"
 			stop
 		else:
 			message "{@err} Couldn't find any valid variable! In ""on damage of zombie"" under ELSE ""%{_victim ID}%"" is equal to ""<none>""" to console
