@@ -4,31 +4,29 @@ options:
 	prefix: <gold>[&aFeudalism<gold>]<r>
 	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
 	
-	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
-	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
+	warn: <gold>[<yellow>WARNING<gold>]:<r>
+	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
+	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
 	
 	You: <green>%attacker%<r>:<r>
 #Commands
-#arg-3: print the amount of xp gained #arg-4: Silent level up = true
+
 command /addXP <number> [<player=%player%>] [<boolean=true>] [<boolean=false>]:
-	usage: /addXP <XP> [<player>]
+	usage: /addXP <XP> [<player>] #arg-3: print the amount of xp gained #arg-4: Silent level up = true
 	trigger:
-		if "%uuid of player%" is "<none>":
-			message "" to player
-		else if {feu.permission.%uuid of player%} isn't "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 			
 		if arg-1 is greater than 2500:
-			message "{@err} You cannot add more than 2500 xp at a time!"
+			message "{@err} You can not add more than 2500 xp at a time!"
 			stop
 			
-		if {feu.printXP.%uuid of arg-2%} is true:
-			message "{@prefix} You just gained %arg-1% xp" to arg-2
 		add arg-1 to {feu.currXP.%uuid of arg-2%}
 		
 		if {feu.currXP.%uuid of arg-2%} is greater than {feu.maxXP.%uuid of arg-2%}:
@@ -54,15 +52,15 @@ command /addXP <number> [<player=%player%>] [<boolean=true>] [<boolean=false>]:
 				set the arg-2's level progress to {_lvlProgress}
 				
 			set {feu.oldMaxXP.%uuid of arg-2%} to {feu.maxXP.%uuid of arg-2%}
-			set {feu.maxXP.%uuid of arg-2%} to round((({feu.level.%uuid of arg-2%}+300*(2^({feu.level.%uuid of arg-2%}/10)))/4)+{feu.oldMaxXP.%uuid of arg-2%})
+			set {feu.maxXP.%uuid of arg-2%} to round((({feu.level.%uuid of arg-2%}+300*(2^({feu.level.%uuid of arg-2%}/7)))/4)+{feu.oldMaxXP.%uuid of arg-2%})
 			set {feu.currXP.%uuid of arg-2%} to {feu.oldMaxXP.%uuid of arg-2%}
 			if arg-4 is false:
 				message "{@prefix}<yellow> You just levelled up!" to arg-2
 				loop all players in radius 20 around arg-2:
 					message "{@prefix}<gold> <b>%arg-2% <yellow>just levelled up!" to loop-player
-			{@debug} is true:
-				message "{@debugPrefix} {_fixLvL}: %{_fixLvL}% | curr: %{feu.currXP.%uuid of arg-2%}% | Max: %{feu.maxXP.%uuid of arg-2%}%"
-				set {_feu.XPtoNextLevel.%uuid of arg-2%} to {feu.maxXP.%uuid of arg-2%}-{feu.currXP.%uuid of arg-2%}	
+			execute console command "setMaxHealth %arg-2%"
+			{@debug}:
+				set {_feu.XPtoNextLevel.%uuid of arg-2%} to {feu.maxXP.%uuid of arg-2%}-{feu.currXP.%uuid of arg-2%}
 				message "{@debugPrefix} max: <yellow>%{feu.maxXP.%uuid of arg-2%}%"
 				message "{@debugPrefix} curr: <yellow>%{feu.currXP.%uuid of arg-2%}%"
 				message "{@debugPrefix} level: <yellow>%{feu.level.%uuid of arg-2%}%"
@@ -71,174 +69,255 @@ command /addXP <number> [<player=%player%>] [<boolean=true>] [<boolean=false>]:
 			wait 1 tick
 			execute console command "addxp %{_fixLvL}% %arg-2% false true"
 		else:
-			if {feu.level.%uuid of arg-2%} isn't 1:
+			if {feu.level.%uuid of arg-2%} is not 1:
 				set {_newMax} to {feu.maxXP.%uuid of arg-2%}-{feu.oldMaxXP.%uuid of arg-2%}
 				set {_newCurr} to {feu.currXP.%uuid of arg-2%}-{feu.oldMaxXP.%uuid of arg-2%}
 				set {_temp} to {_newCurr}/{_newMax}
 			else:
 				set {_temp} to {feu.currXP.%uuid of arg-2%}/{feu.maxXP.%uuid of arg-2%}
 			set the arg-2's level progress to {_temp}
-			{@debug} is true:
+			if "%executor%" is not "CONSOLE":
+				log "%executor% (perm: %{feu.permission.%uuid of player%}%) added %arg-1% xp to %arg-2% (perm: %{feu.permission.%uuid of arg-2%}%)" to "players.log"
+			{@debug}:
 				set {_percent} to {_temp}*100
 				set {_feu.XPtoNextLevel.%uuid of arg-2%} to {feu.maxXP.%uuid of arg-2%}-{feu.currXP.%uuid of arg-2%}
-				message "{@debugPrefix} You're at %{_percent}%%%" to arg-2
-				message "{@debugPrefix} And you need %{_feu.XPtoNextLevel.%uuid of arg-2%}% till next level" to arg-2
+				message "{@debugPrefix} you are at %{_percent}%%%" to arg-2
+				message "{@debugPrefix} And you need %{_feu.XPtoNextLevel.%uuid of arg-2%}% xp till next level" to arg-2
 
 command /stats [<player=%player%>]:
 	executable by: player
 	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.player", "feu.mod", "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			stop
 		set {_nextLVL} to {feu.maxXP.%uuid of arg-1%}-{feu.currXP.%uuid of arg-1%}
 		set {_XPtoNextLevel} to {feu.maxXP.%uuid of arg-1%}-{feu.currXP.%uuid of arg-1%}
-		if {feu.level.%uuid of arg-1%} isn't 1:
+		if {feu.level.%uuid of arg-1%} is not 1:
 			set {_newMax} to {feu.maxXP.%uuid of arg-1%}-{feu.oldMaxXP.%uuid of arg-1%}
 			set {_newCurr} to {feu.currXP.%uuid of arg-1%}-{feu.oldMaxXP.%uuid of arg-1%}
-			set {_percent} to {_newCurr}/{_newMax}*100	
+			set {_percent} to {_newCurr}/{_newMax}*100
 		else:
 			set {_percent} to {feu.currXP.%uuid of arg-1%}/{feu.maxXP.%uuid of arg-1%}*100
-		message "<yellow>------<gold>[&a%arg-1%'s stats<gold>]<yellow>------"
+		message "<yellow>------<gold>[<green>%arg-1%'s stats<gold>]<yellow>------"
+		message "{@prefix} Current Level: <light green>%{feu.level.%uuid of arg-1%}%"
 		if {feu.currXP.%uuid of arg-1%} is 0:
-			message "<gold>Percent: <green>0%%"
+			message "{@prefix} Percent: <light green>0%%"
 		else:
-			message "<gold>Percent: <green>%{_percent}%%%"
-		message "<gold>Current XP: <green>%{feu.currXP.%uuid of arg-1%}%"
-		message "<gold>Current Level: <green>%{feu.level.%uuid of arg-1%}%"
-		message "<gold>XP needed for next level: <green>%{_XPtoNextLevel}%"
+			message "{@prefix} Percent: <light green>%{_percent}%%%"
+		message "{@prefix} Current XP: <light green>%{feu.currXP.%uuid of arg-1%}% XP"
+		message "{@prefix} XP needed for next level: <light green>%{_XPtoNextLevel}% XP"
+		message "{@prefix} Next level at: <light green>%{feu.maxXP.%uuid of arg-1%}% XP"
+		if {feu.permission.%uuid of player%} is not "feu.player":
+			message "<yellow>---<gold>[<green>Additonal stats for staff<gold>]<yellow>---"
+			message "{@prefix} Health: <light green>%health of arg-1%"
+			message "{@prefix} Max health: <light green>%max health of arg-1%"
+			message "{@prefix} Current Location: <light green>%location of arg-1%"
+command /setMaxHealth <player>:
+	executable by: console
+	trigger:
+		#TODO maybe not set new max health every level?
+		set {_mod5} to {feu.level.%uuid of arg-1%} mod 5
+		if {_mod5} is equal to 0: #{feu.level.%uuid of arg-1%} is dividable by 5
+			set {_new max health} to 3 + ({feu.level.%uuid of arg-1%}/5)
+			set max health of arg-1 to {_new max health}*10
+			set arg-1's scaled health to {_new max health}
+		else:
+			set {_mod LVL} to {feu.level.%uuid of arg-1%} - {_mod5}
+			set {_new max health} to 3 + ({_mod LVL}/5)
+			set max health of arg-1 to {_new max health}*10
+			set arg-1's scaled health to {_new max health}
+		heal arg-1
+		{@debug}:
+			message "%max health of arg-1% | %(scaled health of player)/2%"
 		
 #events
 on damage:
+	#From events.sk
+	if damage cause is fall:
+		cancel event 
+		stop
+		
+	if {feu.godMode.%uuid of victim%} is true:
+		cancel event
+		stop
+	repair victim's helmet
+	repair victim's chestplate
+	repair victim's leggings
+	repair victim's boots
+	repair attacker's tool
+	#</>
+	
 	victim is alive
 	attacker is alive #there is a bug where the player is revived this stops all this
-	if victim is a zombie:
-		attacker isn't a player
-		stop
-	else if victim is a player:
+	cancel event
+	{@debug}:
+		message "---" to console
+	if victim is a player:
 		if {feu.godMode.%uuid of victim%} is true:
+			cancel event
 			stop
 		if attacker is a player:
 			cancel event
 			stop
-		attacker isn't a zombie
-		stop
-	cancel event
-	if victim is a zombie:
-		set {_Victim ID} to metadata value "ID" of victim
-		set {_victim ID} to "%{_victim ID}%" parsed as a number
-		if {_victim ID} doesn't exist:
-			delete victim
-			message "{@prefix} This is a known bug, sowwy (╯︵╰)" to attacker
+		if attacker is not a zombie:
 			stop
-		set {_victim level} to metadata value "Level" of victim
-		set {_victim level} to "%{_victim level}%" parsed as a number
-		set {_dmg percent} to 1+({feu.level.%uuid of attacker%}/10)
-		if {feu.noTarget.%{_Victim ID}%} is true:
-			set {feu.noTarget.%{_Victim ID}%} to false
-			wait 2 tick
-			make victim pathfind to attacker with speed 1.5
-	else if victim is a player:
-		set {_dmg percent} to 1+({_victim level}/10)
+			
+		set {_zombie ID} to metadata value "ID" of attacker
+		set {_zombie ID} to "%{_zombie ID}%" parsed as a number
+		set {_zombie level} to metadata value "Level" of attacker
+		set {_zombie level} to "%{_zombie level}%" parsed as a number
+		if {_zombie ID} does not exist:
+			delete victim
+			stop
+		set {_dmg percent Victim} to 1+({feu.level.%uuid of victim%}/10)
+		set {_dmg percent Attacker} to 1+({_zombie level}/10)
+
+	else if victim is a zombie:
+		#Finial fix to the wrong health issue
+		set {_mod1} to max health of victim mod 1
+		if {_mod1} is not equal to 0:
+			delete victim
+			if {_zombie ID} contains "Lazarus' minion":
+				set {_minion nr} to "%{_zombie ID}%"
+				replace all "Lazarus' minion nr " with "" in {_minion nr}
+				set {feu.boss.Lazarus.minions.spawned.%{_minion nr}%} to false
+			else:
+				set {feu.fixedspawn.isSpawned.%{_zombie ID}%} to false
+			#stop
+		set {_zombie ID} to metadata value "ID" of victim
+		set {_zombie ID} to "%{_zombie ID}%" parsed as a number
+		if {_zombie ID} does not exist:
+			delete victim
+			stop
+		set {_zombie level} to metadata value "Level" of victim
+		set {_zombie level} to "%{_zombie level}%" parsed as a number
+		set {_dmg percent Victim} to 1+({_zombie level}/10)
+		set {_dmg percent Attacker} to 1+({feu.level.%uuid of attacker%}/10)
+		if {_zombie level} does not exist:
+			set {feu.fixedspawn.isSpawned.%{_zombie ID}%} to false
+			delete victim
+			stop
+		if {feu.noTarget.%{_zombie ID}%} is true:
+			set {feu.canTarget.%{_zombie ID}%} to false
+			set {feu.goingHome.%{_zombie ID}%} to false
+			#wait 2 tick
+			make victim pathfind to attacker with speed 2
 	else if victim is a witch:
 		attacker is holding a sword
 		name of tool of attacker contains "Basic", "Uncommon", "Rare", "Mythical" or "Legendary"
 		if name of victim contains "Lazarus":
-			set {_victim level} to 50
-			set {_dmg percent} to 6
-			set {_victim ID} to "Lazarus"
+			set {_zombie level} to metadata value "Level" of victim
+			set {_dmg percent Victim} to 0.1
+			set {_dmg percent Attacker} to 1+({feu.level.%uuid of attacker%}/10)
+			set {_zombie ID} to "Lazarus"
 			set {_lazarus} to victim's location
 			if {feu.boss.Lazarus.minions.time} is not set:
 				set {feu.boss.Lazarus.minions.time} to now
 			set {_time} to difference between {feu.boss.Lazarus.minions.time} and now
-			if {_time} is greater than 20 seconds:
-				#message "%{_time}%" to console
+			{@debug}:
+				message "{@debugPrefix} time lazarus: %{_time}%" to console
+			if {_time} is greater than 25 seconds:
 				set {feu.boss.Lazarus.minions.time} to now
 				loop 4 times:
+					#TODO: Fix this, if 1 is true then the whole loop stops
 					if {feu.boss.Lazarus.minions.spawned.%loop-number%} is true:
 						stop loop
+						
 					spawn a zombie at {_lazarus}
 					set {_entity} to last spawned zombie
 					set metadata value "ID" of {_entity} to "Lazarus' minion nr %loop-number%"
-					set metadata value "Level" of {_entity} to "25"
+					set metadata value "Level" of {_entity} to "3"
+					set name of {_entity} to "<light red>Minion <r>- %round(health of {_entity})%/%max health of {_entity}%"
 					wait 2 tick
 					set age of {_entity} to baby
-					set rf maximum health of {_entity} to 60
+					set rf maximum health of {_entity} to 40
 					heal {_entity}
-					set helmet slot of last spawned entity to air
-					set chestplate slot of last spawned entity to air
-					set legging slot of last spawned entity to air
-					set boots slot of last spawned entity to air
-					set tool of last spawned entity to air
-					if the maximum health of {_entity} isn't 30:
-						if {_entity} is alive:
-							delete {_entity}
-							#Made it easier for the player cuz I can ;)
+					set helmet slot of {_entity} to air
+					set chestplate slot of {_entity} to air
+					set legging slot of {_entity} to air
+					set boots slot of {_entity} to air
+					set tool of {_entity} to air
+					wait 2 tick
+					if the maximum health of {_entity} is not 20:
+						#TODO: this is not water proof
+						delete {_entity}
+						{@debug}:
+							message "{@err2} Lazarus' minion nr %loop-number% does not have 30 as max health" to console
 					else:
 						set {feu.boss.Lazarus.minions.spawned.%loop-number%} to true
 					
 	if victim is wearing a helmet:
 		if victim is wearing a leather helmet:
-			set {_helmet} to 0.25
+			set {_helmet} to 5
 		else if victim is wearing a chain helmet:
-			set {_helmet} to 0.5
+			set {_helmet} to 7.5
 		else if victim is wearing an iron helmet:
-			set {_helmet} to 0.75
+			set {_helmet} to 10
 		else if victim is wearing a gold helmet:
-			set {_helmet} to 1
+			set {_helmet} to 13.75
 		else if victim is wearing a diamond helmet:
-			set {_helmet} to 1.5
+			set {_helmet} to 17.5
 		else:
-			message "{@err} Unknown material on entity's helmet. In ""on damage of zombie"" under ""victim is wearing an X helmet""" to console
+			message "{@err2} Unknown material on entity's helmet. In ""on damage"" under ""victim is wearing an X helmet""" to console
 	else:
-		set {_helmet} to 0
+		set {_helmet} to 1
 		
 	if victim is wearing a chestplate:
 		if victim is wearing an leather chestplate:
-			set {_chestplate} to 0.75
+			set {_chestplate} to 7.5
 		else if victim is wearing an chain chestplate:
-			set {_chestplate} to 1.5
+			set {_chestplate} to 10
 		else if victim is wearing an iron chestplate:
-			set {_chestplate} to 2
+			set {_chestplate} to 12.25
 		else if victim is wearing an gold chestplate:
-			set {_chestplate} to 2.5
+			set {_chestplate} to 16.25
 		else if victim is wearing an diamond chestplate:
-			set {_chestplate} to 4.5
+			set {_chestplate} to 20
 		else:
-			message "{@err} Unknown material on entity's chestplate. In ""on damage of zombie"" under ""victim is wearing an X chestplate""" to console
+			message "{@err2} Unknown material on entity's chestplate. In ""on damage"" under ""victim is wearing an X chestplate""" to console
 	else:
-		set {_chestplate} to 0
+		set {_chestplate} to 1
 		
 	if victim is wearing leggings:
 		if victim is wearing an leather leggings:
-			set {_leggings} to 0.5
+			set {_leggings} to 5
 		else if victim is wearing an chain leggings:
-			set {_leggings} to 1
+			set {_leggings} to 7.5
 		else if victim is wearing an iron leggings:
-			set {_leggings} to 1.5
+			set {_leggings} to 10
 		else if victim is wearing an gold leggings:
-			set {_leggings} to 2
+			set {_leggings} to 13.75
 		else if victim is wearing an diamond leggings:
-			set {_leggings} to 3
+			set {_leggings} to 17.5
 		else:
-			message "{@err} Unknown material on entity's leggings. In ""on damage of zombie"" under ""victim is wearing an X leggings""" to console
+			message "{@err2} Unknown material on entity's leggings. In ""on damage"" under ""victim is wearing an X leggings""" to console
 	else:
-		set {_leggings} to 0
+		set {_leggings} to 1
 		
 	if victim is wearing boots:
 		if victim is wearing leather boots:
-			set {_boots} to 0.25
+			set {_boots} to 2.5
 		else if victim is wearing chain boots:
-			set {_boots} to 0.5
+			set {_boots} to 5
 		else if victim is wearing iron boots:
-			set {_boots} to 0.75
+			set {_boots} to 7.5
 		else if victim is wearing gold boots:
-			set {_boots} to 1
+			set {_boots} to 11.25
 		else if victim is wearing diamond boots:
-			set {_boots} to 1.5
+			set {_boots} to 15
 		else:
-			message "{@err} Unknown material on entity's boots. In ""on damage of zombie"" under ""victim is wearing an X boots""" to console
+			message "{@err2} Unknown material on entity's boots. In ""on damage"" under ""victim is wearing an X boots""" to console
 	else:
-		set {_boots} to 0
-		
-	set {_calcArmour} to ({_helmet}+{_chestplate}+{_leggings}+{_boots})*{_dmg percent}
-		
+		set {_boots} to 1
+	set {_calcArmour} to 1-((({_helmet}+{_chestplate}+{_leggings}+{_boots})+{_dmg percent Victim})/100)
+	
 	if attacker is holding a sword:
 		#Wildwood
 		if attacker is holding a wooden sword:
@@ -252,7 +331,7 @@ on damage:
 					message "<light red>You need to be a higher level to wield this material" to attacker
 					stop
 			else:
-				set {_material} to 1.5
+				set {_material} to 2.25
 		#Steel
 		else if attacker is holding a iron sword:
 			if attacker is a player:
@@ -262,7 +341,7 @@ on damage:
 					message "<light red>You need to be a higher level to wield this material" to attacker
 					stop
 			else:
-				set {_material} to 2
+				set {_material} to 3.8
 		#Dwemler
 		else if attacker is holding a gold sword:
 			if attacker is a player:
@@ -272,7 +351,7 @@ on damage:
 					message "<light red>You need to be a higher level to wield this material" to attacker
 					stop
 			else:
-				set {_material} to 2.5
+				set {_material} to 7
 		#Crystal
 		else if attacker is holding a diamond sword:
 			if attacker is a player:
@@ -282,13 +361,13 @@ on damage:
 					message "<light red>You need to be a higher level to wield this material" to attacker
 					stop
 			else:
-				set {_material} to 3.5
+				set {_material} to 12
 		else:
-			message "{@err} Unknown material on sword. In ""on damage of zombie"" under ""attacker is holding a""" to console
+			message "{@err2} Unknown material on sword. In ""on damage"" under ""attacker is holding a""" to console
 		
 		if attacker is a player:
 			if name of tool of attacker contains "Basic":
-				set {_condition} to 1
+				set {_condition} to 1.1
 			else if name of tool of attacker contains "Uncommon":
 				set {_condition} to 1.5
 			else if name of tool of attacker contains "Rare":
@@ -297,45 +376,56 @@ on damage:
 				set {_condition} to 3.5
 			else if name of tool of attacker contains "Legendary":
 				set {_condition} to 4.5
-			else if name of tool of attacker is "Old Rotten Sword":
-				#hack for starter sword
-				message ""
+			else if name of attacker's tool contains "Dummy Sword":
+				message "" to {_fake}
 			else:
-				message "{@err} No known condition on %attacker%'s tool. In ""on damage of zombie"" under ""name of tool of attacker contains""" to console
+				message "{@err2} No known condition on %attacker%'s tool. In ""on damage"" under ""name of tool of attacker contains""" to console
 			
 		if attacker is a player:
-			if name of tool of attacker is "Old Rotten Sword":
-				set {_damage} to 1.5
-			else:
-				set {_damage} to {_material}*{_condition}*{_dmg percent}
+			set {_damage} to 1+{_material}*{_condition}*{_dmg percent Attacker}
 			
 		else if attacker is a zombie:
-			set {_damage} to {_material}+{_zombie level}/2
+			set {_damage} to 1+{_material}+{_zombie level}+{_dmg percent Attacker}
 	
 	#unarmed zombie
 	else if attacker is a zombie:
-		set {_damage} to 1+{_victim level}/2
+		#message "<purple>%{_zombie level}%" to console
+		set {_damage} to 2+{_zombie level}#+{_dmg percent Attacker} #test this
 		
 	else if attacker is holding a stick named "Debug":
-		set name of victim to "<light red>LvL %{_victim level}% Zombie <r>- %round(health of victim)%/%max health of victim%"
 		execute attacker command "/targetinfo"
 		stop
 	else:
 		set {_damage} to 0
-
-	if {_damage} is 0:
+	if name of attacker's tool contains "Dummy Sword":
+		message "" to {_fake}
+	else if {_damage} is 0:
 		set {_total damage} to 0
-		message "<light red>You cannot attack the zombie with this!" to attacker
+		message "<light red>You can not attack the zombie with this!" to attacker
 		stop
-	else: 
-		set {_total damage} to 3+{_damage}-{_calcArmour}
+	else:
+		set {_total damage} to {_damage}*{_calcArmour} + ({_dmg percent Attacker} - {_dmg percent Victim})
+		
+		#Alt system
+		#if attacker is a player:
+		#	set {_total damage} to ({_damage}*{_calcArmour}) + ({feu.level.%uuid of attacker%} - {_zombie level})
+		#else:
+		#	set {_total damage} to {_damage}*{_calcArmour} + ({_zombie level} - {feu.level.%uuid of attacker%})
 		if {_total damage} is less than 1:
-			set {_total damage} to 0
+			if attacker is a player:
+				set {_total damage} to 0
+			else:
+				set {_total damage} to 0.2
+				
+	if victim is blocking:
+		set {_total damage} to {_total damage} * 0.9
+		{@debug}:
+			message "{@debugPrefix} <white>Victim is blocking" to console
 	damage the victim by {_total damage} hearts
 	if the health of the victim is less than 1:
 		kill the victim
-		if {_Victim ID} is "Lazarus":
-			set name of victim to "<light gray>[<r>+100 xp<light gray>]"
+		if {_zombie ID} is "Lazarus":
+			set name of victim to "<light gray>[<r>+150 xp<light gray>]"
 			set {feu.boss.Lazarus.isSpawned} to false
 			loop entities in radius 35 around the victim:
 				loop-entity is a zombie
@@ -343,190 +433,218 @@ on damage:
 				set {_minion nr} to "%{_minion nr}%"
 				if {_minion nr} contains "Lazarus' minion":
 					kill loop-entity
-					#{feu.boss.Lazarus.minions.spawned.%{_minion nr}%} is set to false when lazarus spawn again
+					#{feu.boss.Lazarus.minions.spawned.%{_minion nr}%} is set to false when lazarus spawn agai
 			heal attacker
 			cure attacker
 			execute console command "Crazy_house.Boss.finish %name of attacker%"
-		else if {_Victim ID} contains "Lazarus' minion":
+		else if {_zombie ID} contains "Lazarus' minion":
 			set name of victim to "<light gray>[<r>+3 xp<light gray>]"
-			set {_minion nr} to "%{_Victim ID}%"
+			set {_minion nr} to "%{_zombie ID}%"
 			replace all "Lazarus' minion nr " with "" in {_minion nr}
 			set {feu.boss.Lazarus.minions.spawned.%{_minion nr}%} to false
-			
 		else:
-			set name of victim to "<light gray>[<r>+%round(1+{_victim level}^1.1)% xp<light gray>]"
-	else:
-		if {_Victim ID} is "Lazarus":
-			set name of victim to "<red>Lazarus <light red>- %round(victim's health)%/%victim's max health%"
-	{@debug} is true:
-		message "invalid damage: %{_material}% %{_condition}% %{_dmg percent}%" to console
-		message "damage: %{_damage}%" to console
-		message "<white>calc armour: %{_calcArmour}%" to console
-		message "attacker level: %{feu.level.%uuid of attacker%}% || z: %{_victim level}%" to console
-		message "<white>d-ca: %{_total damage}%" to console
+			if {_zombie level} is less than 31:
+				set {_xp} to 1+{_zombie level}
+			else if {_zombie level} is less than 101:
+				set {_xp} to round(0.41 * {_zombie level} + 18.6)
+			else if {_zombie level} is greater than 100:
+				set {_xp} to 60
+			set name of victim to "<light gray>[<r>+%{_xp}% xp<light gray>]"
+			set {_location} to spawn of "Feudalism_4"
+			set {_x} to metadata value "X" of victim 
+			set {_y} to metadata value "Y" of victim 
+			set {_z} to metadata value "Z" of victim 
+			set x coordinate of {_location} to ({_x}) parsed as number
+			set y coordinate of {_location} to ({_y}) parsed as number
+			set z coordinate of {_location} to ({_z}) parsed as number
+			
+			set {feu.goingHome.%{feu.fixedspawn.ID.%{_location}%}%} to false
+			set {feu.canTarget.%{feu.fixedspawn.ID.%{_location}%}%} to true
+	{@debug}:
+		#if attacker is a zombie:
+		message "{@debugPrefix} Attacker is %attacker%" to console
+		message "{@debugPrefix} <white>victim is %victim%" to console
+		message "{@debugPrefix} Dmg percent Attacker: %{_dmg percent Attacker}% | Dmg percent Victim: %{_dmg percent Victim}%" to console
+		set {_total damage2} to {_damage}*{_calcArmour} + ({_dmg percent Attacker} - {_dmg percent Victim})
+		if attacker is a player:
+			message "{@debugPrefix} <white>Attacker level: %{feu.level.%uuid of attacker%}% || victim level: %{_zombie level}%" to console
+			if name of attacker's tool contains "Dummy Sword":
+				message "{@debugPrefix} D s dmg: 0 " to console #Dummy sword, does no damage
+				set {_total damage} to 0
+			else:
+				message "{@debugPrefix} P dmg: %{_material}% * %{_condition}% * %{_dmg percent Attacker}% = %{_damage}%" to console
+				
+			message "{@debugPrefix} <white>Armour: 1-(((%{_helmet}%+%{_chestplate}%+%{_leggings}%+%{_boots}%)+%{_dmg percent Victim}%)/100) = %{_calcArmour}%" to console
+			
+			if {_total damage} is less than 1:
+				message "{@debugPrefix} Total dmg < 1: %{_total damage}% (raw: %{_total damage2}%)" to console #total dmg is set to 0 when the attacker is a player and he/she damage less than 1
+			else:
+				message "{@debugPrefix} Total dmg: %{_damage}% * %{_calcArmour}% = %{_total damage}% (raw: %{_total damage2}%)" to console
+		else if attacker is a zombie:
+			message "{@debugPrefix} <white>Attacker level: %{_zombie level}% || victim level: %{feu.level.%uuid of victim%}%" to console
+			if attacker is holding a sword:
+				message "{@debugPrefix} <white>Material: %{_material}%" to console
+				message "{@debugPrefix} Z t dmg: 0.5 + %{_material}% + %{_zombie level}% = %{_damage}%" to console #zombie tool damage
+			else:
+				message "{@debugPrefix} Z n t dmg: 1 + %{_zombie level}% = %{_damage}%" to console #zombie no tool damage
+			message "{@debugPrefix} <white>Armour: 1-(((%{_helmet}%+%{_chestplate}%+%{_leggings}%+%{_boots}%)+%{_dmg percent Victim}%)/100) = %{_calcArmour}%" to console
+			message "{@debugPrefix} Total dmg: %{_damage}% * %{_calcArmour}% + (%{_dmg percent Attacker}% - %{_dmg percent Victim}%) = %{_total damage}% (raw: %{_total damage2}%)" to console
+		
+		if the victim is dead:
+			message "{@debugPrefix} <light red>Victim died!" to console
 	if victim is a zombie or witch:
-		if {_total damage} isn't 0:
-			push the victim in horizontal direction of attacker with speed 0.7
-			#Makes the zombies behaving weird, fly up too far
-			#push the victim up with speed 0.3
+		#Makes the entity push move the same way however fast it is originally moving
+		set {_still} to new vector  0, 0, 0
+		set velocity of victim to {_still}
+		
+		push the victim in horizontal direction of attacker with speed 0.4
+		#if victim is on ground:
+		#	push the victim up with speed 0.1
 	if the victim is dead:
 		if victim is player:
-			#Basically this makes zombies not gain xp
-			if {feu.quest.Crazy_house.3.%uuid of victim%} is true:
-				loop entities in radius 35 around the victim:
-					loop-entity is a zombie or a witch
-					set {_minion nr} to metadata value "ID" of loop-entity
-					set {_minion nr} to "%{_minion nr}%"
-					if {_minion nr} contains "Lazarus":
-						kill loop-entity
+			if {feu.quest.Crazy_house.4.%uuid of victim%} is true:
+				loop {feu.quest.Crazy_house.bossFighters::*}:
+					if uuid of victim is equal to {feu.quest.Crazy_house.bossFighters::%loop-index%}:
+						remove uuid of victim from {feu.quest.Crazy_house.bossFighters::*}
+						if size of {feu.quest.Crazy_house.bossFighters::*} is 0:
+							execute console command "killLazarus"
 			stop
 		if chance of 5%:
-			if chance of 0.1%:
-				if {_victim level} is higher than 39:
-					set {_dmg} to 4.5 * 3.5
-					give attacker a diamond sword named "Legendary Crystal Sword" with lore "Damage: %{_dmg}%"
+			if chance of 0.1%: #% #Legendary
+				if {_zombie level} is higher than 39:
+					give attacker a diamond sword named "<light red>Legendary Crystal Sword" with no nbt with lore "Damage: 54"
 				
-				else if {_victim level} is higher than 29:
-					set {_dmg} to 4.5 * 2.5
-					give attacker a gold sword named "Legendary Dwemler Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 29:
+					give attacker a gold sword named "<light red>Legendary Dwemler Sword" with no nbt with lore "Damage: 41.5"
 				
-				else if {_victim level} is higher than 19:
-					set {_dmg} to 4.5 * 2
-					give attacker a iron sword named "Legendary Steel Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 19:
+					give attacker a iron sword named "<light red>Legendary Steel Sword" with no nbt with lore "Damage: 17"
 				
-				else if {_victim level} is higher than 9:
-					set {_dmg} to 4.5 * 1.5
-					give attacker a stone sword named "Legendary Rock Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 9:
+					give attacker a stone sword named "<light red>Legendary Rock Sword" with no nbt with lore "Damage: 10"
 				
 				else:
-					set {_dmg} to 4.5
-					give attacker a wood sword named "Legendary Wildwood Sword" with lore "Damage: %{_dmg}%"
+					give attacker a wood sword named "<light red>Legendary Wildwood Sword" with no nbt with lore "Damage: 4.5"
 				
-			else if chance of 0.5%:
-				if {_victim level} is higher than 39:
-					set {_dmg} to 3.5 * 3.5
-					give attacker a diamond sword named "Mythical Crystal Sword" with lore "Damage: %{_dmg}%"
+			else if chance of 0.5%: #% #Mythical
+				if {_zombie level} is higher than 39:
+					give attacker a diamond sword named "<purple>Mythical Crystal Sword" with no nbt with lore "Damage: 42"
 				
-				else if {_victim level} is higher than 29:
-					set {_dmg} to 3.5 * 2.5
-					give attacker a gold sword named "Mythical Dwemler Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 29:
+					give attacker a gold sword named "<purple>Mythical Dwemler Sword" with no nbt with lore "Damage: 24.5"
 				
-				else if {_victim level} is higher than 19:
-					set {_dmg} to 3.5 * 2
-					give attacker a iron sword named "Mythical Steel Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 19:
+					give attacker a iron sword named "<purple>Mythical Steel Sword" with no nbt with lore "Damage: 13.5"
 				
-				else if {_victim level} is higher than 9:
-					set {_dmg} to 3.5 * 1.5
-					give attacker a stone sword named "Mythical Rock Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 9:
+					give attacker a stone sword named "<purple>Mythical Rock Sword" with no nbt with lore "Damage: 8"
 				
 				else:
-					set {_dmg} to 3.5
-					give attacker a wood sword named "Mythical Wildwood Sword" with lore "Damage: %{_dmg}%"
+					give attacker a wood sword named "<purple>Mythical Wildwood Sword" with no nbt with lore "Damage: 3.5"
 				
-			else if chance of 2%:
-				if {_victim level} is higher than 39:
-					set {_dmg} to 2.5 * 3.5
-					give attacker a diamond sword named "Rare Crystal Sword" with lore "Damage: %{_dmg}%"
+			else if chance of 2%: #% #Rare
+				if {_zombie level} is higher than 39:
+					give attacker a diamond sword named "<light blue>Rare Crystal Sword" with no nbt with lore "Damage: 30"
 				
-				else if {_victim level} is higher than 29:
-					set {_dmg} to 2.5 * 2.5
-					give attacker a gold sword named "Rare Dwemler Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 29:
+					give attacker a gold sword named "<light blue>Rare Dwemler Sword" with no nbt with lore "Damage: 17.5"
 				
-				else if {_victim level} is higher than 19:
-					set {_dmg} to 2.5 * 2
-					give attacker a iron sword named "Rare Steel Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 19:
+					give attacker a iron sword named "<light blue>Rare Steel Sword" with no nbt with lore "Damage: 9.5"
 				
-				else if {_victim level} is higher than 9:
-					set {_dmg} to 2.5 * 1.5
-					give attacker a stone sword named "Rare Rock Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 9:
+					give attacker a stone sword named "<light blue>Rare Rock Sword" with no nbt with lore "Damage: 5.5"
 				
 				else:
-					set {_dmg} to 2.5
-					give attacker a wood sword named "Rare Wildwood Sword" with lore "Damage: %{_dmg}%"
+					give attacker a wood sword named "<light blue>Rare Wildwood Sword" with no nbt with lore "Damage: 2.5"
 				
-			else if chance of 10%:
-				if {_victim level} is higher than 39:
-					set {_dmg} to 1.5 * 3.5
-					give attacker a diamond sword named "Uncommon Crystal Sword" with lore "Damage: %{_dmg}%"
+			else if chance of 10%: #% #Uncommon
+				if {_zombie level} is higher than 39:
+					give attacker a diamond sword named "<light green>Uncommon Crystal Sword" with no nbt with lore "Damage: 18"
 				
-				else if {_victim level} is higher than 29:
-					set {_dmg} to 1.5 * 2.5
-					give attacker a gold sword named "Uncommon Dwemler Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 29:
+					give attacker a gold sword named "<light green>Uncommon Dwemler Sword" with no nbt with lore "Damage: 10.5"
 				
-				else if {_victim level} is higher than 19:
-					set {_dmg} to 1.5 * 2
-					give attacker a iron sword named "Uncommon Steel Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 19:
+					give attacker a iron sword named "<light green>Uncommon Steel Sword" with no nbt with lore "Damage: 5.5"
 				
-				else if {_victim level} is higher than 9:
-					set {_dmg} to 1.5 * 1.5
-					give attacker a stone sword named "Uncommon Rock Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 9:
+					give attacker a stone sword named "<light green>Uncommon Rock Sword" with no nbt with lore "Damage: 3.5"
 				
 				else:
-					set {_dmg} to 1.5
-					give attacker a wood sword named "Uncommon Wildwood Sword" with lore "Damage: %{_dmg}%"
+					give attacker a wood sword named "<light green>Uncommon Wildwood Sword" with no nbt with lore "Damage: 1.5"
 				
-			else if chance of 20%:
-				if {_victim level} is higher than 39:
-					set {_dmg} to 3.5
-					give attacker a diamond sword named "Basic Crystal Sword" with lore "Damage: %{_dmg}%"
+			else if chance of 20%: #% #Basic sword
+				if {_zombie level} is higher than 39:
+					give attacker a diamond sword named "<yellow>Basic Crystal Sword" with no nbt with lore "Damage: 13"
 				
-				else if {_victim level} is higher than 29:
-					set {_dmg} to 2.5
-					give attacker a gold sword named "Basic Dwemler Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 29:
+					give attacker a gold sword named "<yellow>Basic Dwemler Sword" with no nbt with lore "Damage: 7.5"
 				
-				else if {_victim level} is higher than 19:
-					set {_dmg} to 2
-					give attacker a iron sword named "Basic Steel Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 19:
+					give attacker a iron sword named "<yellow>Basic Steel Sword" with no nbt with lore "Damage: 4"
 					
-				else if {_victim level} is higher than 9:
-					set {_dmg} to 1.5
-					give attacker a stone sword named "Basic Rock Sword" with lore "Damage: %{_dmg}%"
+				else if {_zombie level} is higher than 9:
+					give attacker a stone sword named "<yellow>Basic Rock Sword" with no nbt with lore "Damage: 2.5"
 					
 				else:
-					set {_dmg} to 1
-					give attacker a wood sword named "Basic Wildwood Sword" with lore "Damage: %{_dmg}%"
-
+					give attacker a wood sword named "<yellow>Basic Wildwood Sword" with no nbt with lore "Damage: 1"
 		#
-		# Quests:
+		# <Quests>:
 		#
-		if  {feu.quest.zombiesKilled.%uuid of attacker%} doesn't exist:
+		if  {feu.quest.zombiesKilled.%uuid of attacker%} does not exist:
 			set {feu.quest.zombiesKilled.%uuid of attacker%} to 0
-		if {feu.quest.starter.%uuid of attacker%} is "In progress":
-			if {feu.quest.starter.doorAThouse1.%uuid of attacker%} is true:
-				if {feu.quest.zombiesKilled.%uuid of attacker%} is less than 3:
-					add 1 to {feu.quest.zombiesKilled.%uuid of attacker%}
-				if {feu.quest.zombiesKilled.%uuid of attacker%} is 3:
-					message "{@You} I think I can check the chest now." to attacker
 			
-		else if {feu.quest.Crazy_house.%uuid of attacker%} is "In progress":
-			if {feu.quest.Crazy_house.2.%uuid of attacker%} is true:
-				if {feu.quest.zombiesKilled.%uuid of attacker%} is 10:
-					execute console command "Crazy_house.KilledZombies1 %name of attacker%"
-				else:
-					add 1 to {feu.quest.zombiesKilled.%uuid of attacker%}
-					#message "%{feu.quest.zombiesKilled.%uuid of attacker%}%" to attacker
+		if {feu.quest.starter.4.%uuid of attacker%} is true:
+			if {feu.quest.zombiesKilled.%uuid of attacker%} is less than 3:
+				add 1 to {feu.quest.zombiesKilled.%uuid of attacker%}
+				if {feu.quest.zombiesKilled.%uuid of attacker%} is 3:
+					message "{@You} It seems clear enough. I should search the chest before more arrive." to attacker
+		
+		else if {feu.quest.Crazy_house.2.%uuid of attacker%} is true:
+			if {feu.quest.zombiesKilled.%uuid of attacker%} is less than 5:
+				add 1 to {feu.quest.zombiesKilled.%uuid of attacker%}
+			if {feu.quest.zombiesKilled.%uuid of attacker%} is 5:
+				execute console command "Crazy_house.KilledZombies1 %name of attacker%"
+		#message "%{feu.quest.zombiesKilled.%uuid of attacker%}%" to attacker
+		
 		#
-		#Quest stop
+		# </Quest>
 		#
 		
-		if "%{_victim ID}%" is "<none>":
-			Message "{@warn} Didn't find any ID on the zombie. In ""on damage of zombie"" under ""{_victim ID}"" is equal to ""<none>""" to console
-		else if {feu.fixedspawn.isSpawned.%{_Victim ID}%} exists:
-			set {feu.fixedspawn.isSpawned.%{_Victim ID}%} to false
-		else if {_Victim ID} is "SCZ":
+		if "%{_zombie ID}%" is "<none>":
+			Message "{@warn} Didn't find any ID on the zombie. In ""on damage"" under ""{_zombie ID}"" is equal to ""<none>""" to console
+		else if {_zombie ID} is "SCZ":
 			#ignore this, just a cheap hack... so zombies can spawn without being spawned from skript
-			message ""
-		else if {_Victim ID} is "Lazarus":
-			execute console command "addxp 100 %name of attacker%"
+			message "" to {_fake}
+		else if {_zombie ID} is "Lazarus":
+			execute console command "addxp 150 %name of attacker%"
 			stop
-		else if {_Victim ID} contains "Lazarus' minion":
+		else if {_zombie ID} contains "Lazarus' minion":
 			execute console command "addxp 3 %name of attacker%"
 			stop
+		else if {feu.fixedspawn.isSpawned.%{_zombie ID}%} exists:
+			set {feu.fixedspawn.isSpawned.%{_zombie ID}%} to false
 		else:
-			message "{@err} Couldn't find any valid variable! In ""on damage of zombie"" under ELSE ""%{_victim ID}%"" is equal to ""<none>""" to console
-		set {_xp} to round(1+{_victim level}^1.1)
+			message "{@err2} could not find any valid variable! In ""on damage"" under ELSE ""{_zombie ID}"" is equal to ""<none>""" to console
+		if {_zombie level} is less than 31:
+			set {_xp} to round(1+{_zombie level})
+		else if {_zombie level} is less than 101:
+			set {_xp} to round(0.41 * {_zombie level} + 18.6)
+		else if {_zombie level} is greater than 100:
+			set {_xp} to 60
+		else:
+			set {_xp} to 1
+			message "{@err2} could not find any valid zombie level! In ""on damage"" under ELSE ""{_zombie Level}"" less/greater than X" to console
 		execute console command "addxp %{_xp}% %name of attacker%"
-	else:
-		if victim is a zombie: #or skeleton: 
-			set name of victim to "<light red>LvL %{_victim level}% zombie <r>- %round(health of victim)%/%max health of victim%"
+	else if victim is a zombie: #or skeleton:
+		if {_zombie ID} contains "Lazarus' minion":
+			set name of victim to "<light red>Minion <r>- %round(health of victim)%/%max health of victim%"
+		else if {_zombie ID} is "SCZ":
+			message "" to {_fake}
+			#TODO: add metadata that is the name of the zombie so it can display health
+		else:
+			set name of victim to "<light red>LvL %{_zombie level}% zombie <r>- %round(health of victim)%/%max health of victim%"
+	else if {_zombie ID} is "Lazarus":
+		set name of victim to "<red>Lazarus <light red>- %round(victim's health)%/%victim's max health%"
 		

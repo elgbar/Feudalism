@@ -1,8 +1,9 @@
 options:
 	prefix: <gold>[&aFeudalism<gold>]<r>
-	warn: <gold>[&aFeudalism<gold>]<r> <yellow>WARNING:<light red>
-	err: <gold>[&aFeudalism<gold>]<r> <red>ERROR:<light red>
-
+	
+	warn: <gold>[<yellow>WARNING<gold>]:<r>
+	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
+	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
 #
 #Goals for STABLE release 9:
 #make a first stable release
@@ -19,12 +20,13 @@ command /crop [<integer=20>]:
 	usage: /crop [<radius d:20>]
 	executable by: players
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 			
 		loop blocks in radius arg-1 around the player:
@@ -38,12 +40,13 @@ command /grass [<integer=5>]:
 	usage: /grass [<radius d:5>]
 	executable by: players
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 		loop blocks in radius arg-1 around the player:
 			loop-block is soil or dirt
@@ -54,14 +57,15 @@ command /soil [<integer=5>]:
 	usage: /soil [<radius d:5>]
 	executable by: players
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
-
+		
 		loop blocks in radius arg-1 around the player:
 			loop-block is grass or dirt
 			if block above loop-block is air:
@@ -74,72 +78,79 @@ command /debugStick:
 	aliases: ds
 	executable by: players
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 			
 		give player a stick named "Debug"
 
 command /setLevel <integer> [<player=%player%>]:
 	trigger:
-		if "%uuid of player%" is "<none>":
-			if arg-2 does not exist:
-				message "{@err} You cannot change the console's level!"
-				stop
-		else if {feu.permission.%uuid of player%} isn't "op":
+		if {feu.permission.%uuid of player%} is not "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 			
 		if arg-1 is greater than 150:
-			message "{@err} You cannot be that high level"
+			message "{@err} You can not be that high level"
 			stop 
-			
+		set {_prev lvl} to {feu.level.%uuid of arg-2%}
 		set {feu.level.%uuid of arg-2%} to arg-1
 		set arg-2's level to {feu.level.%uuid of arg-2%}
 		set the arg-2's level progress to 0
 		clear {_xp}
 		set {_nr of loops} to (arg-1)-1
 		loop {_nr of loops} times:
-			set {_xp} to floor(((loop-number+300*(2^(loop-number/10)))/4)+{_xp})
-		set {feu.maxXP.%uuid of arg-2%} to floor(((arg-1+300*(2^(arg-1/10)))/4)+{_xp})
-		if arg-1 isn't 1:
+			set {_xp} to floor(((loop-number+300*(2^(loop-number/7)))/4)+{_xp})
+		set {feu.maxXP.%uuid of arg-2%} to floor(((arg-1+300*(2^(arg-1/7)))/4)+{_xp})
+		if arg-1 is not 1:
 			set {feu.oldMaxXP.%uuid of arg-2%} to {_xp}
 			set {feu.currXP.%uuid of arg-2%} to {feu.oldMaxXP.%uuid of arg-2%}
 		else:
 			set {feu.currXP.%uuid of arg-2%} to 0
-		message "{@prefix} You are now level %arg-1%"
-			
-command /sword <text> <text> :
+		execute console command "setMaxHealth %arg-2%"
+		message "{@prefix} You are now level %arg-1%" to arg-2
+		log "%executor% (perm: %{feu.permission.%uuid of player%}%) changed %arg-2%'s (perm: %{feu.permission.%uuid of arg-2%}%) level at to %arg-1% (was: %{_prev lvl}%)" to "players.log"
+		
+command /sword <text> [<text>]:
 	usage: /sword <condition (Basic, Uncommon, Rare, Mythical or Legendary)> <material> 
 	executable by: players
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+		if arg-1 is "Dummy":
+			give player a wooden sword named "Dummy Sword" with no nbt with lore "<gold>Spawned sword"  
+			stop
+		
+		if arg-2 does not exist:
+			message "Correct usage: /sword <condition (Basic, Uncommon, Rare, Mythical or Legendary)> <material> "
 			stop
 			
 		if arg-1 is "Basic", "Uncommon", "Rare", "Mythical" or "Legendary":
 			if arg-2 is "wood" or "wildwood":
-				give player a wooden sword named "%arg-1% Wildwood Sword"
+				give player a wooden sword named "%arg-1% Wildwood Sword" with no nbt with lore "<gold>Spawned sword" 
 			else if arg-2 is "stone" or "rock":
-				give player a stone sword named "%arg-1% Rock Sword"
+				give player a stone sword named "%arg-1% Rock Sword" with no nbt with lore "<gold>Spawned sword"
 			else if arg-2 is "iron" or "steel":
-				give player a iron sword named "%arg-1% Steel Sword"
+				give player a iron sword named "%arg-1% Steel Sword" with no nbt with lore "<gold>Spawned sword"
 			else if arg-2 is "gold" or "Dwemler":
-				give player a gold sword named "%arg-1% Dwemler Sword"
+				give player a gold sword named "%arg-1% Dwemler Sword" with no nbt with lore "<gold>Spawned sword"
 			else if arg-2 is "diamond" or "Crystal":
-				give player a diamond sword named "%arg-1% Crystal Sword"
+				give player a diamond sword named "%arg-1% Crystal Sword" with no nbt with lore "<gold>Spawned sword"
 			else:
 				message "{@err} Unknown material"
 				message "{@prefix} Use: Wood, Wildwood, Stone, Rock, Iron, Steel, Gold, Dwemler, Diamond or Crystal"
@@ -154,14 +165,14 @@ command /loop <integer> <text> <text>:
 	trigger:
 		if "%uuid of player%" is "<none>":
 			message "" to player
-		else if {feu.permission.%uuid of player%} isn't "feu.admin" or "op":
+		else if {feu.permission.%uuid of player%} is not "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
-		
 		message "{@warn} There is a 1 second delay between each loop"
 		if arg-1 is less than 1:
 			message "{@err} Number too low."
@@ -183,34 +194,26 @@ command /loop <integer> <text> <text>:
 			loop arg-1 times:
 				execute console command "%{_cmd}%"
 				wait 20 tick
-
 #
 #Tools for player:
 #
-
-command /opkh498:
-	trigger:
-		player is "kh498"
-		op the player
-		set {feu.permission.%uuid of player%} to "op"
-
-command /ophkh2609:
-	trigger:
-		player is "hkh2609"
-		op the player
-		set {feu.permission.%uuid of player%} to "op"
 		
-command /spawn <player=%player%>:
+command /spawn <player>:
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 		
+		if {feu.quest.Crazy_house.bossFighters::*} contains uuid of arg-1:
+			message "{@err} can not teleport player, he/she is fighting the boss Lazarus."
+			stop
+			
 		teleport player to {feu.mainSpawn}
 		if "%arg-1%" is not equal to "%player%":
 			message "{@prefix} You have been teleported to spawn by staff."
@@ -218,26 +221,27 @@ command /spawn <player=%player%>:
 command /gmc:
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
-			
 		set gamemode of player to creative
 		message "{@prefix} Your gamemode was set to creative"
 		
 command /gms:
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 			
 		set gamemode of player to survival
@@ -246,12 +250,13 @@ command /gms:
 command /gma:
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 			
 		set gamemode of player to adventure
@@ -260,12 +265,13 @@ command /gma:
 command /fly:
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 			
 		allow fly for player
@@ -273,6 +279,16 @@ command /fly:
 		
 command /unfly:
 	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.player", "feu.mod", "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			stop
 		disallow fly for player
 		message "{@prefix} Flight disabled"
 
@@ -280,12 +296,13 @@ command /copyPaste:
 	aliases: cp
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 			
 		give player player's tool
@@ -293,12 +310,13 @@ command /copyPaste:
 command /get:
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 			
 		give target block to the player
@@ -308,12 +326,13 @@ command /speed [<number>]:
 	usage: /speed [<number d:0.1 | range -1 to 1>]
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 		if arg-1 does not exist:
 			message "Correct usage: /speed [<number d: 0.1 | range -1 to 1>]"
@@ -323,21 +342,62 @@ command /speed [<number>]:
 command /distance:
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 			
 		if target block exists:
 			set {_distance} to distance between target block and player
 			message "{@prefix} The distance is <yellow>%{_distance}%"
 		else:
-			message "{@err} No target block"		
+			message "{@err} No target block"
 		
-#	
+command /dumpQuestVariables <text> [<player=%player%>]:
+	aliases: dqv
+	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			stop
+			
+		if arg-1 is "starter":
+			message "---Starting requested quest dump---"
+			log "---Starting requested quest dump---" to "questDump.log"
+			log "Requested quest dump for %arg-2% by %executor%" to "questDump.log"
+			log "{feu.quest.starter.%uuid of arg-2%} == %{feu.quest.starter.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.starter.1.%uuid of arg-2%} == %{feu.quest.starter.1.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.starter.2.%uuid of arg-2%} == %{feu.quest.starter.2.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.starter.3.%uuid of arg-2%} == %{feu.quest.starter.3.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.starter.4.%uuid of arg-2%} == %{feu.quest.starter.4.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.starter.5.%uuid of arg-2%} == %{feu.quest.starter.5.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.starter.lookingForRing.%uuid of arg-2%} == %{feu.quest.starter.lookingForRing.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.starter.gotPotions.%uuid of arg-2%} == %{feu.quest.starter.gotPotions.%uuid of arg-2%}%" to "questDump.log"
+			log "---Requested quest dump finished---" to "questDump.log"
+			message "---Requested quest dump finished---"
+		else if arg-1 is "crazy_house":
+			message "---Starting requested quest dump---"
+			log "---Starting requested quest dump---" to "questDump.log"
+			log "Requested quest dump for %arg-2% by %executor%" to "questDump.log"
+			log "{feu.quest.Crazy_house.%uuid of arg-2%} == %{feu.quest.Crazy_house.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.Crazy_house.1.%uuid of arg-2%} == %{feu.quest.Crazy_house.1.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.Crazy_house.2.%uuid of arg-2%} == %{feu.quest.Crazy_house.2.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.Crazy_house.3.%uuid of arg-2%} == %{feu.quest.Crazy_house.3.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.Crazy_house.4.%uuid of arg-2%} == %{feu.quest.Crazy_house.4.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.Crazy_house.hasLootedChests.%uuid of arg-2%} == %{feu.quest.Crazy_house.hasLootedChests.%uuid of arg-2%}%" to "questDump.log"
+			log "---Requested quest dump finished---" to "questDump.log"
+			message "---Requested quest dump finished---"
+		else:
+			message "Valid quests are ""starter"" and ""crazy_house"""
+#
 #experimental tools: 
 #
 #Only op can use these commands
@@ -346,7 +406,7 @@ command /distance:
 command /stun:
 	permission: op
 	trigger:
-		loop 4 times:			
+		loop 4 times:
 			set {_shakePos} to {_orgPos}
 			add 0.1 to y-coordinate of {_shakePos}
 			teleport player to {_shakePos}
@@ -356,7 +416,7 @@ command /stun:
 			wait 0.5 tick
 			teleport player to {_orgPos}
 			wait 0.5 tick
-		#message "done!"	
+		#message "done!"
 		
 #<Quick option menu>
 	
@@ -378,7 +438,7 @@ on click with shears:
 	kill the player
 	#force player to spawn
 
-#</Quick option menu>	
+#</Quick option menu>
 
 on chat:
 	player is op
@@ -393,6 +453,6 @@ on chat:
 		equip the player with {chestplate.%uuid of player%} parsed as item
 		equip the player with {legging.%uuid of player%} parsed as item
 		equip the player with {boots.%uuid of player%} parsed as item
-		Message "2"		
+		Message "2"
 
 	

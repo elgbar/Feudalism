@@ -4,8 +4,9 @@ options:
 	prefix: <gold>[&aFeudalism<gold>]<r>
 	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
 	
-	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
-	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
+	warn: <gold>[<yellow>WARNING<gold>]:<r>
+	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
+	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
 		
 command /delAllMetadata:
 	executable by: console
@@ -21,12 +22,13 @@ command /delMetadata:
 	aliases: /dmd
 	executable by: player
 	trigger: 
-		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 		set {_round Coords} to location of player
 		set {_x} to x coordinate of {_round Coords}
@@ -44,7 +46,7 @@ command /delMetadata:
 				message "{@prefix} Metadata removed!"
 				set {_spoted} to true
 		if {_spoted} is false:
-			message "{@prefix} No metadata here. Remember its the block you're standing on!"
+			message "{@prefix} No metadata here. Remember its the block you are standing on!"
 			stop
 		
 command /setMetadata <text> [<integer=2>]:
@@ -52,15 +54,16 @@ command /setMetadata <text> [<integer=2>]:
 	aliases: /smd
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%uuid of player%} doesn't exist:
-			message "{@err} Permission error!"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
-		if block arg-2 below player isn't bedrock or chest:
-			message "{@err} No bedrock or chest %arg-2% blocks below you."
+		if block arg-2 below player is not bedrock, any button or chest:
+			message "{@err} No bedrock, button or chest %arg-2% blocks below you."
 			stop
 		set {_arg-2} to arg-2
 		
@@ -85,10 +88,43 @@ command /metadata:
 		wait 20 tick
 		loop {feu.metadata.loc::*}:
 			set metadata value "BlockInfo" of block {feu.metadata.below.%loop-value%} below loop-value to "%{feu.metadata.txt.%loop-value%}%"
-			{@debug} is true:
+			set {_exists.%{feu.metadata.txt.%loop-value%}%} to true
+			{@debug}:
 				message "{@debugPrefix} <gold>loc: %loop-value% | TxT: %{feu.metadata.txt.%loop-value%}% | Location set" to console
+			
+		#on any movements
+		if {_exists.Starter_house1} does not exist:
+			message "{@err2} metadata Starter_house1 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.starter.leaveCastle} does not exist:
+			message "{@err2} metadata starter.leaveCastle cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.WallAlphaMap} does not exist:
+			message "{@err2} metadata WallAlphaMap cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.Crazy_house.house1} does not exist:
+			message "{@err2} metadata Crazy_house.house1 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.Crazy_house.roomExit1} does not exist:
+			message "{@err2} metadata Crazy_house.roomExit1 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.Crazy_house.roomExit2} does not exist:
+			message "{@err2} metadata Crazy_house.roomExit2 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.Crazy_house.Boss.Enter1} does not exist:
+			message "{@err2} metadata Crazy_house.Boss.Enter1 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.Crazy_house.EnterWrong} does not exist:
+			message "{@err2} metadata Crazy_house.EnterWrong cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.Crazy_house.Boss.exitInnerRoom} does not exist:
+			message "{@err2} metadata Crazy_house.Boss.exitInnerRoom cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			
+		#buttons
+		if {_exists.Starter_house1} does not exist:
+			message "{@err2} metadata Starter_house1 cannot be found!This is a click on button event, please set this or quest will behave unexpectedly." to console
+		if {_exists.Crazy_house.house1} does not exist:
+			message "{@err2} metadata Crazy_house.house1 cannot be found!This is a click on button event, please set this or quest will behave unexpectedly." to console
+			
+		#Chests
+		if {_exists.starter.chest1} does not exist:
+			message "{@err2} metadata starter.chest1 cannot be found!This is a click on chest event, please set this or quest will behave unexpectedly." to console
+		if {_exists.Crazy_house.bossLoot} does not exist:
+			message "{@err2} metadata Crazy_house.bossLoot cannot be found!This is a click on chest event, please set this or quest will behave unexpectedly." to console
 
-command /quest <text="Help"> [<player>] [<boolean=false>]:
+command /quest <text="Help"> [<player>] [<boolean=false>] [<boolean=false>]:
 	executable by: console
 	usage: /quest <quest | help> <player> [<boolean, true: done previous quests, false: fully reset>]
 	trigger:
@@ -96,33 +132,35 @@ command /quest <text="Help"> [<player>] [<boolean=false>]:
 			if arg-2 is not set:
 				message "{@err} You need to specify a player."
 				stop
-			set {feu.quest.starter.%uuid of arg-2%} to "In progress"
+			set {feu.quest.starter.%uuid of arg-2%} to "Not started"
 			set {feu.quest.starter.1.%uuid of arg-2%} to true
 			clear {feu.quest.starter.2.%uuid of arg-2%}
 			clear {feu.quest.starter.3.%uuid of arg-2%}
 			clear {feu.quest.starter.4.%uuid of arg-2%}
-			clear {feu.quest.starter.doorAThouse1.%uuid of player%}
-			message "{@debugPrefix} Enabling quest starter for %arg-2%" to arg-2
+			clear {feu.quest.starter.5.%uuid of arg-2%}
+			set {feu.quest.starter.gotPotions.%uuid of arg-2%} to false
 		else if arg-1 is "Crazy_house":
 			if arg-2 is not set:
 				message "{@err} You need to specify a player."
 				stop
 			#This quest is dependent on that the player have finished "starter" quest
 			if arg-3 is true:
-				if {feu.quest.starter.%uuid of arg-2%} isn't "Completed":
+				if {feu.quest.starter.%uuid of arg-2%} is not "Completed":
 					set {feu.quest.starter.%uuid of arg-2%} to "Completed"
 					set {feu.quest.starter.1.%uuid of arg-2%} to false
-					set {feu.quest.Crazy_house.%uuid of arg-2%} to "In progress"
-			clear {feu.quest.Crazy_house.%uuid of arg-2%}
+					set {feu.quest.starter.gotPotions.%uuid of arg-2%} to true
+			set {feu.quest.Crazy_house.%uuid of arg-2%} to "Not started"
 			clear {feu.quest.Crazy_house.1.%uuid of arg-2%}
 			clear {feu.quest.Crazy_house.2.%uuid of arg-2%}
 			clear {feu.quest.Crazy_house.3.%uuid of arg-2%}
 			clear {feu.quest.Crazy_house.4.%uuid of arg-2%}
-			message "{@debugPrefix} Enabling quest Crazy_house for %arg-2%" to arg-2
 		else:
 			message "/quest <quest> <player> [<boolean, true: done previous quests, false: fully reset>]" to console
 			message "Available quests: <light green>starter <r>and <light green>Crazy_house" to console
 			stop
 			
-		#Global variables	
+		#Global variables
+		if arg-4 is false:
+			message "{@prefix} Enabling quest %arg-1% for %arg-2%"
+			message "{@prefix} Quest %arg-1% has been reset for you." to arg-2
 		set {feu.quest.zombiesKilled.%uuid of arg-2%} to 0

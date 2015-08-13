@@ -4,8 +4,9 @@ options:
 	prefix: <gold>[&aFeudalism<gold>]<r>
 	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
 	
-	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
-	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
+	warn: <gold>[<yellow>WARNING<gold>]:<r>
+	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
+	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
 	
 	You: <green>%arg-1%<r>:<r>
 	
@@ -14,29 +15,35 @@ command /house1_door <player>:
 	#action: on any movement
 	trigger:
 		if {feu.quest.starter.%uuid of arg-1%} is "Completed": 
-			message "{@You} Don't want to go inside there again.." to arg-1
-			teleport arg-1 to {feu.quest.starter.house1}
+			message "{@You} I do not want to go inside there again.." to arg-1
+		else if {feu.quest.starter.5.%uuid of arg-1%} is true:
 			stop
 		else if {feu.quest.starter.4.%uuid of arg-1%} is true:
 			stop
-		else if {feu.quest.starter.doorAThouse1.%uuid of arg-1%} is true:
-			stop
 		else:
-			message "{@You} That's a creepy place, don't want go in there without a sword!" to arg-1
-			teleport arg-1 to {feu.quest.starter.house1}
+			message "{@You} That is a creepy place, I do not want to go in there without a sword!" to arg-1
+		teleport arg-1 to {feu.quest.starter.house1}
 			
 command /starter.chest1 <player>:
 	#action: on rightclick on chest
 	executable by: console
 	trigger:
-		if {feu.quest.zombiesKilled.%uuid of arg-1%} is greater than 2:
-			message "{@prefix} Quest complete! Go talk to Lord Willson" to arg-1
-			set {feu.quest.starter.3.%uuid of arg-1%} to false
-			set {feu.quest.starter.4.%uuid of arg-1%} to true
-			set {feu.quest.starter.doorAThouse1.%uuid of arg-1%} to false
-			clear {feu.quest.zombiesKilled.%uuid of arg-1%}
-		else:
-			message "{@You} I should first kill some more zombies." to arg-1
+		if {feu.quest.starter.4.%uuid of arg-1%} is true:
+			if {feu.quest.zombiesKilled.%uuid of arg-1%} is greater than 2:
+				if arg-1 can hold a gold nugget:
+					set {feu.quest.starter.5.%uuid of arg-1%} to true
+					set {feu.quest.starter.4.%uuid of arg-1%} to false
+					set {feu.quest.starter.lookingForRing.%uuid of arg-1%} to true
+					clear {feu.quest.zombiesKilled.%uuid of arg-1%}
+					message "{@You} Now where is the gold ring in this chest?" to arg-1
+					wait 3 second
+					add a gold nugget named "Old gold ring" with lore "<light gray>Quest Item" to arg-1's inventory#Old gold ring item
+					set {feu.quest.starter.lookingForRing.%uuid of arg-1%} to false
+					message "{@You} There it is. I should leave before they kill me!" to arg-1
+				else:
+					message "{@You} I do not have the space of anything more..." to arg-1
+			else:
+				message "{@You} I should first kill some more zombies." to arg-1
 
 command /NPCLordWilson_starter <player>:
 	#action: on rightclick on entity
@@ -45,64 +52,122 @@ command /NPCLordWilson_starter <player>:
 		set {_name} to "<green>Lord Wilson<r>:<r>"
 		
 		if {feu.quest.starter.1.%uuid of arg-1%} is true:
+			set {feu.quest.starter.%uuid of arg-1%} to "In progress"
 			set {feu.quest.starter.1.%uuid of arg-1%} to false
 			set {feu.quest.starter.2.%uuid of arg-1%} to true
-			message "%{_name}% Hello %arg-1%! I am Lord Willson." to arg-1
-			wait 20 tick
-			message "%{_name}% I need your help! But first gear up at the armoury." to arg-1
-
-			stop
+			message "%{_name}% Hello %arg-1%. I am Lord Willson and I need your help." to arg-1
+			wait 30 tick
+			message "%{_name}% But first gear up at the armoury." to arg-1
+		else if {feu.quest.starter.2.%uuid of arg-1%} is true:
+			message "%{_name}% You need to head to the armoury!" to arg-1
 		else if {feu.quest.starter.3.%uuid of arg-1%} is true:
-			message "%{_name}% If you <gold>go behind this castle<r> you will find a house, sadly the owners have passed away." to arg-1
-			wait 40 tick
-			message "%{_name}% Zombies have now Infested this house. I need you to <gold>clear out this house<r>. When you are finished, <gold>retrieve the items in the chest<r> and then talk to me again" to arg-1
-			set {feu.quest.starter.doorAThouse1.%uuid of arg-1%} to true
+			set {feu.quest.starter.3.%uuid of arg-1%} to false
+			set {feu.quest.starter.4.%uuid of arg-1%} to true
 			set {feu.quest.zombiesKilled.%uuid of arg-1%} to 0
-			stop
+			message "%{_name}% If you <gold>go behind this castle<r> you will find the Winchester's house, sadly they passed away not too long ago." to arg-1
+			wait 80 tick
+			message "%{_name}% Zombies have now Infested their house. I need you to <gold>clear out the house<r>. When you are finished, <gold>retrieve the gold ring in the chest<r> then then talk to me again." to arg-1
 		else if {feu.quest.starter.4.%uuid of arg-1%} is true:
-			set {feu.quest.starter.4.%uuid of arg-1%} to false
-			set {feu.quest.starter.%uuid of arg-1%} to "Completed"
-			set {feu.quest.starter.doorAThouse1.%uuid of arg-1%} to false
-			message "%{_name}% Thank you for your help! Here take this sword." to arg-1
-			message "{@prefix} You received two health potions!" to arg-1
-			give 2 potion of health named "Instant Health I" to the arg-1
-			stop
-		else if {feu.quest.starter.%uuid of arg-1%} is "In progress":
-			if {feu.quest.starter.1.%uuid of arg-1%} is false:		
-				message "%{_name}% You need to head to the armoury!" to arg-1
-				stop
-		else if {feu.quest.starter.1.%uuid of arg-1%} doesn't exist:
-			execute console command "quest starter %arg-1%"
+			message "%{_name}% Go behind this castle, find the Winchester's house, kill the zombies then look in their chest." to arg-1
+		else if {feu.quest.starter.5.%uuid of arg-1%} is true:
+			if arg-1 has a gold nugget named "Old gold ring" with lore "<light gray>Quest Item":
+				set {feu.quest.starter.5.%uuid of arg-1%} to false
+				set {feu.quest.starter.%uuid of arg-1%} to "Completed"
+				message "%{_name}% Thank you for your help! Here take this." to arg-1
+				remove a gold nugget named "Old gold ring" with lore "<light gray>Quest Item" from arg-1's inventory
+				if arg-1 can hold 2 potion of health:
+					give 2 potion of health named "Instant Health I" to the arg-1
+					message "{@prefix} You received two minor health potions!" to arg-1
+					set {feu.quest.starter.gotPotions.%uuid of arg-1%} to true
+				else:
+					message "%{_name}% You can not hold two potions, talk to me again when you can." to arg-1
+				heal the arg-1
+				message "{@prefix} Quest complete!" to arg-1
+			else:
+				message "%{_name}% You need to get get the ring." to arg-1
+		else if {feu.quest.starter.1.%uuid of arg-1%} does not exist:
+			set {feu.quest.starter.%uuid of arg-1%} to "In progress"
+			set {feu.quest.starter.1.%uuid of arg-1%} to true
+			execute console command "NPCLordWilson_starter %arg-1%"
 		else:
 			message "%{_name}% Hello." to arg-1
 			message "{@err} Else triggered at %{_name}% for %arg-1% for Starter" to console
-			stop
+			log "---Starting Quest dump---" to "questDump.log"
+			log "Quest dump after error for %arg-1% at Lord Wilson in quest starter." to "questDump.log"
+			log "{feu.quest.starter.%uuid of arg-1%} == %{feu.quest.starter.%uuid of arg-1%}%" to "questDump.log"
+			log "{feu.quest.starter.1.%uuid of arg-1%} == %{feu.quest.starter.1.%uuid of arg-1%}%" to "questDump.log"
+			log "{feu.quest.starter.2.%uuid of arg-1%} == %{feu.quest.starter.2.%uuid of arg-1%}%" to "questDump.log"
+			log "{feu.quest.starter.3.%uuid of arg-1%} == %{feu.quest.starter.3.%uuid of arg-1%}%" to "questDump.log"
+			log "{feu.quest.starter.4.%uuid of arg-1%} == %{feu.quest.starter.4.%uuid of arg-1%}%" to "questDump.log"
+			log "{feu.quest.starter.5.%uuid of arg-1%} == %{feu.quest.starter.5.%uuid of arg-1%}%" to "questDump.log"
+			log "{feu.quest.starter.lookingForRing.%uuid of arg-1%} == %{feu.quest.starter.lookingForRing.%uuid of arg-1%}%" to "questDump.log"
+			log "{feu.quest.starter.gotPotions.%uuid of arg-1%} == %{feu.quest.starter.gotPotions.%uuid of arg-1%}%" to "questDump.log"
+			log "---Quest dump finished---" to "questDump.log"
 			
 command /NPCBlacksmith_starter <player>:
 	#action: on rightclick on entity
 	executable by: console
 	trigger:
 		set {_name} to "<green>Blacksmith<r>:<r>"
-					
+		
 		if {feu.quest.starter.2.%uuid of arg-1%} is true:
+			if arg-1 can hold a wooden sword:
+				give arg-1 a wood sword named "<yellow>Basic Wildwood Sword" with no nbt with lore "Damage: 1"
+			else:
+				message "%{_name}% It appears you do not have enough space for a sword..." to arg-1
+				stop
 			set {feu.quest.starter.2.%uuid of arg-1%} to false
 			set {feu.quest.starter.3.%uuid of arg-1%} to true
-			Message "%{_name}% Here you are! We only got this old rotten stuff for now, but I recon you will manage." to arg-1
-			give arg-1 a wooden sword named "Old Rotten Sword" with lore "Damage 0.5"
 			equip the arg-1 with leather helmet named "<yellow>Decayed Leather Helmet"
 			equip the arg-1 with leather chestplate named "<yellow>Decayed Chestplate"
 			equip the arg-1 with leather leggings named "<yellow>Decayed Leggings"
 			equip the arg-1 with leather boots named "<yellow>Decayed Boots"
-			message "%{_name}% Now go back to Lord Willson." to arg-1
-			stop
-		else if {feu.quest.starter.2.%uuid of arg-1%} is false:
-			message "%{_name}% How did the quest go?" to arg-1
-			stop
-		else if {feu.quest.starter.2.%uuid of arg-1%} doesn't exist:
+			message "%{_name}% Here you are! You can have this decayed armour and a basic wooden sword." to arg-1
+			wait 40 tick
+			message "%{_name}% Go back and talk to Lord Willson." to arg-1
+		else if {feu.quest.starter.1.%uuid of arg-1%} is true:
 			message "%{_name}% You need to speak to Lord Willson first!" to arg-1
-			stop
+		else if {feu.quest.starter.%uuid of arg-1%} is "In progress":
+			if arg-1 has a sword:
+				message "%{_name}% How did the quest go?" to arg-1
+			else:
+				if arg-1 can hold a wooden sword:
+					message "%{_name}% Have you lost your sword? Take another." to arg-1
+					give arg-1 a wood sword named "<yellow>Basic Wildwood Sword" with no nbt with lore "Damage: 1"
+				else:
+					message "%{_name}% You need space in your inventory if you want another sword." to arg-1
+				
+		else if {feu.quest.starter.%uuid of arg-1%} is "Completed":
+			message "%{_name}% How can I help you?" to arg-1
+			#TODO make a shop here
 		else:
 			message "%{_name}% Hello." to arg-1
-			message "{@err} Else triggered at %{_name}% for %arg-1%" to console
-			stop
+			message "{@err2} Else triggered at %{_name}% for %arg-1%" to console
+			log "---Starting Quest dump---" to "questDump.log"
+			log "Quest dump after error for %arg-1% at Blacksmith in quest starter." to "questDump.log"
+			log "{feu.quest.starter.%uuid of arg-1%} == %{feu.quest.starter.%uuid of arg-1%}%" to "questDump.log"
+			log "{feu.quest.starter.1.%uuid of arg-1%} == %{feu.quest.starter.1.%uuid of arg-1%}%" to "questDump.log"
+			log "{feu.quest.starter.2.%uuid of arg-1%} == %{feu.quest.starter.2.%uuid of arg-1%}%" to "questDump.log"
+			log "{feu.quest.starter.3.%uuid of arg-1%} == %{feu.quest.starter.3.%uuid of arg-1%}%" to "questDump.log"
+			log "{feu.quest.starter.4.%uuid of arg-1%} == %{feu.quest.starter.4.%uuid of arg-1%}%" to "questDump.log"
+			log "{feu.quest.starter.5.%uuid of arg-1%} == %{feu.quest.starter.5.%uuid of arg-1%}%" to "questDump.log"
+			log "{feu.quest.starter.lookingForRing.%uuid of arg-1%} == %{feu.quest.starter.lookingForRing.%uuid of arg-1%}%" to "questDump.log"
+			log "{feu.quest.starter.gotPotions.%uuid of arg-1%} == %{feu.quest.starter.gotPotions.%uuid of arg-1%}%" to "questDump.log"
+			log "---Quest dump finished---" to "questDump.log"
 			
+command /starter.leaveCastle <player>:
+	#action: on any movement
+	executable by: console
+	trigger:
+		if {feu.quest.starter.%uuid of arg-1%} is "Completed":
+			stop
+		else if {feu.quest.starter.4.%uuid of arg-1%}:
+			stop
+		else if {feu.quest.starter.5.%uuid of arg-1%}:
+			stop
+		else if {feu.quest.starter.%uuid of arg-1%} is "In progress":
+			teleport arg-1 to {feu.quest.starter.leaveCastle}
+			message "{@You} I need to talk to someone first..." to arg-1
+		else if {feu.quest.starter.%uuid of arg-1%} is "Not started":
+			teleport arg-1 to {feu.quest.starter.leaveCastle}
+			message "{@You} This looks too dangerous." to arg-1
