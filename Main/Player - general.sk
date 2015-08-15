@@ -158,6 +158,7 @@ on join:
 				add uuid of player to {feu.quest.Crazy_house.bossFighters::*}
 				message "<light red>Lazarus<r>: You will not escape me by logging off!"
 				execute console command "spawnBoss lazarus"
+				teleport player to {feu.quest.Crazy_house.boss1}
 			stop loop
 			
 	else if {_equal} is false:

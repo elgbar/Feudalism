@@ -8,7 +8,7 @@ options:
 	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
 	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
 	
-	You: <green>%attacker%<r>:<r>
+	You: <light green>%attacker%<r>:<r>
 #Commands
 
 command /addXP <number> [<player=%player%>] [<boolean=true>] [<boolean=false>]:
@@ -389,8 +389,7 @@ on damage:
 	
 	#unarmed zombie
 	else if attacker is a zombie:
-		#message "<purple>%{_zombie level}%" to console
-		set {_damage} to 2+{_zombie level}#+{_dmg percent Attacker} #test this
+		set {_damage} to 2+{_zombie level}+{_dmg percent Attacker} #test this
 		
 	else if attacker is holding a stick named "Debug":
 		execute attacker command "/targetinfo"
@@ -405,12 +404,6 @@ on damage:
 		stop
 	else:
 		set {_total damage} to {_damage}*{_calcArmour} + ({_dmg percent Attacker} - {_dmg percent Victim})
-		
-		#Alt system
-		#if attacker is a player:
-		#	set {_total damage} to ({_damage}*{_calcArmour}) + ({feu.level.%uuid of attacker%} - {_zombie level})
-		#else:
-		#	set {_total damage} to {_damage}*{_calcArmour} + ({_zombie level} - {feu.level.%uuid of attacker%})
 		if {_total damage} is less than 1:
 			if attacker is a player:
 				set {_total damage} to 0
@@ -595,7 +588,7 @@ on damage:
 		if  {feu.quest.zombiesKilled.%uuid of attacker%} does not exist:
 			set {feu.quest.zombiesKilled.%uuid of attacker%} to 0
 			
-		if {feu.quest.starter.4.%uuid of attacker%} is true:
+		if {feu.quest.starter.3.%uuid of attacker%} is true:
 			if {feu.quest.zombiesKilled.%uuid of attacker%} is less than 3:
 				add 1 to {feu.quest.zombiesKilled.%uuid of attacker%}
 				if {feu.quest.zombiesKilled.%uuid of attacker%} is 3:

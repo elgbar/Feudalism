@@ -442,7 +442,7 @@ on skript load:
 		#STABLE : A stable build recommended used
 		#DEVELOP : Finished with a feature, but needs debugging before it can be considered a STABLE bild. 
 		#UNCERTAIN : Quick upload after finishing a session. Do not use builds which is in this state. Can be multiple UNCERTAIN builds in one day.  
-	set {feu.version} to "Build 16 - DEVELOP"
+	set {feu.version} to "Build 17 - UNCERTAIN"
 	ban "<none>" due to "can not have a player with that name, change it to play here" #<none> is the console, too bad for the one who has that name :P
 	set {feu.permission.<none>} to "op" #makes the console use all commands
 	if {feu.mainSpawn} does not exist:

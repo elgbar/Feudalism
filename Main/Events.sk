@@ -10,7 +10,7 @@ options:
 	
 	allowedMobs: zombie, witch or villager
 	non-interactiveMobs: villager #Mobs without ID
-	You: <green>%player%<r>:<r>
+	You: <light green>%player%<r>:<r>
 	
 on crop trample:
 	cancel event
@@ -182,7 +182,8 @@ on rightclick:
 		stop
 	if event-block is any door:
 		if {feu.permission.%uuid of player%} is "feu.player":
-			message "{@You} The door is locked. Maybe a button could work..." to player
+			if event-block is any wooden door:
+				message "{@You} The door is locked. Maybe a button could work..." to player
 			cancel event
 			
 on entity target:
@@ -252,7 +253,7 @@ on quit:
 	set the player's flying speed to 0.1
 	
 	if {feu.quest.starter.lookingForRing.%uuid of player%} is true:
-		add a gold nugget named "Old gold ring" with lore "<light gray>Quest Item" to player's inventory
+		add a gold nugget named "<gold><gold>Old gold ring" with lore "<light gray>Quest Item" to player's inventory
 		set {feu.quest.starter.lookingForRing.%uuid of player%} to false
 				
 	loop {feu.quest.Crazy_house.bossFighters::*}:

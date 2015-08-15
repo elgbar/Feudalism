@@ -8,7 +8,7 @@ options:
 	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
 	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
 	
-	You: <green>%arg-1%<r>:<r>
+	You: <light green>%arg-1%<r>:<r>
 	
 command /WallAlphaMap <player>:
 	#action: on any movement

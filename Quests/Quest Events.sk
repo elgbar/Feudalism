@@ -9,7 +9,7 @@ options:
 	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
 	
 	NPC: <green>%entity's name%<r>:<r>
-	You: <green>%player%<r>:<r>
+	You: <light green>%player%<r>:<r>
 	
 #How Quests work:
 #There is a variable named {feu.quest.%uuid of quest%.%How much you have done, eg 1,2,3%.%uuid of player%}
@@ -57,13 +57,13 @@ on rightclick on button:
 	set {_BlockInfo} to metadata value "BlockInfo" of clicked block
 	if "%{_BlockInfo}%" is equal to "Starter_house1":
 		cancel event
-		if {feu.quest.starter.4.%uuid of player%} is true:
+		if {feu.quest.starter.3.%uuid of player%} is true:
 			if {feu.quest.zombiesKilled.%uuid of player%} is 0:
 				message "{@You} This must be the house" to player
 			uncancel event
 		else if {feu.quest.starter.%uuid of player%} is "Completed": 
 			message "{@You} I do not want to go inside there again.." to player
-		else if {feu.quest.starter.5.%uuid of player%} is true:
+		else if {feu.quest.starter.4.%uuid of player%} is true:
 			message "{@You} Why would I do that? I barley survived!"
 		else:
 			message "{@You} That is a creepy place, I do not want to go in there without a sword!" to player

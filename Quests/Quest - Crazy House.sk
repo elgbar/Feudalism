@@ -8,7 +8,7 @@ options:
 	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
 	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
 	
-	You: <green>%arg-1%<r>:<r>
+	You: <light green>%arg-1%<r>:<r>
 	
 command /Crazy_house.house1 <player>:
 	#action: on any movement
@@ -65,6 +65,8 @@ command /Crazy_house.Boss.finish <player>:
 			remove uuid of arg-1 from {feu.quest.Crazy_house.bossFighters::*}
 		else:
 			message "{@err2} You killed a boss at an unexpected time!" to arg-1
+			if {feu.permission.%uuid of player%} is "feu.player":
+				execute console command "spawn %player%"
 			
 		if size of {feu.quest.Crazy_house.bossFighters::*} is greater than 0:
 			execute console command "spawnBoss lazarus"
@@ -152,16 +154,8 @@ command /NPCLordWilson_CrazyHouse <player>:
 			message "%{_name}% You need to kill Lazarus." to arg-1
 		else:
 			message "%{_name}% Hello." to arg-1
-			message "{@err2} Else triggered at %{_name}% for %arg-1%, at quest Crazy_house" to console
-			log "---Starting Quest dump---" to "questDump.log"
-			log "Quest dump after error for %arg-1% at Lord Wilson in quest Crazy house." to "questDump.log"
-			log "{feu.quest.Crazy_house.%uuid of arg-1%} == %{feu.quest.Crazy_house.%uuid of arg-1%}%" to "questDump.log"
-			log "{feu.quest.Crazy_house.1.%uuid of arg-1%} == %{feu.quest.Crazy_house.1.%uuid of arg-1%}%" to "questDump.log"
-			log "{feu.quest.Crazy_house.2.%uuid of arg-1%} == %{feu.quest.Crazy_house.2.%uuid of arg-1%}%" to "questDump.log"
-			log "{feu.quest.Crazy_house.3.%uuid of arg-1%} == %{feu.quest.Crazy_house.3.%uuid of arg-1%}%" to "questDump.log"
-			log "{feu.quest.Crazy_house.4.%uuid of arg-1%} == %{feu.quest.Crazy_house.4.%uuid of arg-1%}%" to "questDump.log"
-			log "{feu.quest.Crazy_house.hasLootedChests.%uuid of arg-1%} == %{feu.quest.Crazy_house.hasLootedChests.%uuid of arg-1%}%" to "questDump.log"
-			log "---Quest dump finished---" to "questDump.log"
+			message "{@err2} Else triggered at %{_name}% for %arg-1%, at quest Crazy_house. See log for more info." to console
+			execute console command "dqv crazy_house %arg-1%"
 			
 command /NPCHouseGuard_CrazyHouse <player>:
 	#action: on rightclick on entity

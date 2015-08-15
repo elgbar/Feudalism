@@ -199,7 +199,6 @@ command /loop <integer> <text> <text>:
 #
 		
 command /spawn <player>:
-	executable by: player
 	trigger:
 		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
@@ -209,14 +208,15 @@ command /spawn <player>:
 			set {feu.permission.%uuid of player%} to "feu.player"
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
-		
-		if {feu.quest.Crazy_house.bossFighters::*} contains uuid of arg-1:
-			message "{@err} can not teleport player, he/she is fighting the boss Lazarus."
-			stop
+		loop {feu.quest.Crazy_house.bossFighters::*}:
+			if uuid of arg-1 is equal to {feu.quest.Crazy_house.bossFighters::%loop-index%}:
+				message "{@err} Cannot teleport player, he/she is fighting the boss Lazarus."
+				stop
 			
-		teleport player to {feu.mainSpawn}
-		if "%arg-1%" is not equal to "%player%":
-			message "{@prefix} You have been teleported to spawn by staff."
+		teleport arg-1 to {feu.mainSpawn}
+			
+		if "%arg-1%" is not equal to "%executor%":
+			message "{@prefix} You have been teleported to spawn by staff." to arg-1
 		
 command /gmc:
 	executable by: player
@@ -247,8 +247,7 @@ command /gms:
 		set gamemode of player to survival
 		message "{@prefix} Your gamemode was set to survival"
 		
-command /gma:
-	executable by: player
+command /gma [<player=%player%>]:
 	trigger:
 		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
@@ -259,8 +258,12 @@ command /gma:
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 			
-		set gamemode of player to adventure
-		message "{@prefix} Your gamemode was set to adventure"
+		if executor is console:
+			message "{@err} Cannot change gamemode of console" to console
+			stop
+			
+		set gamemode of arg-1 to adventure
+		message "{@prefix} Your gamemode was set to adventure"  to arg-1
 		
 command /fly:
 	executable by: player
@@ -277,7 +280,7 @@ command /fly:
 		allow fly for player
 		message "{@prefix} Flight enabled"
 		
-command /unfly:
+command /unfly [<player=%player%>]:
 	trigger:
 		if {feu.permission.%uuid of player%} is not "feu.player", "feu.mod", "feu.tech", "feu.admin" or "op":
 			message "{@err} You do not have permission for this command!"
@@ -289,8 +292,12 @@ command /unfly:
 			set {feu.permission.%uuid of player%} to "feu.player"
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
-		disallow fly for player
-		message "{@prefix} Flight disabled"
+		if executor is console:
+			message "{@err} Cannot disable flight of console" to console
+			stop
+			
+		disallow fly for arg-1
+		message "{@prefix} Flight disabled" to arg-1
 
 command /copyPaste:
 	aliases: cp
@@ -369,43 +376,72 @@ command /dumpQuestVariables <text> [<player=%player%>]:
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			stop
 			
-		if arg-1 is "starter":
+		if "%arg-2%" is "<none>":
+			message "{@err} The console cannot do quests!"
+			stop
+			
+		else if arg-1 is not "starter" or "crazy_house":
+			message "Valid quests are ""starter"" and ""crazy_house"""
+			stop
+			
+		if executor is not console:
 			message "---Starting requested quest dump---"
 			log "---Starting requested quest dump---" to "questDump.log"
 			log "Requested quest dump for %arg-2% by %executor%" to "questDump.log"
+		else:
+			log "---Starting quest dump by CONSOLE---" to "questDump.log"
+			log "Quest dump for %arg-2%" to "questDump.log"
+			
+		if arg-1 is "starter":
 			log "{feu.quest.starter.%uuid of arg-2%} == %{feu.quest.starter.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.1.%uuid of arg-2%} == %{feu.quest.starter.1.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.2.%uuid of arg-2%} == %{feu.quest.starter.2.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.3.%uuid of arg-2%} == %{feu.quest.starter.3.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.4.%uuid of arg-2%} == %{feu.quest.starter.4.%uuid of arg-2%}%" to "questDump.log"
-			log "{feu.quest.starter.5.%uuid of arg-2%} == %{feu.quest.starter.5.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.lookingForRing.%uuid of arg-2%} == %{feu.quest.starter.lookingForRing.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.gotPotions.%uuid of arg-2%} == %{feu.quest.starter.gotPotions.%uuid of arg-2%}%" to "questDump.log"
-			log "---Requested quest dump finished---" to "questDump.log"
-			message "---Requested quest dump finished---"
 		else if arg-1 is "crazy_house":
-			message "---Starting requested quest dump---"
-			log "---Starting requested quest dump---" to "questDump.log"
-			log "Requested quest dump for %arg-2% by %executor%" to "questDump.log"
 			log "{feu.quest.Crazy_house.%uuid of arg-2%} == %{feu.quest.Crazy_house.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.Crazy_house.1.%uuid of arg-2%} == %{feu.quest.Crazy_house.1.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.Crazy_house.2.%uuid of arg-2%} == %{feu.quest.Crazy_house.2.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.Crazy_house.3.%uuid of arg-2%} == %{feu.quest.Crazy_house.3.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.Crazy_house.4.%uuid of arg-2%} == %{feu.quest.Crazy_house.4.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.Crazy_house.hasLootedChests.%uuid of arg-2%} == %{feu.quest.Crazy_house.hasLootedChests.%uuid of arg-2%}%" to "questDump.log"
-			log "---Requested quest dump finished---" to "questDump.log"
-			message "---Requested quest dump finished---"
 		else:
-			message "Valid quests are ""starter"" and ""crazy_house"""
+			log "FATAL ERROR: UNKNOWN VARIABLE ""%arg-1%""! This is an error in the script! Please report this." to "questDump.log"
+			message "FATAL ERROR: UNKNOWN VARIABLE, SEE LOG"
+			stop
+			
+		if executor is not console:
+			log "---Requested quest dump finished---" to "questDump.log"
+			message "---Requested quest dump finished successfully---"
+		else:
+			log "---Quest dump by CONSOLE finished successfully---" to "questDump.log"
 #
 #experimental tools: 
 #
 #Only op can use these commands
 #
 
+command /forwards:
+	permission: op
+	trigger:
+		loop 20 times:
+			wait 1 tick
+			push the player in horizontal direction of player with speed 0.2
+		
 command /stun:
 	permission: op
 	trigger:
+		#both work
+		set {_still} to new vector  0, 0, 0
+		loop 40 times:
+			wait 0.5 tick
+			set velocity of player to {_still}
+		stop
+		
+		#old
+		set {_orgPos} to player's position
 		loop 4 times:
 			set {_shakePos} to {_orgPos}
 			add 0.1 to y-coordinate of {_shakePos}
