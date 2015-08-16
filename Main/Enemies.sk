@@ -15,13 +15,13 @@ command /spawnCostumZombies <integer> <text="Zombie"> [<text="default">] [<text=
 	aliases: scz
 	executable by: players
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
 			message "{@err2} You need to have a permission"
-			set {feu.permission.%uuid of player%} to "feu.player"
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 			
 		if arg-1 is less than 1:
@@ -107,17 +107,19 @@ command /setBossSpawn <text="help">:
 	usage: /sbs <Boss name>
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
 			message "{@err2} You need to have a permission"
-			set {feu.permission.%uuid of player%} to "feu.player"
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
+			
 		if block below player is air:
 			message "{@err} can not spawn bosses in the air!"
 			stop
+			
 		if arg-1 is "Lazarus":
 			set {_round Coords} to location of player
 			set {_x} to x coordinate of {_round Coords}
@@ -178,13 +180,13 @@ command /setFixedZombieSpawn <integer> <text> <text> [<integer=5>]:# [<integer=0
 	aliases: sfzs
 	executable by: players
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
 			message "{@err2} You need to have a permission"
-			set {feu.permission.%uuid of player%} to "feu.player"
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 			
 		if block below player is air:
@@ -269,11 +271,12 @@ command /removeFixedSpawn:
 	aliases: rfs
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
 			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 		set {_round Coords} to location of player
@@ -299,21 +302,21 @@ command /removeFixedSpawn:
 			message "{@err} No fixed spawn here!"
 
 command /fixAllZombieSpawns:
-	usage: fazs
 	aliases: fazs
-	executable by: console
 	trigger:
-		message "{@err2} Command under reconstruction"
-		stop
-		#TODO: make this up to date
-		if {feu.permission.%uuid of player%} is not "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
 			
-		clear {_nr}
-		loop {feu.fixedspawnID} times:
-			add 1 to {_nr}
-			set {feu.fixedspawn.isSpawned.%{_nr}%} to false
+		loop size of {feu.fixedspawn::*} times:
+			if {feu.fixedspawn::%loop-number%} is not "Deleted", "false" or "<none>":
+				set {feu.fixedspawn.isSpawned.%loop-number%} to false
+				
 		message "{@prefix} All custom spawned entities will now spawn!"
 		
 			
@@ -323,13 +326,13 @@ command /changeZombie <String> [<String>] [<string>]:
 	aliases: fz
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
 			message "{@err2} You need to have a permission"
-			set {feu.permission.%uuid of player%} to "feu.player"
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 		if arg-1 is "ID":
 			if {feu.fixedspawn.isSpawned.%arg-2%} exists:
@@ -414,13 +417,13 @@ command /blockInfo:
 	aliases: bi
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
 			message "{@err2} You need to have a permission"
-			set {feu.permission.%uuid of player%} to "feu.player"
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 		set {_round Coords} to target block's location
 		set {_x} to x coordinate of {_round Coords}
@@ -451,6 +454,7 @@ command /blockInfo:
 				{@debug}:
 					message "{@prefix} Target location and ID location match."
 		if {feu.fixedspawn.ID.%{_round Coords}%} exists:
+			message "<yellow>----<gold>[<green>Block variables<gold>]<yellow>----"
 			message "{@prefix} ID: <light green>%{feu.fixedspawn.ID.%{_round Coords}%}%"
 			message "{@prefix} Level: <light green>%{feu.fixedspawn.lvl.%{_round Coords}%}%"
 			message "{@prefix} Armour: <light green>%{feu.fixedspawn.armour.%{_round Coords}%}%"
@@ -469,13 +473,13 @@ command /targetInfo:
 	aliases: ti
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
 			message "{@err2} You need to have a permission"
-			set {feu.permission.%uuid of player%} to "feu.player"
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 		if player's target is an entity:
 			#if name of target entity does not exist:

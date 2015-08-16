@@ -14,13 +14,13 @@ options:
 command /addXP <number> [<player=%player%>] [<boolean=true>] [<boolean=false>]:
 	usage: /addXP <XP> [<player>] #arg-3: print the amount of xp gained #arg-4: Silent level up = true
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
 			message "{@err2} You need to have a permission"
-			set {feu.permission.%uuid of player%} to "feu.player"
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 			
 		if arg-1 is greater than 2500:
@@ -87,15 +87,15 @@ command /addXP <number> [<player=%player%>] [<boolean=true>] [<boolean=false>]:
 command /stats [<player=%player%>]:
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.player", "feu.mod", "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.player", "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
-			set {feu.permission.%uuid of player%} to "feu.player"
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
 			message "{@err2} You need to have a permission"
-			set {feu.permission.%uuid of player%} to "feu.player"
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 		set {_nextLVL} to {feu.maxXP.%uuid of arg-1%}-{feu.currXP.%uuid of arg-1%}
 		set {_XPtoNextLevel} to {feu.maxXP.%uuid of arg-1%}-{feu.currXP.%uuid of arg-1%}
@@ -119,6 +119,8 @@ command /stats [<player=%player%>]:
 			message "{@prefix} Health: <light green>%health of arg-1%"
 			message "{@prefix} Max health: <light green>%max health of arg-1%"
 			message "{@prefix} Current Location: <light green>%location of arg-1%"
+			message "{@prefix} Current gamemode: <light green>%gamemode of arg-1%"
+			
 command /setMaxHealth <player>:
 	executable by: console
 	trigger:
@@ -316,7 +318,7 @@ on damage:
 			message "{@err2} Unknown material on entity's boots. In ""on damage"" under ""victim is wearing an X boots""" to console
 	else:
 		set {_boots} to 1
-	set {_calcArmour} to 1-((({_helmet}+{_chestplate}+{_leggings}+{_boots})+{_dmg percent Victim})/100)
+	set {_calcArmour} to 1-(({_helmet}+{_chestplate}+{_leggings}+{_boots}+{_dmg percent Victim})/100)
 	
 	if attacker is holding a sword:
 		#Wildwood
@@ -467,7 +469,7 @@ on damage:
 			else:
 				message "{@debugPrefix} P dmg: %{_material}% * %{_condition}% * %{_dmg percent Attacker}% = %{_damage}%" to console
 				
-			message "{@debugPrefix} <white>Armour: 1-(((%{_helmet}%+%{_chestplate}%+%{_leggings}%+%{_boots}%)+%{_dmg percent Victim}%)/100) = %{_calcArmour}%" to console
+			message "{@debugPrefix} <white>Armour: 1-((%{_helmet}%+%{_chestplate}%+%{_leggings}%+%{_boots}%+%{_dmg percent Victim}%)/100) = %{_calcArmour}%" to console
 			
 			if {_total damage} is less than 1:
 				message "{@debugPrefix} Total dmg < 1: %{_total damage}% (raw: %{_total damage2}%)" to console #total dmg is set to 0 when the attacker is a player and he/she damage less than 1
@@ -479,7 +481,7 @@ on damage:
 				message "{@debugPrefix} <white>Material: %{_material}%" to console
 				message "{@debugPrefix} Z t dmg: 0.5 + %{_material}% + %{_zombie level}% = %{_damage}%" to console #zombie tool damage
 			else:
-				message "{@debugPrefix} Z n t dmg: 1 + %{_zombie level}% = %{_damage}%" to console #zombie no tool damage
+				message "{@debugPrefix} Z n t dmg: 2 + %{_zombie level}% + %{_dmg percent Attacker}% = %{_damage}%" to console #zombie no tool damage
 			message "{@debugPrefix} <white>Armour: 1-(((%{_helmet}%+%{_chestplate}%+%{_leggings}%+%{_boots}%)+%{_dmg percent Victim}%)/100) = %{_calcArmour}%" to console
 			message "{@debugPrefix} Total dmg: %{_damage}% * %{_calcArmour}% + (%{_dmg percent Attacker}% - %{_dmg percent Victim}%) = %{_total damage}% (raw: %{_total damage2}%)" to console
 		

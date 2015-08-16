@@ -91,7 +91,7 @@ on rightclick on chest:
 			set {feu.quest.Crazy_house.%location of block%.%uuid of player%} to false
 			execute console command "Crazy_house.bossLoot %player%"
 			stop
-	else if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "op":
+	else if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "feu.op":
 		uncancel event
 		
 on rightclick on entity:

@@ -87,7 +87,7 @@ on teleport:
 on command:
 	cancel event
 	if "%command%" is "help":
-		if {feu.permission.%uuid of player%} is "op" or "admin":
+		if {feu.permission.%uuid of player%} is "feu.op" or "admin":
 			message "{@prefix} <green>Use the command /fhelp to see feudalism commands"
 			uncancel event
 			stop
@@ -98,7 +98,7 @@ on command:
 		if "%uuid of player%" is "<none>":
 			message "can not enable godmode for the console. IT IS GOD!" to console
 			stop
-		else if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "op":
+		else if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 			
@@ -110,9 +110,9 @@ on command:
 		set {feu.godMode.%uuid of player%} to false
 		message "{@prefix} Godmode disabled"
 		stop
-	else if "%command%" is "op":
+	else if "%command%" is "feu.op":
 		#cancel event
-		if {feu.permission.%uuid of player%} is "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is "feu.admin" or "feu.op":
 			op player
 			message "{@prefix} You are now op!"
 		else:
@@ -128,13 +128,13 @@ on command:
 			message "{@err} You do not have permission for this command!"
 			cancel event
 	else:
-		if {feu.permission.%uuid of player%} is "feu.player", "feu.mod", "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is "feu.player", "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			uncancel event
 		else:
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
 on break:
-	if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "op":
+	if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "feu.op":
 		stop
 	cancel event
 	
@@ -145,7 +145,7 @@ on place:
 	else if block is item frame:
 		cancel event
 		stop
-	if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "op":
+	if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "feu.op":
 		stop
 	cancel event
 	

@@ -22,13 +22,13 @@ command /delMetadata:
 	aliases: /dmd
 	executable by: player
 	trigger: 
-		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
 			message "{@err2} You need to have a permission"
-			set {feu.permission.%uuid of player%} to "feu.player"
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 		set {_round Coords} to location of player
 		set {_x} to x coordinate of {_round Coords}
@@ -54,13 +54,13 @@ command /setMetadata <text> [<integer=2>]:
 	aliases: /smd
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
 			message "{@err2} You need to have a permission"
-			set {feu.permission.%uuid of player%} to "feu.player"
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 		if block arg-2 below player is not bedrock, any button or chest:
 			message "{@err} No bedrock, button or chest %arg-2% blocks below you."
