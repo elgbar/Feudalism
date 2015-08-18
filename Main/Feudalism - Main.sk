@@ -4,146 +4,300 @@ options:
 	prefix: <gold>[&aFeudalism<gold>]<r>
 	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
 	
-	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
-	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
+	warn: <gold>[<yellow>WARNING<gold>]:<r>
+	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
+	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
 	
-#Commands	
+#Commands
 
-command /fhelp:
+command /fhelp [<integer=1>]:
 	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.player", "feu.mod", "feu.tech", "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
 		message "<yellow>------<gold>[&aFeudalism Commands<gold>]<yellow>------"
+		if arg-1 is 1:
+			#player commands
+			message "<light red>/stats<r> : <light gray>Show your stats."
+			message "<light red>/credits<r> : <light gray>List the credits."
 		
-		#player commands
-		message "<light red>/printExperiencePoints <light green>(<r>pxp<light green>)<r> : <yellow>enable or disable the xp count."
-		message "<light red>/stats<r> : <yellow>Show your stats."
-		
-		if {feu.permission.%name of player%} is "feu.player":
+		if {feu.permission.%uuid of player%} is "feu.player":
 			stop
 			
 		#Mod commands
 		message "<yellow>------<gold>[&aStaff Commands<gold>]<yellow>------"
-		message "<light red>/killall <player> <r> : <yellow>kills every mob in the world"
-		message "<light red>/fullyClear <light green>(<r>fc<light green>)<r> : <yellow>removes everything from the player"
-		message "<light red>/spawnCostumsZombies <light green>(<r>SCZ<light green>)<r> : <yellow>spawn a custom zombie"
-		message "<light red>/fixZombieSpawns <light green>(<r>FZS<light green>)<r> : <yellow>make a zombie spawn with the argument's number (at its location)"
-		message "<light red>/targetInfo <r>: <yellow>Lists variables of the target zombie"
+		message "<light red>/god<r> : <light gray>Enable godmode for you."
+		message "<light red>/ungod<r> : <light gray>Disable godmode for you."
+		message "<light red>/killall<r> : <light gray>Kills every mob in the world."
+		message "<light red>/fixAllZombieSpawns <r>: <light gray>Makes all the fixed spawn points enable spawning."
+		message "<light red>/spawnCostumZombies <light green>(<r>SCZ<light green>)<r> : <light gray>Spawn a custom zombie."
+		message "<light red>/debugStick <r>: <light gray>Gives you a stick to automaticly use blockinfo and targetinfo"
+		message "<light red>/targetInfo <light green>(<r>TI<light green>)<r> : <light gray>Lists variables of the target zombie."
+		message "<light red>/blockInfo <light green>(<r>BI<light green>)<r><r> : <light gray>Show info about a block."
+		message "<light red>/spawn<r> : <light gray>Teleport any player to spawn."
+		message "<light red>/fly<r> : <light gray>Enable flight for yourself."
+		message "<light red>/unfly<r> : <light gray>Disable flight for yourself."
+		message "<light red>/HealthPotion<r> : <light gray>Give a health potion to yourself."
+		message "<light red>/seeSpawns<r> : <light gray>See where the fixed zombies will spawn."
 		
-		if {feu.permission.%name of player%} is "feu.mod":
+		if {feu.permission.%uuid of player%} is "feu.mod":
 			stop
 			
 		#Tech commands
-		message "<light red>/spawnNPC <r>: <yellow>spawn a NPC (villager)"
-		message "<light red>/setFixedZombieSpawn <light green>(<r>SFZS<light green>)<r> : <yellow>sets a new spawn point for zombies to spawn"
-		message "<light red>/removeFixedSpawn <light green>(<r>RFS<light green>)<r> : <yellow>remove the fixed zombie spawn at the player's location "
-		message "<light red>/setCheckpoint <light green>(<r>SCP<light green>)<r> : <yellow>sets a checkpoint used in quests"
-		message "<light red>/delCheckpoint <light green>(<r>DCP<light green>)<r> : <yellow>Removes the checkpoint at player's location"
-		message "<light red>/setLocation <r>: <yellow>Sets a location (can be used for teleportation) with the format ""{feu.arg-1.arg-2}"""
-		message "<light red>/saveItem <name of saved item> <r>: <yellow>saves items OR block with specials tags on them (like enchantment and a name)"
-		
-		if {feu.permission.%name of player%} is "feu.tech":
+		message "<light red>/distance <r>: <light gray>Shows you the distance to your target block"
+		message "<light red>/get <r>: <light gray>Gives you your current target block, and shows ID and DATA"
+		message "<light red>/copyPaste <r>: <light gray>Gives you a copy to your current tool"
+		message "<light red>/gms <r>: <light gray>Set your gamemode to survival"
+		message "<light red>/gma <r>: <light gray>Set your gamemode to adventure"
+		message "<light red>/gmc <r>: <light gray>Set your gamemode to creative"
+		message "<light red>/crop <r>: <light gray>Make an circle around you to crops, if the block below is soil"
+		message "<light red>/grass <r>: <light gray>Make an circle around you to grass"
+		message "<light red>/soil <r>: <light gray>Make an circle around you to soil"
+		message "<light red>/setFixedZombieSpawn <light green>(<r>SFZS<light green>)<r> : <light gray>Sets a new spawn point for zombies to spawn"
+		message "<light red>/removeFixedSpawn <light green>(<r>RFS<light green>)<r> : <light gray>Remove the fixed zombie spawn at the player's location "
+		message "<light red>/setMetadata <light green>(<r>SMD<light green>)<r> : <light gray>Sets a metadata used in quests"
+		message "<light red>/delMetadata <light green>(<r>DMD<light green>)<r> : <light gray>Removes the metadata at player's location"
+		message "<light red>/setLocation <r>: <light gray>Sets a location (can be used for teleportation) with the format ""{feu.arg-1.arg-2}"""
+		message "<light red>/delLocation <r>: <light gray>Deletes a location set by /setLocation"
+		message "<light red>/saveItem <name of saved item> <r>: <light gray>Saves items OR block with specials tags on them (like enchantment and a name)"
+		message "<light red>/deleteItem <name of saved item> <r>: <light gray>delete items OR block that are saved with command /saveitem)"
+		message "<light red>/changeZombie<r>: <light gray>Change variables on zombies. Tip: you have to stand on the block to change it."
+		message "<light red>/setBossSpawn<r>: <light gray>Set a spawn point for a boss (currently only Lazarus)."
+		if {feu.permission.%uuid of player%} is "feu.tech":
 			stop
 			
 		#admin commands
-		message "<light red>/permission <r>: <yellow>sets the permission of a player"
-		message "<light red>/fixAllZombieSpawns <r>: <yellow>makes all the fixed spawn points enable spawning"
-		
-		if {feu.permission.%name of player%} is "feu.admin":
+		message "<light red>/resetPlayer <r>: <light gray>Reset a player because of hacking or if it requested."
+		message "<light red>/sword <r>: <light gray>Gives you a Feudalism sword."
+		message "<light red>/loop <r>: <light gray>Loops a command every second."
+		message "<light red>/speed <r>: <light gray>Change your flying speed."
+		message "<light red>/permission <r>: <light gray>Sets the permission of a player."
+		message "<light red>/fullyClear <light green>(<r>fc<light green>)<r> : <light gray>Removes everything from the player."
+		message "<light red>/op <r>: <light gray>Op your self."
+		message "<light red>/spawnNPC <r>: <light gray>Spawn a NPC (villager) TO REMOVE: 1)Look at npc 2) do command /npc sel 3) do /npc rem"
+		if {feu.permission.%uuid of player%} is "feu.admin":
 			stop
 		
 		#OP commands
-		message "<light red>/setMainSpawn <r>: <yellow>set the main spawn of feudalism"
-		message "<light red>/addXP <r>: <yellow>adds xp to a player"
-		
-		if "%name of player%" is "<none>":
+		message "<light red>/setLevel <r>: <light gray>Set a player's level, max 150. DO NOT MISUSE THIS"
+		message "<light red>/setMainSpawn <r>: <light gray>Set the main spawn of feudalism"
+		message "<light red>/addXP <r>: <light gray>Adds xp to a player"
+		if "%uuid of player%" is "<none>":
 			#Console commands
-			message "<light red>/setup <r>: <yellow>reset a player"
-			#message "<light red>/resetPlayer <r>: Doesn't work yet"
-			message "<light red>/removeAllFixedSpawns <r>: <yellow>remove every singe one of the fixed spawn points for zombies"
-			message "<light red>/delAllMetadata <r>: <yellow>remove all checkpoints used by quests"
-			message "<light red>/quest <r>: <yellow>set the progress of quests for a player"
+			message "<yellow>------<gold>[&aConsole Commands<gold>]<yellow>------"
+			message "<light red>/setup <r>: <light gray>Resets a player"
+			message "<light red>/removeAllFixedSpawns <r>: <light gray>Remove every singe one of the fixed spawn points for zombies"
+			message "<light red>/delAllMetadata <r>: <light gray>Remove all Metadata used by quests"
+			message "<light red>/quest <r>: <light gray>Set the progress of quests for a player"
 
+command /credits:
+	aliases: /credit
+	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.player", "feu.mod", "feu.tech", "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+		message "<yellow>------<gold>[<green>Feudalism Credits<gold>]<yellow>------"
+		if {feu.version} contains "STABLE":
+			message "{@prefix} Version: <green>%{feu.version}%"
+		else if {feu.version} contains "DEVELOP":
+			message "{@prefix} Version: <yellow>%{feu.version}%"
+		else if {feu.version} contains "UNCERTAIN":
+			message "{@prefix} Version: <red>%{feu.version}%"
+		else:
+			message "{feu.version} does not contain any of the normal build indicators." to console
+			message "{@prefix} Version: <light gray>%{feu.version}%"
+		message "{@prefix} Idea & creator: <light green>kh498"
+		message "{@prefix} Builders: <light green>kh498, HkisteH, Maxi698"
+		message "{@prefix} Coders: <light green>kh498"
+		message "{@prefix} Quest makers: <light green>kh498"
+		message "{@prefix} Admins: <light red>None"
+		message "{@prefix} Mods: <light red>None"
+		message "{@prefix} Testers: <light green>HkisteH, kh498, Leern5"
+		message "{@prefix} Donators: <light red>None"
+			
 command /saveItem <text>:
-	usage: /saveItem <(random text)|name>
+	usage: /saveItem <(random text)|name|help>
 	executable by: player
 	trigger:
-		if player is holding air:
-			message "{@err} You need to hold something!"
-			stop
-		if {feu.permission.%name of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%name of player%} doesn't exist:
-			message "{@err} Permission error!"
-			set {feu.permission.%name of player%} to "feu.player"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
+		if player is holding air:
+			message "{@err} You need to hold something!"
 			stop
 		if arg-1 is "name":
 			if {feu.items.%name of tool%} exists:
 				message "{@warn} This tool already exits, but is now overwritten by your new tool. If this was a mistake you have received the old item."
 				give {feu.items.%name of tool%} to player
-			add name of tool to {feu.AllItems::*}
+			else:
+				add name of tool to {feu.AllItems::*}
 			set {feu.items.%name of tool%} to player's tool
-			message "{@prefix} To receive this item from skript use: <light green>{feu.items.%name of tool%}"	
+			message "{@prefix} To receive this item from skript use: &a{feu.items.%name of tool%}"
 		else:
 			if {feu.items.%arg-1%} exists:
 				message "{@warn} This tool already exits, but is now overwritten by your new tool. If this was a mistake you have received the old item."
 				give {feu.items.%arg-1%} to player
 			add arg-1 to {feu.AllItems::*}
 			set {feu.items.%arg-1%} to player's tool
-			message "{@prefix} To receive this item from skript use: <light green>{feu.items.%arg-1%}"		
-
-command /setLocation <text> <text>:
-	usage: /setLocation <text 1> <text 2>
+			message "{@prefix} To receive this item from skript use: &a{feu.items.%arg-1%}"
+			
+command /deleteItem <text>:
+	usage: /delItem <(random text)|name|help>
+	aliases: delitem
 	executable by: player
 	trigger:
-		if {feu.permission.%name of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%name of player%} doesn't exist:
-			message "{@err} Permission error!"
-			set {feu.permission.%name of player%} to "feu.player"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-		if {feu.%arg-1%.%arg-2%} exists:
-			message "{@warn} The name of this location is set to somewhere else! But it's set to here now."
-		set {feu.%arg-1%.%arg-2%} to player's location
-		message "{@prefix} Done!"
-		
-command /printExperiencePoints <text>:
-	aliases: pxp
-	usage: /pxp <true|false>
-	trigger:
-		if "%arg-1%" is "true":
-			set {feu.printXP.%name of player%} to true
-			message "{@prefix} You will now see how much xp you gain."
-		else if "%arg-1%" is "false":
-			set {feu.printXP.%name of player%} to false
-			message "{@prefix} You will now <bold>not <r>see how much xp you gain."
+			
+		if player is holding air:
+			message "{@err} You need to hold something!"
+			stop
+		if arg-1 is "name":
+			if {feu.items.%name of tool%} exists:
+				delete {feu.items.%name of tool%}
+				remove name of tool from {feu.AllItems::*}
 		else:
-			message "usage: /pxp <true|false>"
+			if {feu.items.%arg-1%} exists:
+				delete {feu.items.%arg-1%}
+				remove arg-1 from {feu.AllItems::*}
+		message "{@prefix} Tool deleted"
+
+			
+command /setLocation <text> <text> <text>:
+	usage: /setLocation <quest | other> <text 1> <text 2>
+	aliases: setloc
+	executable by: player
+	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
 			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
+		if arg-1 is "quest":
+			if {feu.quest.%arg-2%.%arg-3%} exists:
+				message "{@warn} The name of this location is set to somewhere else! But it have been overwritten."
+			set {feu.quest.%arg-2%.%arg-3%} to player's location
+			message "{@prefix} Location saved as <yellow>{feu.quest.%arg-2%.%arg-3%}"
+		else if arg-1 is "other":
+			set {feu.%arg-2%.%arg-3%} to player's location
+			message "{@prefix} Location saved as <yellow>{feu.%arg-2%.%arg-3%}"
+		else:
+			message "/setLocation <quest | other> <text 1> <text 2>"
+			
+command /delLocation <text> <text> <text>:
+	usage: /delLocation <quest | other> <text 1> <text 2>
+	aliases: removeLocation, deleteLocation, remLocation, delloc, remloc
+	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
+		if arg-1 is "quest":
+			if {feu.quest.%arg-2%.%arg-3%} exists:
+				delete {feu.quest.%arg-2%.%arg-3%}
+				message "{@prefix} location called <yellow>{feu.quest.%arg-2%.%arg-3%} <r>is now deleted."
+			else:
+				message "{@err} No location called <yellow>{feu.quest.%arg-2%.%arg-3%}"
+		else if arg-1 is "other":
+			if {feu.%arg-2%.%arg-3%} exists:
+				delete {feu.%arg-2%.%arg-3%}
+				message "{@prefix} location called <yellow>{feu.%arg-2%.%arg-3%} <r>is now deleted."
+			else:
+				message "{@err} No location called <yellow>{feu.%arg-2%.%arg-3%}"
+		else:
+			message "/delLocation <quest | other> <text 1> <text 2>"
+			
+command /HealthPotion <integer>:
+	aliases: hp
+	usage: HP <1,2 or 3>
+	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
+		if arg-1 is less than 1:
+			message "Correct usage: HP <1,2 or 3>"
+			stop
+		else if arg-1 is greater than 3:
+			message "Correct usage: HP <1,2 or 3>"
+			stop
+		else:
+			if arg-1 is 1:
+				set {_converted number} to "I"
+			else if arg-1 is 2:
+				set {_converted number} to "II"
+			else:
+				set {_converted number} to "III"
+			give player a potion of health named "Instant Health %{_converted number}%"
 			
 command /setMainSpawn:
 	executable by: players
-	permission: op
 	trigger:
-		set {feu.mainSpawn} to the player's location
-		message "{@prefix} The main spawn point is now at your location."
-		{@debug} is true:
-			message "{@debugPrefix} Your location: %player's location%"
-		
-command /killall:
-	trigger:
-		if "%name of player%" is "<none>":
-			set {_console} to true
-		if {_console} is true:
-			message "" to player
-		else if {feu.permission.%name of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%name of player%} doesn't exist:
-			message "{@err} Permission error!"
-			set {feu.permission.%name of player%} to "feu.player"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-			
+		
+		set {feu.mainSpawn} to the player's location
+		message "{@prefix} The main spawn point is now at your location."
+		{@debug}:
+			message "{@debugPrefix} Your location: %player's location%"
+		
+command /killall [<boolean=false>]:
+	usage: /killall [<silent d=false>]
+	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
 		clear {_kills}
 		loop all entities in world "Feudalism_4":
 			loop-entity is not a player
@@ -151,32 +305,65 @@ command /killall:
 			add 1 to {_kills}
 		wait 5 tick
 		clear {_nr}
-		loop {feu.fixedspawnID} times:
-			add 1 to {_nr}
-			set {feu.fixedspawn.isSpawned.%{_nr}%} to false
+		loop size of {feu.fixedspawn::*} times:
+			if {feu.fixedspawn::%loop-number%} is not "Deleted", "false" or "<none>":
+				#add 1 to {_nr}
+				set {feu.fixedspawn.isSpawned.%loop-number%} to false
+				
+		set {_spawn boss} to {feu.boss.Lazarus.isSpawned}
+		execute console command "spawnboss lazarus true true" #make lazarus spawn again
+		if {_spawn boss} is true:
+			execute console command "spawnboss lazarus" #then spawn him if he was spawned
 			
-		if {_kills} doesn't exist:
+		if {_kills} does not exist:
 			set {_kills} to "none"
-		message "<yellow>Killed <light red>%{_kills}% <yellow>mobs!"
-
-command /spawnNPC <text> <text>:
-	usage: /spawnNPC <name> <villager profession>
+		if arg-1 is false:
+			message "<yellow>Killed <light red>%{_kills}% <yellow>mobs!"
+	
+command /seeSpawns <boolean> [<player=%player%>] [<boolean=false>]:
+	usage: /seeSpawns <boolean> [<player d=yourself>]
+	aliases: sp
 	trigger:
-		if "%name of player%" is "<none>":
-			set {_console} to true
-		if {_console} is true:
-			message "{@err} Console cannot use this command!" to console
-			stop
-		else if {feu.permission.%name of player%} isn't "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%name of player%} doesn't exist:
-			message "{@err} Permission error!"
-			set {feu.permission.%name of player%} to "feu.player"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 			
-		if arg-2 isn't "priest", "blacksmith", "librarian", "butcher" or "farmer":
-			message "{@err} Unknown profession" to player
+		set {feu.seeSpawnBlocks.%uuid of arg-2%} to arg-1
+		if arg-1 is true:
+			message "{@warn} Blocks will be reverted once you either relog or update the block (eg. click on it)" to arg-2
+		if arg-1 is true:
+			loop {feu.fixedspawn::*}:
+				make arg-2 see block below loop-value as iron block
+			make arg-2 see block below {feu.boss.Lazarus.spawnLoc} as gold block
+		else:
+			loop {feu.fixedspawn::*}:
+				make arg-2 see block below loop-value as block below loop-value
+			make arg-2 see block below {feu.boss.Lazarus.spawnLoc} as block below {feu.boss.Lazarus.spawnLoc}
+		
+		if arg-3 is false:
+			message "{@warn} The spawn points will only change block in your current view range!" to arg-2
+		
+command /spawnNPC <text> <text>:
+	usage: /spawnNPC <name> <villager profession>
+	executable by: player
+	trigger:
+		#TODO: make tech use this command too
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
+		if arg-2 is not "priest", "blacksmith", "librarian", "butcher" or "farmer":
+			#message "{@err} Unknown profession"
 			message "{@prefix} Valid professions: priest, blacksmith, librarian, butcher or farmer"
 			stop
 			
@@ -189,78 +376,201 @@ command /spawnNPC <text> <text>:
 		execute player command "npc gravity"
 		
 command /permission <text="help"> [<player=%player%>]:
+	aliases: perm
 	usage: /permission <rank/help> [<player>]
 	trigger:
-		if "%name of player%" is "<none>":
-			set {_console} to true
-		if {_console} is true:
-			message "" to player
-		else if {feu.permission.%name of player%} isn't "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
+			#message "{@prefix} You have the permission ""<gold>%{feu.permission.%uuid of arg-2%}%<r>"""
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%name of player%} doesn't exist:
-			message "{@err} Permission error!"
-			set {feu.permission.%name of player%} to "feu.player"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-		if arg-1 is "player":
-			set {feu.permission.%arg-2%} to "feu.player"
-		else if arg-1 is "moderator" or "mod":
-			set {feu.permission.%arg-2%} to "feu.mod"
 			
-		else if arg-1 is "technician" or "tech":
-			set {feu.permission.%arg-2%} to "feu.tech"
-			
-		else if arg-1 is "administrator" or "admin":
-			set {feu.permission.%arg-2%} to "feu.admin"
-			
-		else if arg-1 is "operator" or "op":
-			if {feu.permission.%name of player%} is "feu.admin":
-				message "{@err} You set someones permission to higher than your own!"
+		if "%arg-1%" is not "help":
+			if arg-2 does not exist:
+				message "{@err} You have to specify a player"
 				stop
-			set {feu.permission.%arg-2%} to "op"
-
-		else if arg-1 is "help":
+		else:
 			message "<yellow>------<gold>[&aFeudalism Permissions<gold>]<yellow>------"
-			message ""
-			message "<gold>Usage: /permission <<light red>rank/help<gold>> [<<light red>player<gold>>]"
+			message "<gold>Correct usage: /permission <<light red>rank/help<gold>> [<<light red>player<gold>>]"
 			message ""
 			message "<light red>Usable ranks: <yellow>Player, moderator (mod), technician (tech), administrator (admin) or operator (op)"
 			message "<light red>Player: <yellow>You have to choose an online player for this to work."
 			message "<light red>Help: <yellow>Displays this help screen."
 			stop
+			
+		if "%uuid of arg-2%" is "%uuid of executor%":
+			if "%uuid of player%" is not "<none>":
+				message "{@err} You can not change your own permission"
+				stop
+		if arg-1 is "player":
+			set {feu.permission.%uuid of arg-2%} to "feu.player"
+		else if arg-1 is "moderator" or "mod":
+			set {feu.permission.%uuid of arg-2%} to "feu.mod"
+			
+		else if arg-1 is "technician" or "tech":
+			set {feu.permission.%uuid of arg-2%} to "feu.tech"
+			
+		else if arg-1 is "administrator" or "admin":
+			set {feu.permission.%uuid of arg-2%} to "feu.admin"
+			
+		else if arg-1 is "operator" or "op":
+			if executor is not CONSOLE:
+				if {feu.permission.%uuid of player%} is "feu.admin":
+					message "{@err} You can not set someone's permission to higher than your own!"
+					stop
+				set {feu.permission.%uuid of arg-2%} to "feu.op"
+			else:
+				set {feu.permission.%uuid of arg-2%} to "feu.op"
+				
 		else:
 			message "{@err} Unknown rank ""%arg-1%"""
 			message "<light red>Usable ranks: <yellow>Player, moderator (mod), technician (tech), administrator (admin) or operator (op)"
 			stop
-		message "{@prefix} %arg-2% now have permission %{feu.permission.%arg-2%}%"
-#events
+		message "{@prefix} The permission of %arg-2% is now ""<gold>%{feu.permission.%uuid of arg-2%}%<r>"""
+		message "{@prefix} You now have permission ""<gold>%{feu.permission.%uuid of arg-2%}%<r>""" to arg-2
 		
+command /ZombieSpawn <boolean>:
+	usage: /ZombieSpawn <boolean d=true>
+	executable by: console
+	trigger:
+		set {feu.doZombiesSpawn} to arg-1
+		message "Zombie spawn set to: %arg-1%"
+		
+command /loot.basic:
+	#description: Set red riding hood items
+	executable by: console
+	trigger:
+		set {feu.loot.basic::1} to a wood sword named "<yellow>Basic Wildwood Sword" with no nbt with lore "Damage: 1"
+		set {feu.loot.basic::2} to a wood sword named "<yellow>Basic Wildwood Sword" with no nbt with lore "Damage: 1"
+		set {feu.loot.basic::3} to a wood sword named "<yellow>Basic Wildwood Sword" with no nbt with lore "Damage: 1"
+		set {feu.loot.basic::4} to a wood sword named "<yellow>Basic Wildwood Sword" with no nbt with lore "Damage: 1"
+		set {feu.loot.basic::5} to a wood sword named "<light green>Uncommon Wildwood Sword" with no nbt with lore "Damage: 1.5"
+		set {feu.loot.basic::6} to a wood sword named "<light green>Uncommon Wildwood Sword" with no nbt with lore "Damage: 1.5"
+		set {feu.loot.basic::8} to a wood sword named "<light green>Uncommon Wildwood Sword" with no nbt with lore "Damage: 1.5"
+		set {feu.loot.basic::7} to a wood sword named "<light green>Uncommon Wildwood Sword" with no nbt with lore "Damage: 1.5"
+		set {feu.loot.basic::9} to a wood sword named "<light blue>Rare Wildwood Sword" with no nbt with lore "Damage: 2.5"
+		set {feu.loot.basic::10} to a wood sword named "<light blue>Rare Wildwood Sword" with no nbt with lore "Damage: 2.5"
+		set {feu.loot.basic::11} to air
+		set {feu.loot.basic::12} to air
+		set {feu.loot.basic::13} to air
+		set {feu.loot.basic::14} to air
+		set {feu.loot.basic::15} to air
+		set {feu.loot.basic::16} to air
+		set {feu.loot.basic::17} to leather boots
+		set {feu.loot.basic::18} to chain helmet
+		set {feu.loot.basic::19} to leather chestplate
+		set {feu.loot.basic::20} to chain leggings
+		#message "%{feu.loot.basic::*}% are in Grandma's Basket"
+#events
+
+on world load:
+	if the world is not "Feudalism_4":
+		message "{@err} You have the wrong name of the world! Use ""Feudalism_4""" to console
+	else if {@debug}:
+		message "{@debugPrefix} Loading the right world" to console
+		
+on skript load:
+	#Three states:
+		#STABLE : A stable build recommended used. (verify: Check every single command, and everything below)
+		#DEVELOP : Finished with a feature, but needs debugging before it can be considered a STABLE build. (verify: Check that quests work and you can kill zombies properly)
+		#UNCERTAIN : Quick upload after finishing a session. Do not use builds which is in this state. Can be multiple UNCERTAIN builds in one day. (verify: Nothing)
+	set {feu.version} to "Build 19 - STABLE"
+	ban "<none>" due to "can not have a player with that name, change it to play here" #<none> is the console, too bad for the one who has that name :P
+	set {feu.permission.<none>} to "feu.op" #makes the console use all commands
+	if {feu.mainSpawn} does not exist:
+		#teleport
+		message "{@warn} The required variable<gold> {feu.mainSpawn}<r> does not exist and will be set to the worlds spawn" to console
+		set {feu.mainSpawn} to spawn location of "Feudalism_4"
+		
+	#Enemies
+	set {feu.doZombiesSpawn} to true
+		
+	#General
+	execute console command "loot.basic"
+	
+	#Starter quest:
+	if {feu.quest.starter.house1} does not exist:
+		#teleport
+		message "{@err2} The required variable <gold>{feu.quest.starter.house1} <r>does not exist." to console
+		
+	if {feu.quest.starter.leaveCastle} does not exist:
+		#teleport
+		message "{@err2} The required variable <gold>{feu.quest.starter.leaveCastle} <r>does not exist." to console
+		
+	#Crazy House
+		
+	if {feu.quest.Crazy_house.house1} does not exist:
+		#teleport
+		message "{@err2} The required variable <gold>{feu.quest.Crazy_house.house1} <r>does not exist." to console
+		
+	if {feu.quest.Crazy_house.roomExit2} does not exist:
+		#teleport
+		message "{@err2} The required variable <gold>{feu.quest.Crazy_house.roomExit2} <r>does not exist." to console
+		
+	if {feu.quest.Crazy_house.roomExit1} does not exist:
+		#teleport
+		message "{@err2} The required variable <gold>{feu.quest.Crazy_house.roomExit1} <r>does not exist." to console
+		
+	if {feu.quest.Crazy_house.boss1} does not exist:
+		#teleport
+		message "{@err2} The required variable <gold>{feu.quest.Crazy_house.boss1} <r>does not exist." to console
+		
+	if {feu.quest.Crazy_house.innerRoom} does not exist:
+		#teleport
+		message "{@err2} The required variable <gold>{feu.quest.Crazy_house.innerRoom} <r>does not exist." to console
+		
+	if {feu.quest.Crazy_house.outDoors} does not exist:
+		#teleport
+		message "{@err2} The required variable <gold>{feu.quest.Crazy_house.outDoors} <r>does not exist." to console
+		
+	if {feu.quest.Crazy_house.bossExit1} does not exist:
+		#teleport
+		message "{@err2} The required variable <gold>{feu.quest.Crazy_house.bossExit1} <r>does not exist." to console
+	if {feu.quest.Crazy_house.loot} does not exist:
+		#teleport
+		message "{@err2} The required variable <gold>{feu.quest.Crazy_house.loot} <r>does not exist." to console
+		
+	if {feu.boss.Lazarus.spawnLoc} does not exist:
+		#Bossspawn
+		message "{@err2} The boss <gold>Lazarus will not spawn! use command ""/setbossspawn lazarus"" where he should spawn." to console
+		
+	#unnamed quest:
+	if {feu.quest.alphaMap.Wall} does not exist:
+		message "{@err2} The required variable <gold>{feu.quest.alphaMap.Wall} <r>does not exist." to console
+	
+	execute console command "gamerule keepInventory true"
+	execute console command "metadata"
+	wait 20 tick
+	execute console command "killall true"
+	
 on rightclick on andesite:
-	if {feu.secret.%location of block%.%name of player%} is false:
+	if {feu.secret.%location of block%.%uuid of player%} is false:
 		message "{@prefix} You have already discovered this secret!"
 		stop
 	else:
-		set {feu.secret.%location of block%.%name of player%} to false
+		set {feu.secret.%location of block%.%uuid of player%} to false
 		message "{@prefix} You just found a secret!"
 		set {_ran} to a random integer between 0.9 and 10.1
-		
-		if {_ran} is 1:			
-			message "{@prefix} %{_5precent}% XP!"
-			set {_5precent} to ({feu.currXP.%name of player%}/{feu.maxXP.%name of player%})*5
-			execute console command "addxp %{_5precent}% %player% false"
+		set {_5 percent} to ({feu.currXP.%uuid of player%}/{feu.maxXP.%uuid of player%})*5
+		if {_ran} is 1:
+			message "{@prefix} %{_5 percent}% XP!"
+			execute console command "addxp %{_5 percent}% %player% false"
 		else if {_ran} is 2:
-			set {_5precent} to ({feu.currXP.%name of player%}/{feu.maxXP.%name of player%})*5
-			set {_5precent} to {_5precent}*2 #ups it to 10%
-			message "{@prefix} %{_5precent}% XP!" 		
-			execute console command "addxp %{_5precent}% %player% false"
+			set {_5precent} to {_5 percent}*2 #ups it to 10%
+			message "{@prefix} %{_5 percent}% XP!" 		
+			execute console command "addxp %{_5 percent}% %player% false"
 		else if {_ran} is 3:
-			message "{@prefix} Sadly it's already looted!"
+			message "{@prefix} Sadly it is already looted."
 		else if {_ran} is 4:
-			message "{@prefix} But you can't find anything!"
+			message "{@prefix} But you can not find anything."
 		else if {_ran} is 5:
-			message "{@prefix} it's all a hoax, nothing here!"
+			message "{@prefix} it is all a hoax, nothing here!"
 		else if {_ran} is 6:
-			message "{@prefix} A poem!"
+			message "{@prefix} A poem:"
 			wait 20 tick
 			message "<green>Old pond..."
 			wait 60 tick
@@ -268,15 +578,21 @@ on rightclick on andesite:
 			wait 40 tick
 			message "<light blue>water's sound"
 		else if {_ran} is 7:
-			message "{@prefix} an iron sword!"
-			give player {feu.items.lucky_sword}		
+			message "{@prefix} an imaginary sword!"
+			#give player a 	
 		else if {_ran} is 8:
-			message "{@prefix} some text!"
+			message "{@prefix} An internet cookie ^^"
+			give player a cookie named "Internet"
 		else if {_ran} is 9:
 			message "{@prefix} <light red>A ZOMBIE!"
-			run player command "/scz %{feu.level.%name of player%}% %name of player%'s_Zombie_Buddy leather stone" as op
+			run player command "/scz %{feu.level.%uuid of player%}% %name of player%'s_Zombie_Buddy leather stone" as op
 		else if {_ran} is 10:
 			message "{@prefix} A hug!"
 		else:
-			message "{@prefix} <light red> An ERROR ^^. Oh and and 10 xp"
-			execute console command "addxp 10 %player%"
+			message "{@prefix} <light red> An ERROR :S"
+			message "{@err} %uuid of player% found a bug with the andersite! Please report this."
+			
+command /showPerm [<player=%player%>]:
+	trigger:
+		#Hidden command
+		message "%arg-1% has the permission %{feu.permission.%uuid of arg-1%}%"

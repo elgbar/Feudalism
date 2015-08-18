@@ -1,13 +1,9 @@
 Bugs:
++XP orbs at location on long loop, low priority
 
-+Zombies spawn with half health, or the standard 20 (quite common)
-+After levelling up the XP bar is full (cannot reproduce)
-+zombies falling trough floor (minecraft bug?)
-+No alias for the PXP command (fixed)
-+Double zombie spawn (walking away, then coming back)
-+Zombies randomly looses interest for you during a battle
-+Re-spawning at the wrong location (second quest)
-+Death can trigger a warning about unexpecting shifting of level
++After levelling up the XP bar is full (can not reproduce) 
++zombies falling trough floor (minecraft bug?) (less frequent as of 19.05.15) (never happened again since)
++Helmets might despawn on zombies (mc feature)
 
 suggestions:
 
@@ -17,8 +13,27 @@ suggestions:
 
 Missing features:
 
-+No regeneration what-so-ever
-++Regeneration once per minute?
-++Full heath at certain places (with delay)?
++potion related:
+++Full heath at certain places (with less delay)?
 ++Buying potions
 +No penalty for dying
+
+Fixed: 
+
++Zombies fly way too far if you spam hit them
++Zombie spawn without ID and Level
+++Cases:
+++A zombie spawned with none level and ID, the max health was 37.5 and it is spawning health was 16 (picture taken 2015-06-16_00.42.46.png) 
+
++Zombie spawn with wrong armour
+++Cases:
++++full gold (with some enchantment) on a lvl 2 air air zombie (as of 11.05.15 ID 18)
++++Full Leather (with some enchantment) on a lvl 2 air air zombie (as of 19.05.15 ID 19)
++No regeneration what-so-ever (added potions, and slow regeneration)
++After removing a fixed spawn it  when using the "/seespawns true" will still show upcommand (fixed)
++No alias for the PXP command (fixed)
++Double zombie spawn (walking away, then coming back) (fixed)
++Zombies randomly looses interest for you during a battle (functioning as normal)
++Zombies spawn with a random number of max health. appears to be random.
++Re-spawning at the wrong location (second quest) (fixed)
++Death can trigger a warning about unexpecting shifting of level (fixed)

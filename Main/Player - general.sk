@@ -4,66 +4,77 @@ options:
 	prefix: <gold>[&aFeudalism<gold>]<r>
 	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
 	
-	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
-	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
+	warn: <gold>[<yellow>WARNING<gold>]:<r>
+	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
+	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
 	
 #Commands
-command /resetPlayer <text="help"> [<text="help">]:
-	executable by: console
+command /resetPlayer <offline player> [<text="help">]:
 	usage: /resetPlayer <player> [<hacker|reboot|requested>]
 	trigger:
-		if "%name of player%" is "<none>":
-			set {_console} to true
-		if {_console} is true:
-			message "" to player
-		else if {feu.permission.%name of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%name of player%} doesn't exist:
-			message "{@err} Permission error!"
-			set {feu.permission.%name of player%} to "feu.player"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission."
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 			
 		if arg-2 or arg-1 is "help":
-			message "usage: /resetPlayer <player> [<hacker|reset|requested>]"
+			message "Correct usage: /resetPlayer <player> [<hacker|reset|requested>]"
 			stop
-		else if arg-2 is "hacker" or "hack" or "h":
-			message "<light red>You have been reset because of <red>hacking<light red>!" #to arg-1
-			message "<light red>If you think this is a mistake apply for a pardon here:<gold> ""need-link.now""" #to arg-1
-		else if arg-2 or arg-1 is "reset":
-			#player's name is "kh498"
-			broadcast "{@prefix} Every player will be reset, we are sorry for the inconvenience"
-			delete {allplayers::*}
+		else if arg-2 is "hacker" or "h":
+			log "%arg-1% is reset because of hacking. Executor: %executor%" to "reset.log"
+			if arg-1 is online:
+				message "{@prefix} <light red>You will be reset because of <red>hacking<light red>!" to arg-1
+				message "{@prefix} <light red>If you think this is a mistake apply for a pardon here:<gold> ""need-link.now""" to arg-1
+				message "{@prefix} <light red>Because of this you will be kicked in 30 seconds." to arg-1
+				add arg-1 to {feu.resetPlayer::*}
+				wait 30 seconds
+				kick arg-1 because of "<red>Kicked and reset because of hacking."
+				stop
+		else if arg-2 or arg-1 is "reboot":
+			if executor is console:
+				broadcast "{@prefix} Every player will be reset, we are sorry for the inconvenience."
+				wait 10 seconds
+				kick all players because of "{@prefix} Every player will be reset, we are sorry for the inconvenience."
+				#loop {feu.allplayers::*}:
+				#	add loop-player to {feu.resetPlayer::*}
+			else:
+				message "{@err} You cannot reset the server via a player, use the console!"
+			stop
 		else if arg-2 is "request" or "requested" or "r":
-			message "Your application for reset has been approved! Please relog for the changes to take effect."# to arg-1
+			log "%arg-1% is reset because (s)he requested it. Executor: %executor%" to "reset.log"
+			if arg-1 is online:
+				message "{@prefix} Your application for reset has been approved! Please relog for the changes to take effect." to arg-1
 		else:
-			message "wrong arguments!"
+			message "{@err} Wrong arguments!"
 			execute player command "resetPlayer"
 			stop
-		add arg-1 to {resetPlayer::*}
-				
+			
+		add arg-1 to {feu.resetPlayer::*}
+		
 command /fullyClear <player> [<text>]:
 	usage: /fc player 
 	aliases: fc
 	trigger:
-		if "%name of player%" is "<none>":
-			set {_console} to true
-		if {_console} is true:
-			message "" to player
-		else if {feu.permission.%name of player%} isn't "feu.mod", "feu.tech", "feu.admin" or "op":
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
-		else if {feu.permission.%name of player%} doesn't exist:
-			message "{@err} Permission error!"
-			set {feu.permission.%name of player%} to "feu.player"
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
+			
 		execute console command "clear %arg-1%"
 		set the helmet slot of arg-1 to air
 		set the chestplate slot of arg-1 to air
 		set the legs slot of arg-1 to air
 		set the boots slot of arg-1 to air
-		set the maximum health of arg-1 to 10
-		if "%arg-2%" isn't "Silent":
+		set rf maximum health of arg-1 to 20
+		if "%arg-2%" is not "Silent":
 			message "{@prefix} Done!"
 			
 command /setup <player>:
@@ -71,67 +82,95 @@ command /setup <player>:
 	executable by: console
 	trigger:
 		#make sure the arg-1 is really reset
-		{@debug} is false:			
+		{@debug} is false:
 			deop the arg-1 
 		set gamemode of arg-1 to adventure
 		execute console command "fc %arg-1% Silent" #fully clear
-		set the maximum health of the arg-1 to 10
-		heal the arg-1
-		set {feu.permission.%arg-1%} to "feu.player"
-		execute console command "ungod %arg-1%"
+		set {feu.permission.%uuid of arg-1%} to "feu.player"
+		set {feu.godMode.%uuid of arg-1%} to false
 		
 		#Level stuff
-		set {feu.level.%arg-1%} to 1
+		set {feu.level.%uuid of arg-1%} to 1
 		set arg-1's level to 1
 		set level progress of the arg-1 to 0
-		set {feu.maxXP.%arg-1%} to 80
-		set {feu.currXP.%arg-1%} to 0
-		set {feu.XPtoNextLevel.%arg-1%} to {feu.maxXP.%arg-1%}
-		set {feu.printXP.%name of player%} to true
+		set {feu.maxXP.%uuid of arg-1%} to 80
+		set {feu.currXP.%uuid of arg-1%} to 0
+		set {feu.XPtoNextLevel.%uuid of arg-1%} to {feu.maxXP.%uuid of arg-1%}
+		set {feu.printXP.%uuid of arg-1%} to true
+		
+		#Quest
+		execute console command "quest starter %arg-1% true true"
+		execute console command "quest Crazy_house %arg-1% false true"
+		
+		#health
+		set max health of arg-1 to 30
+		set arg-1's scaled health to 3
+		#wait a tick
+		heal the arg-1
 		
 		#Other
-		execute console command "quest starter %arg-1%"
-		execute console command "quest Crazy_house %arg-1% false"
 		teleport arg-1 to {feu.mainSpawn}
+		execute console command "seespawns false %arg-1% true"
 		
 #Events
-	
-on join:
-	if name of player is equal to {resetPlayer::*}:
-		execute console command "setup %name of player%"
-		remove name of player from {resetPlayer::*}
-		Message "{@prefix} You have now been reset!"
-
-	loop {allplayers::*}:
-		if "%{allplayers::%loop-index%}%" is equal to "%name of player%":
-			add 1 to {_players}
+every 30 seconds:
+	loop all players in "Feudalism_4":
+		loop-player is alive
+		health of loop-player is not max health of loop-player
+		add 2.5 to loop-player's health
 			
-	if {_players} is equal to 1:
-		set join message to ""
-		Message "<light green>Welcome back %player%" to player
-		if player has permission "feu.mod.extraInfo":
-			message "<gold>Current version: <red>%{feu.version}%"
-			if player is op:
-				set {_feu.permissionLevel.%name of player%} to "Op"
-			else if player has permission "feu.admin.*":
-				set {_feu.permissionLevel.%name of player%} to "Administrator"
-			else if player has permission "feu.tech.*":
-				set {_feu.permissionLevel.%name of player%} to "technician"
-			else if player has permission "feu.mod.*":
-				set {_feu.permissionLevel.%name of player%} to "Moderator"
-			else:
-				set {_feu.permissionLevel.%name of player%} to "Unknown/not fully of any of the above"
-			message "<gold>Your current permission level: <red>%{_feu.permissionLevel.%name of player%}%"					
-		stop
-		
-	else if {_players} is greater than 1:
-		kick player due to "Multiple entries in list of players - try to log back in again."
-		remove name of player from {allplayers::*}
-		message "{@err} A player has been added multiple times to the allplayers variable!" to console
-	
-	else:
-		set join message to "<magenta>Welcome <b>%player%<r><magenta> to Feudalism!"
-		add "%name of player%" to {allplayers::*}
+on join:
+	loop {feu.resetPlayer::*}:
+		if "%name of player%" is equal to "%{feu.resetPlayer::%loop-index%}%":
+			remove uuid of player from {feu.allplayers::*}
+			set {feu.resetPlayer::%loop-index%} to "%{feu.resetPlayer::%loop-index%}% is reset"
+			message "{@prefix} You have now been reset!"
+			stop loop
+			
+	set {_equal} to false
+	loop {feu.allplayers::*}:
+		if uuid of player is equal to {feu.allplayers::%loop-index%}:
+			set {_equal} to true
+			set join message to ""
+			Message "<light green>Welcome back %player%" to player
+			if {feu.permission.%uuid of player%} is not "feu.player":
+				if {feu.version} contains "STABLE":
+					message "<gold>Current version: <green>%{feu.version}%"
+				else if {feu.version} contains "DEVELOP":
+					message "<gold>Current version: <yellow>%{feu.version}%"
+				else if {feu.version} contains "UNCERTAIN":
+					message "<gold>Current version: <red>%{feu.version}%"
+				else:
+					message "<gold>Current version: <light gray>%{feu.version}%"
+				if {feu.permission.%uuid of player%} is "feu.op":
+					set {_perm} to "feu.op"
+				else if {feu.permission.%uuid of player%} is "feu.admin":
+					set {_perm} to "Administrator"
+				else if {feu.permission.%uuid of player%} is "feu.tech":
+					set {_perm} to "Technician"
+				else if {feu.permission.%uuid of player%} is "feu.mod":
+					set {_perm} to "Moderator"
+				else:
+					set {_perm} to "Unknown"
+					set {feu.permission.%uuid of player%} to "feu.player"
+				message "<gold>Your current permission level: <light green>%{_perm}%"
+			stop loop
+			
+	if {_equal} is true:
+		loop {feu.quest.Crazy_house.bossFighters.logedOff::*}:
+			if uuid of player is equal to {feu.quest.Crazy_house.bossFighters.logedOff::%loop-index%}:
+				#Teleport arg-1 to {feu.quest.Crazy_house.boss1}
+				remove uuid of player from {feu.quest.Crazy_house.bossFighters.logedOff::*}
+				add uuid of player to {feu.quest.Crazy_house.bossFighters::*}
+				message "<light red>Lazarus<r>: You will not escape me by logging off!"
+				execute console command "spawnBoss lazarus"
+				teleport player to {feu.quest.Crazy_house.boss1}
+			stop loop
+			
+	else if {_equal} is false:
+		set join message to "<magenta>Welcome <b>%name of player%<r><magenta> to Feudalism!"
+		add uuid of player to {feu.allplayers::*}
 		execute console command "setup %name of player%"
+		stop 
 		
-	
+	execute console command "setmaxhealth %player%"

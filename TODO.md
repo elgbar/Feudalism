@@ -33,7 +33,7 @@ start adding caves
 
 Gameplay:
 
-Cannot use armour/item higher than your level
+can not use armour/item higher than your level
 
 set enemies location spawn
 

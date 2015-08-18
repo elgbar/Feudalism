@@ -1,0 +1,126 @@
+options:
+	debug: false
+	
+	prefix: <gold>[&aFeudalism<gold>]<r>
+	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
+	
+	warn: <gold>[<yellow>WARNING<gold>]:<r>
+	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
+	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
+	
+	NPC: <green>%entity's name%<r>:<r>
+	You: <light green>%player%<r>:<r>
+	
+#How Quests work:
+#There is a variable named {feu.quest.%uuid of quest%.%How much you have done, eg 1,2,3%.%uuid of player%}
+#where %text% is explanation
+
+#Check where you stand on a quest: {feu.quest.%uuid of quest%.%uuid of player%} 
+#Three stages of quests: "Not started", "In progress" and "Completed"
+#Events
+	
+on any movement:
+	#entity is a player
+	wait 1 tick
+	if block 2 below the player is bedrock:
+		set {_BlockInfo} to metadata value "BlockInfo" of block 2 below player
+		if "%{_BlockInfo}%" is equal to "Starter_house1":
+			execute console command "house1_door %player%"
+			stop
+		else if "%{_BlockInfo}%" is equal to "starter.leaveCastle":
+			execute console command "starter.leaveCastle %player%"
+			stop
+		else if "%{_BlockInfo}%" is equal to "WallAlphaMap":
+			execute console command "WallAlphaMap %player%"
+			stop
+		else if "%{_BlockInfo}%" is equal to "Crazy_house.house1":
+			execute console command "Crazy_house.house1 %player%"
+			stop
+		else if "%{_BlockInfo}%" is equal to "Crazy_house.roomExit1":
+			execute console command "Crazy_house.roomExit1 %player%"
+			stop
+		else if "%{_BlockInfo}%" is equal to "Crazy_house.roomExit2":
+			execute console command "Crazy_house.roomExit2 %player%"
+			stop
+		else if "%{_BlockInfo}%" is equal to "Crazy_house.Boss.Enter1":
+			execute console command "Crazy_house.Boss.Enter1 %player%"
+			stop
+		else if "%{_BlockInfo}%" is equal to "Crazy_house.EnterWrong":
+			execute console command "Crazy_house.EnterWrong %player%"
+			stop
+		else if "%{_BlockInfo}%" is equal to "Crazy_house.Boss.exitInnerRoom":
+			execute console command "Crazy_house.Boss.exitInnerRoom %player%"
+			stop
+			
+on rightclick on button:
+	#cancel events need to be here, therefore this can not be converted to commands
+	set {_BlockInfo} to metadata value "BlockInfo" of clicked block
+	if "%{_BlockInfo}%" is equal to "Starter_house1":
+		cancel event
+		if {feu.quest.starter.3.%uuid of player%} is true:
+			if {feu.quest.zombiesKilled.%uuid of player%} is 0:
+				message "{@You} This must be the house" to player
+			uncancel event
+		else if {feu.quest.starter.%uuid of player%} is "Completed": 
+			message "{@You} I do not want to go inside there again.." to player
+		else if {feu.quest.starter.4.%uuid of player%} is true:
+			message "{@You} Why would I do that? I barley survived!"
+		else:
+			message "{@You} That is a creepy place, I do not want to go in there without a sword!" to player
+			
+	else if "%{_BlockInfo}%" is equal to "Crazy_house.house1":
+		cancel event
+		if {feu.quest.Crazy_house.%uuid of player%} is "In progress":
+			uncancel event
+		else if {feu.quest.Crazy_house.%uuid of player%} is "Completed":
+			uncancel event
+
+on rightclick on chest:
+	cancel event
+	set {_BlockInfo} to metadata value "BlockInfo" of clicked block
+	if "%{_BlockInfo}%" is equal to "starter.chest1":
+		execute console command "starter.chest1 %player%"
+		stop
+	else if "%{_BlockInfo}%" is equal to "Crazy_house.bossLoot":
+		#can not be a command because of "location of block"
+		set {feu.quest.Crazy_house.hasLootedChests.%uuid of player%} to true
+		if {feu.quest.Crazy_house.%location of block%.%uuid of player%} is false:
+			message "{@You} I have already looted this chest."
+			stop
+		else:
+			set {feu.quest.Crazy_house.%location of block%.%uuid of player%} to false
+			execute console command "Crazy_house.bossLoot %player%"
+			stop
+	else if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "feu.op":
+		uncancel event
+		
+on rightclick on entity:
+	entity's name exists
+	cancel event
+	if "%entity's name%" contains "Lord Willson":
+		if {feu.quest.Crazy_house.%uuid of player%} is "Completed":
+			message "<green>Lord Wilson<r>:<r> I do not have any more quests for you. Talk to me again after an update." to player
+			#TODO: Start third quest from here
+		else if {feu.quest.starter.%uuid of player%} is "Completed":
+			if {feu.quest.starter.gotPotions.%uuid of player%} is false:
+				if player can hold 2 potion of health:
+					give 2 potion of health named "Instant Health I" to the player
+					message "<green>Lord Wilson<r>:<r> Here take this." to player
+					message "{@prefix} You received two minor health potions!" to player
+					set {feu.quest.starter.gotPotions.%uuid of player%} to true
+				else:
+					message "<green>Lord Wilson<r>:<r> You can not hold two potions, talk to me again when you can." to player
+				stop
+				
+			execute console command "NPCLordWilson_CrazyHouse %player%"
+		else:
+			execute console command "NPCLordWilson_starter %player%"
+		
+	else if "%entity's name%" contains "Blacksmith":
+		execute console command "NPCBlacksmith_starter %player%"
+		
+	else if "%entity's name%" contains "Wall Guard":
+		execute console command "NPCWallGurad %player%"
+	else if "%entity's name%" contains "House Guard":
+		execute console command "NPCHouseGuard_CrazyHouse %player%"
+		

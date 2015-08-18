@@ -4,133 +4,282 @@ options:
 	prefix: <gold>[&aFeudalism<gold>]<r>
 	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
 	
-	warn: <gold>[&aFeudalism<gold>] <yellow>WARNING:<light red>
-	err: <gold>[&aFeudalism<gold>] <red>ERROR:<light red>
+	warn: <gold>[<yellow>WARNING<gold>]:<r>
+	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
+	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
 	
-	allowedMobs: zombie or villager
-	You: <green>%player%<r>:<r>
+	allowedMobs: zombie, witch or villager
+	non-interactiveMobs: villager #Mobs without ID
+	You: <light green>%player%<r>:<r>
 	
-on skript load:
-	set {feu.version} to "0.1.0 Build 7"
-	set {feu.disable.enemies} to false
-	execute console command "gamerule keepInventory true"
-	execute console command "metadata"
-	wait 20 tick
-	execute console command "killall"
-
-on spawn:	
-	if entity isn't {@allowedMobs}:
+on crop trample:
+	cancel event
+	
+on spawn:
+	if entity is not {@allowedMobs}:
 		cancel event
 		stop
-	if entity is zombie:
-		wait 10 tick
-		set {_ID} to metadata value "ID" of event-entity
-		if "%{_ID}%" is "<none>":
-			delete event-entity
-			{@debug} is true:
-				message "{@debugPrefix} Unknown Zombie spawned, and killed" to console		
-on damage:
-	if damage cause is fall:
-		cancel event 
+	if entity is {@non-interactiveMobs}:
+		wait 1 tick
+		name of entity exists
 		stop
-	wait 2 tick
-	repair the attacker's tool
-	repair attacker's helmet
-	repair attacker's chestplate
-	repair attacker's legs
-	repair attacker's boots
+	wait 5 tick
+	set {_ID} to metadata value "ID" of event-entity
+	if {_ID} does not exist:
+		delete event-entity
+		{@debug}:
+			message "{@debugPrefix} Unknown Zombie spawned, and killed" to console
 	
 On Level Change:
 	wait 20 tick
-	player's level isn't equal to {feu.level.%name of player%}:
-		Message "{@warn} Something went wrong! Your level shifted unexpectedly!"
-		message "{@warn} %name of player%'s level just changed unexpectedly" to console
-		set player's level to {feu.level.%name of player%}				
-				
-on death of player:	
+	player's level is not equal to {feu.level.%uuid of player%}:
+		message "{@warn} Something went wrong! Your level shifted unexpectedly!"
+		message "{@warn} %player%'s level just changed unexpectedly" to console
+		set player's level to {feu.level.%uuid of player%}
+		
+on death of player:
 	set death message to ""
-	set {feu.xpBar.%name of player%} to level progress of the player
-	#if you loose your inventory use the command:
-	#/gamerule keepInventory true
-
+	#wait 1 tick
+	#force the player to respawn #TODO fix this
+	set {feu.xpBar.%uuid of player%} to level progress of the player
+	loop {feu.quest.Crazy_house.bossFighters::*}:
+		if uuid of player is equal to {feu.quest.Crazy_house.bossFighters::*}:
+			remove uuid of player from {feu.quest.Crazy_house.bossFighters::*}
+			#add uuid of player to {feu.quest.Crazy_house.bossFighters.logedOff::*}
+			stop loop
+	if size of {feu.quest.Crazy_house.bossFighters::*} is 0:
+		execute console command "killLazarus"
 on respawn:
 	wait 2 tick
-	set player's level to {feu.level.%name of player%}
-	increase level progress of the player by {feu.xpBar.%name of player%}
-	if {feu.quest.Crazy_house.3.%name of player%} is true:
-		set {_ran1} to a random integer between 0.9 and 2.1
-		if {_ran1} is 1:
-			teleport player to {feu.quest.Crazy_house.roomExit1}
+	set player's level to {feu.level.%uuid of player%}
+	set level progress of the player to {feu.xpBar.%uuid of player%}
+	if {feu.quest.Crazy_house.hasLootedChests.%uuid of player%} is false: 
+		teleport player to {feu.quest.Crazy_house.loot}
+		stop
+	if {feu.quest.Crazy_house.%uuid of player%} is "In progress":
+		if {feu.quest.Crazy_house.2.%uuid of player%} is true:
+			set {_ran1} to a random integer between 0.9 and 2.1
+			set {feu.godMode.%uuid of player%} to true
+			
+			if {_ran1} is 1:
+				teleport player to {feu.quest.Crazy_house.roomExit1}
+			else:
+				teleport player to {feu.quest.Crazy_house.roomExit1}
+			loop entities in radius 2 around player:
+				set {_ID} to metadata value "ID" of loop-entity
+				if {feu.fixedspawn.isSpawned.%{_ID}%} exists:
+					delete loop-entity
+					set {feu.fixedspawn.isSpawned.%{_ID}%} to false
+			set {feu.godMode.%uuid of player%} to false
+		else if {feu.quest.Crazy_house.3.%uuid of player%} is true: 
+			teleport player to {feu.quest.Crazy_house.bossExit1}
+		else if {feu.quest.Crazy_house.4.%uuid of player%} is true: 
+			teleport player to {feu.quest.Crazy_house.bossExit1}
 		else:
-			teleport player to {feu.quest.Crazy_house.stairs1}
-	else if {feu.quest.Crazy_house.4.%name of player%} is true:
-		teleport player to {feu.quest.Crazy_house.roomExit1}
-#Stop if OP	
-on command "/help":
-	player is op:
-		stop
+			message "{@err} An error occured that caused the player %player% not to spawn at a location when doing quest Crazy_house! If you are a developer please look in \plugins\skript\logs\questdump.log to fix this quick!" to console
+			execute console command "/dqv crazy_house %player%"
+	else:
+		teleport player to {feu.mainSpawn}
+		
+on teleport:
+	if {feu.quest.Crazy_house.4.%uuid of player%} is true:
+		remove uuid of player from {feu.quest.Crazy_house.bossFighters::*}
+on command:
 	cancel event
-	execute player command "/fhelp"	
-	
+	if "%command%" is "help":
+		if {feu.permission.%uuid of player%} is "feu.op" or "feu.admin":
+			message "{@prefix} <green>Use the command /fhelp to see feudalism commands"
+			uncancel event
+			stop
+		execute player command "/fhelp"
+		stop
+	else if "%command%" is "god":
+		#cancel event
+		if "%uuid of player%" is "<none>":
+			message "can not enable godmode for the console. IT IS GOD!" to console
+			stop
+		else if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+			
+		set {feu.godMode.%uuid of player%} to true
+		message "{@prefix} Godmode enabled"
+		stop
+	else if "%command%" is "ungod":
+		#cancel event
+		set {feu.godMode.%uuid of player%} to false
+		message "{@prefix} Godmode disabled"
+		stop
+	else if "%command%" is "op":
+		#cancel event
+		if executor is CONSOLE:
+			set {feu.permission.<none>} to "feu.op"
+			stop
+		if {feu.permission.%uuid of player%} is "feu.admin" or "feu.op":
+			op player
+			message "{@prefix} You are now op!"
+		else:
+			message "{@err} You do not have permission for this command!"
+		stop
+	else if {feu.permission.%uuid of player%} is "feu.player" or "feu.mod":
+		uncancel event
+		if "%name of player%" is "<none>":
+			stop
+		else if player is op:
+			stop
+		command is not "help", "fhelp", "stats", "credits","credit" or "showperm":
+			message "{@err} You do not have permission for this command!"
+			cancel event
+	else:
+		if {feu.permission.%uuid of player%} is "feu.player", "feu.mod", "feu.tech", "feu.admin" or "feu.op":
+			uncancel event
+		else:
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
 on break:
-	if player is op:
+	if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "feu.op":
 		stop
 	cancel event
-
+	
 on place:
 	if block is glowstone:
 		cancel event
 		stop
-	player is op:
+	else if block is item frame:
+		cancel event
+		stop
+	if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "feu.op":
 		stop
 	cancel event
-
+	
 on drop:
-	player is op:
+	if lore of event-item is "<light gray>Quest Item" or "<gold>Spawned sword":
+		message "{@You} This item looks important." to player
+		cancel event
+	else if event-item is xp orb:
+		cancel event
+	else if event-item is any sword:
+		number of any sword in player's inventory is 0 #this 
+		cancel event
+		message "{@You} I should not throw away my only sword.." to player
+		
+on leftclick:
+	if player is holding a stick named "Debug":
+		if player's target exists:
+			execute player command "/targetinfo"
+		else if target block exists:
+			execute player command "/blockInfo"
+		else:
+			message "No target block or target, plz dont look at teh sky"
+		cancel event
+		
+on rightclick:
+	if player is holding a stick named "Debug":
+		if player's target exists:
+			execute player command "/targetinfo"
+		else if target block exists:
+			execute player command "/blockInfo"
+		else:
+			message "No target block or target, plz dont look at teh sky"
+		cancel event
 		stop
-	cancel event
-	
-on pick up:
-	player is op:
-		stop
-	cancel event
-	
-on rightclick on any door:
-	if player is op:
-		stop
-	message "{@You} The door is locked. Maybe a button could work..." to player			
-	cancel event
-	
+	if event-block is any door:
+		if {feu.permission.%uuid of player%} is "feu.player":
+			if event-block is any wooden door:
+				message "{@You} The door is locked. Maybe a button could work..." to player
+			cancel event
+			
 on entity target:
+	if entity is xp orb:
+		delete entity
 	set {_Victim ID} to metadata value "ID" of entity
 	if target is a villager:
 		cancel event
 		stop
-	else if target isn't a player:
+	else if target is not a player:
 		if name of target exists:
 			cancel event
 			stop
-	{@debug} is true:
-		if {feu.running.%{_Victim ID}%} is true:
+	if {feu.canTarget.%{_Victim ID}%} is false:
+		cancel event
+		{@debug}:
 			message "{@debugPrefix} Cancelling target of player" to console
-			cancel event
-on consume:
-	#Need to fix this
+			
+On consume:
 	cancel event
 	#This is a skript/minecraft bug:
-	player is holding a potion of:
-		#though this fixes it
-		if name of tool is "Instant health I":
-			add 2 to player's health
-		else if name of tool is "Instant health II":
-			add 3 to player's health
-		else if name of tool is "Instant health III":
-			add 4.5 to player's health
+	if player's health is max health of player:
+		if name of tool contains "Instant Health":
+			cancel event
+	else if player is holding a potion of:
+		if name of tool is "Instant Health I":
+			add 5 to player's health
+		else if name of tool is "Instant Health II":
+			add 10 to player's health
+		else if name of tool is "Instant Health III":
+			add 20 to player's health
+		else:
+			message "{@warn} %player% is drinking an unknown potion!" to console
 		delete player's tool
-#	
+
+on item break:
+	if event-entity is not a player:
+		if event-item is a helmet:
+			set {_location} to spawn of "Feudalism_4"
+			set {_x} to metadata value "X" of event-entity
+			set {_y} to metadata value "Y" of event-entity
+			set {_z} to metadata value "Z" of event-entity
+			set x coordinate of {_location} to ({_x}) parsed as number
+			set y coordinate of {_location} to ({_y}) parsed as number
+			set z coordinate of {_location} to ({_z}) parsed as number
+			if {feu.fixedspawn.armour.%{_location}%} is "leather":
+				equip event-entity with all leather armour
+			else if {feu.fixedspawn.armour.%{_location}%} is "chain":
+				equip event-entity with all chain armour
+			else if {feu.fixedspawn.armour.%{_location}%} is "iron":
+				equip event-entity with all iron armour
+			else if {feu.fixedspawn.armour.%{_location}%} is "gold":
+				equip event-entity with all gold armour	
+			else if {feu.fixedspawn.armour.%{_location}%} is "diamond":
+				equip event-entity with all diamond armour
+			else:
+				message "{@err2} Unknown variable in replace item for entities" to console
+			message "Unknown variable in replace item for entities" to console
+			stop
+			
+on quit:
+	set leave message to ""
+	set {feu.godMode.%uuid of player%} to false
+	disallow fly for player
+	set gamemode of player to adventure
+	execute console command "seespawns false %player%"
+	set the player's flying speed to 0.1
+	
+	if {feu.quest.starter.lookingForRing.%uuid of player%} is true:
+		add a gold nugget named "<gold><gold>Old gold ring" with lore "<light gray>Quest Item" to player's inventory
+		set {feu.quest.starter.lookingForRing.%uuid of player%} to false
+				
+	loop {feu.quest.Crazy_house.bossFighters::*}:
+		if uuid of player is equal to {feu.quest.Crazy_house.bossFighters::%loop-index%}:
+			remove uuid of player from {feu.quest.Crazy_house.bossFighters::*}
+			add uuid of player to {feu.quest.Crazy_house.bossFighters.logedOff::*}
+			stop loop
+	wait 1 tick
+	if size of {feu.quest.Crazy_house.bossFighters::*} is 0:
+		execute console command "killLazarus"
+		
+		
+#
 #One liners & cancel events
 #
+On Item Spawning of any button:
+	cancel event
 	
+#On Item Spawn
+#	if {feu.permission.%uuid of player%} is "feu.player":
+#		wait 5 tick
+#		remove all any buttons from player's inventory
+
 on heal:
 	cancel event
 	
@@ -139,28 +288,25 @@ on zombie break door:
 	
 on weather change:
 	set weather to sun
-
-on spread:
+	
+On Physics:
 	block is dirt or grass
 	cancel event
-	#stops dirt becoming grass and visa versa
+
+on spread:
+	cancel event
 	
 On Burn:
 	cancel event
-	#stops burning down my castles :(
 
 on ignition:
-	if event-block is air:
-		stop trigger
 	cancel event
 	
 On Fade:
 	cancel event
-	#stops ice and snow from smelting
 	
 On Form:
 	cancel event
-	#prevents ice and snow to form
 	
 on Explode:
 	cancel event
@@ -172,14 +318,15 @@ on combust:
 	entity is zombie
 	cancel event
 	
+On Leaves Decay:
+	cancel event
+	
 on xp spawn:
+	clear xp
 	cancel event
 
 on hunger meter change:
 	set hunger of player to 10
 	
-on quit:
-	set leave message to ""	
-	
 on skript stop:
-	set {feu.disable.enemies} to true	
+	set {feu.disable.enemies} to true
