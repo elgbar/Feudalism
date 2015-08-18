@@ -78,7 +78,7 @@ command /debugStick:
 	aliases: ds
 	executable by: players
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
+		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
@@ -119,7 +119,7 @@ command /setLevel <integer> [<player=%player%>]:
 			set {feu.currXP.%uuid of arg-2%} to 0
 		execute console command "setMaxHealth %arg-2%"
 		message "{@prefix} You are now level %arg-1%" to arg-2
-		log "%executor% (perm: %{feu.permission.%uuid of player%}%) changed %arg-2%'s (perm: %{feu.permission.%uuid of arg-2%}%) level at to %arg-1% (was: %{_prev lvl}%)" to "players.log"
+		log "%executor% (perm: %{feu.permission.%uuid of player%}%) changed %arg-2%'s (perm: %{feu.permission.%uuid of arg-2%}%) level to %arg-1% (was: %{_prev lvl}%)" to "players.log"
 		
 command /sword <text> [<text>]:
 	usage: /sword <condition (Basic, Uncommon, Rare, Mythical or Legendary)> <material> 
@@ -292,13 +292,17 @@ command /unfly [<player=%player%>]:
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-		if executor is console:
-			message "{@err} Cannot disable flight of console" to console
-			stop
 			
+		if executor is not arg-1:
+			if {feu.permission.%uuid of executor%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
+				message "{@prefix} Cannot disable flight for a staff member!"
+				stop
+			message "{@prefix} Flight disabled by %executor%" to arg-1
+		else:
+			message "{@prefix} Flight disabled" to arg-1
+		
 		disallow fly for arg-1
-		message "{@prefix} Flight disabled" to arg-1
-
+		
 command /copyPaste:
 	aliases: cp
 	executable by: player
@@ -312,6 +316,9 @@ command /copyPaste:
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 			
+		if player is holding air:
+			message "{@err} Cannot give yourself air, you got unlimited of that!"
+			stop
 		give player player's tool
 				
 command /get:

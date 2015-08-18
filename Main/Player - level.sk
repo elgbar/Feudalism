@@ -83,6 +83,11 @@ command /addXP <number> [<player=%player%>] [<boolean=true>] [<boolean=false>]:
 				set {_feu.XPtoNextLevel.%uuid of arg-2%} to {feu.maxXP.%uuid of arg-2%}-{feu.currXP.%uuid of arg-2%}
 				message "{@debugPrefix} you are at %{_percent}%%%" to arg-2
 				message "{@debugPrefix} And you need %{_feu.XPtoNextLevel.%uuid of arg-2%}% xp till next level" to arg-2
+			if executor is a player:
+				if arg-2 is not executor:
+					message "{@prefix} %executor% gave you %arg-1% XP!" to arg-2
+				else:
+					message "{@prefix} You gained %arg-1% XP"
 
 command /stats [<player=%player%>]:
 	executable by: player

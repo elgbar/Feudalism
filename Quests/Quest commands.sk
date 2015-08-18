@@ -51,7 +51,7 @@ command /delMetadata:
 		
 command /setMetadata <text> [<integer=2>]:
 	usage: /setMetadata <Info> [<How many blocks below (0=inside player's feet) (d=2)>]
-	aliases: /smd
+	aliases: /smd, /setmeta
 	executable by: player
 	trigger:
 		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":

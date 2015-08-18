@@ -87,7 +87,7 @@ on teleport:
 on command:
 	cancel event
 	if "%command%" is "help":
-		if {feu.permission.%uuid of player%} is "feu.op" or "admin":
+		if {feu.permission.%uuid of player%} is "feu.op" or "feu.admin":
 			message "{@prefix} <green>Use the command /fhelp to see feudalism commands"
 			uncancel event
 			stop
@@ -110,8 +110,11 @@ on command:
 		set {feu.godMode.%uuid of player%} to false
 		message "{@prefix} Godmode disabled"
 		stop
-	else if "%command%" is "feu.op":
+	else if "%command%" is "op":
 		#cancel event
+		if executor is CONSOLE:
+			set {feu.permission.<none>} to "feu.op"
+			stop
 		if {feu.permission.%uuid of player%} is "feu.admin" or "feu.op":
 			op player
 			message "{@prefix} You are now op!"

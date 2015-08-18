@@ -10,7 +10,7 @@ options:
 	
 #Commands
 
-command /fhelp:
+command /fhelp [<integer=1>]:
 	trigger:
 		if {feu.permission.%uuid of player%} is not "feu.player", "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
@@ -23,77 +23,79 @@ command /fhelp:
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 		message "<yellow>------<gold>[&aFeudalism Commands<gold>]<yellow>------"
-		#player commands
-		message "<light red>/stats<r> : <yellow>Show your stats."
-		message "<light red>/credits<r> : <yellow>List the credits."
+		if arg-1 is 1:
+			#player commands
+			message "<light red>/stats<r> : <light gray>Show your stats."
+			message "<light red>/credits<r> : <light gray>List the credits."
 		
 		if {feu.permission.%uuid of player%} is "feu.player":
 			stop
 			
 		#Mod commands
 		message "<yellow>------<gold>[&aStaff Commands<gold>]<yellow>------"
-		message "<light red>/god<r> : <yellow>Enable godmode for you."
-		message "<light red>/ungod<r> : <yellow>Disable godmode for you."
-		message "<light red>/killall<r> : <yellow>Kills every mob in the world."
-		message "<light red>/fixAllZombieSpawns <r>: <yellow>Makes all the fixed spawn points enable spawning."
-		message "<light red>/spawnCostumZombies <light green>(<r>SCZ<light green>)<r> : <yellow>Spawn a custom zombie."
-		message "<light red>/targetInfo <light green>(<r>TI<light green>)<r> : <yellow>Lists variables of the target zombie."
-		message "<light red>/blockInfo<r> : <yellow>Show info about a block."
-		message "<light red>/spawn<r> : <yellow>Teleport any player to spawn."
-		message "<light red>/fly<r> : <yellow>Enable flight for yourself."
-		message "<light red>/unfly<r> : <yellow>Disable flight for yourself."
-		message "<light red>/HealthPotion<r> : <yellow>Give a health potion to yourself."
-		message "<light red>/seeSpawns<r> : <yellow>See where the fixed zombies will spawn."
+		message "<light red>/god<r> : <light gray>Enable godmode for you."
+		message "<light red>/ungod<r> : <light gray>Disable godmode for you."
+		message "<light red>/killall<r> : <light gray>Kills every mob in the world."
+		message "<light red>/fixAllZombieSpawns <r>: <light gray>Makes all the fixed spawn points enable spawning."
+		message "<light red>/spawnCostumZombies <light green>(<r>SCZ<light green>)<r> : <light gray>Spawn a custom zombie."
+		message "<light red>/debugStick <r>: <light gray>Gives you a stick to automaticly use blockinfo and targetinfo"
+		message "<light red>/targetInfo <light green>(<r>TI<light green>)<r> : <light gray>Lists variables of the target zombie."
+		message "<light red>/blockInfo <light green>(<r>BI<light green>)<r><r> : <light gray>Show info about a block."
+		message "<light red>/spawn<r> : <light gray>Teleport any player to spawn."
+		message "<light red>/fly<r> : <light gray>Enable flight for yourself."
+		message "<light red>/unfly<r> : <light gray>Disable flight for yourself."
+		message "<light red>/HealthPotion<r> : <light gray>Give a health potion to yourself."
+		message "<light red>/seeSpawns<r> : <light gray>See where the fixed zombies will spawn."
 		
 		if {feu.permission.%uuid of player%} is "feu.mod":
 			stop
 			
 		#Tech commands
-		message "<light red>/distance <r>: <yellow>Shows you the distance to your target block"
-		message "<light red>/get <r>: <yellow>Gives you your current target block, and shows ID and DATA"
-		message "<light red>/copyPaste <r>: <yellow>Gives you a copy to your current tool"
-		message "<light red>/gms <r>: <yellow>Set your gamemode to survival"
-		message "<light red>/gma <r>: <yellow>Set your gamemode to adventure"
-		message "<light red>/gmc <r>: <yellow>Set your gamemode to creative"
-		message "<light red>/debugStick <r>: <yellow>Gives you a stick to automaticly use blockinfo and targetinfo"
-		message "<light red>/crop <r>: <yellow>Make an circle around you to crops, if the block below is soil"
-		message "<light red>/grass <r>: <yellow>Make an circle around you to grass"
-		message "<light red>/soil <r>: <yellow>Make an circle around you to soil"
-		message "<light red>/spawnNPC <r>: <yellow>Spawn a NPC (villager)"
-		message "<light red>/setFixedZombieSpawn <light green>(<r>SFZS<light green>)<r> : <yellow>Sets a new spawn point for zombies to spawn"
-		message "<light red>/removeFixedSpawn <light green>(<r>RFS<light green>)<r> : <yellow>Remove the fixed zombie spawn at the player's location "
-		message "<light red>/setMetadata <light green>(<r>SMD<light green>)<r> : <yellow>Sets a metadata used in quests"
-		message "<light red>/delMetadata <light green>(<r>DMD<light green>)<r> : <yellow>Removes the metadata at player's location"
-		message "<light red>/setLocation <r>: <yellow>Sets a location (can be used for teleportation) with the format ""{feu.arg-1.arg-2}"""
-		message "<light red>/delLocation <r>: <yellow>Deletes a location set by /setLocation"
-		message "<light red>/saveItem <name of saved item> <r>: <yellow>Saves items OR block with specials tags on them (like enchantment and a name)"
-		message "<light red>/changeZombie<r>: <yellow>Change variables on zombies. Tip: you have to stand on the block to change it."
-		message "<light red>/setBossSpawn<r>: <yellow>Set a spawn point for a boss (currently only Lazarus)."
+		message "<light red>/distance <r>: <light gray>Shows you the distance to your target block"
+		message "<light red>/get <r>: <light gray>Gives you your current target block, and shows ID and DATA"
+		message "<light red>/copyPaste <r>: <light gray>Gives you a copy to your current tool"
+		message "<light red>/gms <r>: <light gray>Set your gamemode to survival"
+		message "<light red>/gma <r>: <light gray>Set your gamemode to adventure"
+		message "<light red>/gmc <r>: <light gray>Set your gamemode to creative"
+		message "<light red>/crop <r>: <light gray>Make an circle around you to crops, if the block below is soil"
+		message "<light red>/grass <r>: <light gray>Make an circle around you to grass"
+		message "<light red>/soil <r>: <light gray>Make an circle around you to soil"
+		message "<light red>/setFixedZombieSpawn <light green>(<r>SFZS<light green>)<r> : <light gray>Sets a new spawn point for zombies to spawn"
+		message "<light red>/removeFixedSpawn <light green>(<r>RFS<light green>)<r> : <light gray>Remove the fixed zombie spawn at the player's location "
+		message "<light red>/setMetadata <light green>(<r>SMD<light green>)<r> : <light gray>Sets a metadata used in quests"
+		message "<light red>/delMetadata <light green>(<r>DMD<light green>)<r> : <light gray>Removes the metadata at player's location"
+		message "<light red>/setLocation <r>: <light gray>Sets a location (can be used for teleportation) with the format ""{feu.arg-1.arg-2}"""
+		message "<light red>/delLocation <r>: <light gray>Deletes a location set by /setLocation"
+		message "<light red>/saveItem <name of saved item> <r>: <light gray>Saves items OR block with specials tags on them (like enchantment and a name)"
+		message "<light red>/deleteItem <name of saved item> <r>: <light gray>delete items OR block that are saved with command /saveitem)"
+		message "<light red>/changeZombie<r>: <light gray>Change variables on zombies. Tip: you have to stand on the block to change it."
+		message "<light red>/setBossSpawn<r>: <light gray>Set a spawn point for a boss (currently only Lazarus)."
 		if {feu.permission.%uuid of player%} is "feu.tech":
 			stop
 			
 		#admin commands
-		message "<light red>/resetPlayer <r>: Reset a player because of hacking or if it requested."
-		message "<light red>/sword <r>: <yellow>Gives you a Feudalism sword."
-		message "<light red>/loop <r>: <yellow>Loops a command every second."
-		message "<light red>/speed <r>: <yellow>Change your flying speed."
-		message "<light red>/permission <r>: <yellow>Sets the permission of a player."
-		message "<light red>/fullyClear <light green>(<r>fc<light green>)<r> : <yellow>Removes everything from the player."
-		message "<light red>/op : <yellow> Op your self."
+		message "<light red>/resetPlayer <r>: <light gray>Reset a player because of hacking or if it requested."
+		message "<light red>/sword <r>: <light gray>Gives you a Feudalism sword."
+		message "<light red>/loop <r>: <light gray>Loops a command every second."
+		message "<light red>/speed <r>: <light gray>Change your flying speed."
+		message "<light red>/permission <r>: <light gray>Sets the permission of a player."
+		message "<light red>/fullyClear <light green>(<r>fc<light green>)<r> : <light gray>Removes everything from the player."
+		message "<light red>/op <r>: <light gray>Op your self."
+		message "<light red>/spawnNPC <r>: <light gray>Spawn a NPC (villager) TO REMOVE: 1)Look at npc 2) do command /npc sel 3) do /npc rem"
 		if {feu.permission.%uuid of player%} is "feu.admin":
 			stop
 		
 		#OP commands
-		message "<light red>/setLevel <r>: <yellow>Set a player's level, max 150. DO NOT MISUSE THIS"
-		message "<light red>/setMainSpawn <r>: <yellow>Set the main spawn of feudalism"
-		message "<light red>/addXP <r>: <yellow>Adds xp to a player"
+		message "<light red>/setLevel <r>: <light gray>Set a player's level, max 150. DO NOT MISUSE THIS"
+		message "<light red>/setMainSpawn <r>: <light gray>Set the main spawn of feudalism"
+		message "<light red>/addXP <r>: <light gray>Adds xp to a player"
 		if "%uuid of player%" is "<none>":
 			#Console commands
 			message "<yellow>------<gold>[&aConsole Commands<gold>]<yellow>------"
-			message "<light red>/setup <r>: <yellow>Resets a player"
-			message "<light red>/removeAllFixedSpawns <r>: <yellow>Remove every singe one of the fixed spawn points for zombies"
-			message "<light red>/delAllMetadata <r>: <yellow>Remove all Metadata used by quests"
-			message "<light red>/quest <r>: <yellow>Set the progress of quests for a player"
+			message "<light red>/setup <r>: <light gray>Resets a player"
+			message "<light red>/removeAllFixedSpawns <r>: <light gray>Remove every singe one of the fixed spawn points for zombies"
+			message "<light red>/delAllMetadata <r>: <light gray>Remove all Metadata used by quests"
+			message "<light red>/quest <r>: <light gray>Set the progress of quests for a player"
 
 command /credits:
 	aliases: /credit
@@ -147,17 +149,46 @@ command /saveItem <text>:
 			if {feu.items.%name of tool%} exists:
 				message "{@warn} This tool already exits, but is now overwritten by your new tool. If this was a mistake you have received the old item."
 				give {feu.items.%name of tool%} to player
-			add name of tool to {feu.AllItems::*}
+			else:
+				add name of tool to {feu.AllItems::*}
 			set {feu.items.%name of tool%} to player's tool
-			message "{@prefix} To receive this item from skript use: <light green>{feu.items.%name of tool%}"
+			message "{@prefix} To receive this item from skript use: &a{feu.items.%name of tool%}"
 		else:
 			if {feu.items.%arg-1%} exists:
 				message "{@warn} This tool already exits, but is now overwritten by your new tool. If this was a mistake you have received the old item."
 				give {feu.items.%arg-1%} to player
 			add arg-1 to {feu.AllItems::*}
 			set {feu.items.%arg-1%} to player's tool
-			message "{@prefix} To receive this item from skript use: <light green>{feu.items.%arg-1%}"
+			message "{@prefix} To receive this item from skript use: &a{feu.items.%arg-1%}"
+			
+command /deleteItem <text>:
+	usage: /delItem <(random text)|name|help>
+	aliases: delitem
+	executable by: player
+	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
+		if player is holding air:
+			message "{@err} You need to hold something!"
+			stop
+		if arg-1 is "name":
+			if {feu.items.%name of tool%} exists:
+				delete {feu.items.%name of tool%}
+				remove name of tool from {feu.AllItems::*}
+		else:
+			if {feu.items.%arg-1%} exists:
+				delete {feu.items.%arg-1%}
+				remove arg-1 from {feu.AllItems::*}
+		message "{@prefix} Tool deleted"
 
+			
 command /setLocation <text> <text> <text>:
 	usage: /setLocation <quest | other> <text 1> <text 2>
 	aliases: setloc
@@ -321,7 +352,8 @@ command /spawnNPC <text> <text>:
 	usage: /spawnNPC <name> <villager profession>
 	executable by: player
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
+		#TODO: make tech use this command too
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
@@ -361,7 +393,16 @@ command /permission <text="help"> [<player=%player%>]:
 			if arg-2 does not exist:
 				message "{@err} You have to specify a player"
 				stop
-		if "%uuid of arg-2%" is "%uuid of player%":
+		else:
+			message "<yellow>------<gold>[&aFeudalism Permissions<gold>]<yellow>------"
+			message "<gold>Correct usage: /permission <<light red>rank/help<gold>> [<<light red>player<gold>>]"
+			message ""
+			message "<light red>Usable ranks: <yellow>Player, moderator (mod), technician (tech), administrator (admin) or operator (op)"
+			message "<light red>Player: <yellow>You have to choose an online player for this to work."
+			message "<light red>Help: <yellow>Displays this help screen."
+			stop
+			
+		if "%uuid of arg-2%" is "%uuid of executor%":
 			if "%uuid of player%" is not "<none>":
 				message "{@err} You can not change your own permission"
 				stop
@@ -376,7 +417,7 @@ command /permission <text="help"> [<player=%player%>]:
 		else if arg-1 is "administrator" or "admin":
 			set {feu.permission.%uuid of arg-2%} to "feu.admin"
 			
-		else if arg-1 is "operator" or "feu.op":
+		else if arg-1 is "operator" or "op":
 			if executor is not CONSOLE:
 				if {feu.permission.%uuid of player%} is "feu.admin":
 					message "{@err} You can not set someone's permission to higher than your own!"
@@ -385,14 +426,6 @@ command /permission <text="help"> [<player=%player%>]:
 			else:
 				set {feu.permission.%uuid of arg-2%} to "feu.op"
 				
-		else if arg-1 is "help":
-			message "<yellow>------<gold>[&aFeudalism Permissions<gold>]<yellow>------"
-			message "<gold>Correct usage: /permission <<light red>rank/help<gold>> [<<light red>player<gold>>]"
-			message ""
-			message "<light red>Usable ranks: <yellow>Player, moderator (mod), technician (tech), administrator (admin) or operator (op)"
-			message "<light red>Player: <yellow>You have to choose an online player for this to work."
-			message "<light red>Help: <yellow>Displays this help screen."
-			stop
 		else:
 			message "{@err} Unknown rank ""%arg-1%"""
 			message "<light red>Usable ranks: <yellow>Player, moderator (mod), technician (tech), administrator (admin) or operator (op)"
@@ -445,7 +478,7 @@ on skript load:
 		#STABLE : A stable build recommended used. (verify: Check every single command, and everything below)
 		#DEVELOP : Finished with a feature, but needs debugging before it can be considered a STABLE build. (verify: Check that quests work and you can kill zombies properly)
 		#UNCERTAIN : Quick upload after finishing a session. Do not use builds which is in this state. Can be multiple UNCERTAIN builds in one day. (verify: Nothing)
-	set {feu.version} to "Build 18 - DEVELOP"
+	set {feu.version} to "Build 19 - STABLE"
 	ban "<none>" due to "can not have a player with that name, change it to play here" #<none> is the console, too bad for the one who has that name :P
 	set {feu.permission.<none>} to "feu.op" #makes the console use all commands
 	if {feu.mainSpawn} does not exist:
@@ -455,10 +488,6 @@ on skript load:
 		
 	#Enemies
 	set {feu.doZombiesSpawn} to true
-	
-	#set {feu.boss.Lazarus.isSpawned} to false
-	#loop 4 times:
-	#	set {feu.boss.Lazarus.minions.spawned.%loop-number%} to false
 		
 	#General
 	execute console command "loot.basic"
