@@ -97,8 +97,8 @@ command /metadata:
 			message "{@err2} metadata Starter_house1 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.starter.leaveCastle} does not exist:
 			message "{@err2} metadata starter.leaveCastle cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
-		if {_exists.WallAlphaMap} does not exist:
-			message "{@err2} metadata WallAlphaMap cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.wall} does not exist:
+			message "{@err2} metadata theThird.wall cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.house1} does not exist:
 			message "{@err2} metadata Crazy_house.house1 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.roomExit1} does not exist:
@@ -144,17 +144,29 @@ command /quest <text="Help"> [<player>] [<boolean=false>] [<boolean=false>]:
 				stop
 			#This quest is dependent on that the player have finished "starter" quest
 			if arg-3 is true:
-				if {feu.quest.starter.%uuid of arg-2%} is not "Completed":
-					set {feu.quest.starter.%uuid of arg-2%} to "Completed"
-					set {feu.quest.starter.gotPotions.%uuid of arg-2%} to true
+				set {feu.quest.starter.%uuid of arg-2%} to "Completed"
+				set {feu.quest.starter.gotPotions.%uuid of arg-2%} to true
 			set {feu.quest.Crazy_house.%uuid of arg-2%} to "Not started"
 			clear {feu.quest.Crazy_house.1.%uuid of arg-2%}
 			clear {feu.quest.Crazy_house.2.%uuid of arg-2%}
 			clear {feu.quest.Crazy_house.3.%uuid of arg-2%}
 			clear {feu.quest.Crazy_house.4.%uuid of arg-2%}
+		else if arg-1 is "theThird":
+			if arg-2 is not set:
+				message "{@err} You need to specify a player."
+				stop
+			if arg-3 is true:
+				set {feu.quest.starter.%uuid of arg-2%} to "Completed"
+				set {feu.quest.starter.gotPotions.%uuid of arg-2%} to true
+				set {feu.quest.Crazy_house.%uuid of arg-2%} to "Completed"
+			set {feu.quest.theThird.%uuid of arg-2%} to "Not started"
+			clear {feu.quest.theThird.1.%uuid of arg-2%}
+			clear {feu.quest.theThird.2.%uuid of arg-2%}
+			clear {feu.quest.theThird.3.%uuid of arg-2%}
+			clear {feu.quest.theThird.4.%uuid of arg-2%}
 		else:
 			message "/quest <quest> <player> [<boolean, true: done previous quests, false: fully reset>]" to console
-			message "Available quests: <light green>starter <r>and <light green>Crazy_house" to console
+			message "Available quests: <light green>starter <r>, <light green>Crazy_house<r> and <light green>theThird" to console
 			stop
 			
 		#Global variables

@@ -78,6 +78,11 @@ on respawn:
 		else:
 			message "{@err} An error occured that caused the player %player% not to spawn at a location when doing quest Crazy_house! If you are a developer please look in \plugins\skript\logs\questdump.log to fix this quick!" to console
 			execute console command "/dqv crazy_house %player%"
+	if {feu.quest.theThird.%uuid of player%} is "In progress":
+		if {feu.quest.Crazy_house.1.%uuid of player%} is true:
+			teleport player to {feu.mainSpawn}
+		else:
+			teleport player to {feu.quest.theThird.SurvivorSpawn}
 	else:
 		teleport player to {feu.mainSpawn}
 		

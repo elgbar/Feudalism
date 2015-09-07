@@ -38,7 +38,8 @@ command /spawnCostumZombies <integer> <text="Zombie"> [<text="default">] [<text=
 		set metadata value "Level" of last spawned entity to "%arg-1%"
 		
 		set {_name} to arg-2
-		replace all "_" with " " in {_name} 
+		replace all "_" with " " in {_name}
+		set metadata value "Name" of last spawned entity to "%{_name}%"
 		set the name of last spawned entity to "%{_name}%"
 		set metadata value "Level" of last spawned entity to arg-1
 		

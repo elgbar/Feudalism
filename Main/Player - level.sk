@@ -151,9 +151,6 @@ on damage:
 		cancel event 
 		stop
 		
-	if {feu.godMode.%uuid of victim%} is true:
-		cancel event
-		stop
 	repair victim's helmet
 	repair victim's chestplate
 	repair victim's leggings
@@ -165,15 +162,19 @@ on damage:
 	attacker is alive #there is a bug where the player is revived this stops all this
 	cancel event
 	{@debug}:
-		message "---" to console
+	#Used to difference between two attacks
+		if {feu.godMode.%uuid of victim%} is not true:
+		#Stop spamming when in godmode
+			message "---" to console
 	if victim is a player:
 		if {feu.godMode.%uuid of victim%} is true:
-			cancel event
+		#makes godmode work
 			stop
-		if attacker is a player:
-			cancel event
+		else if attacker is a player:
+		#No pvp
 			stop
-		if attacker is not a zombie:
+		else if attacker is not a zombie:
+		#make only zombies able to damage you
 			stop
 			
 		set {_zombie ID} to metadata value "ID" of attacker
@@ -406,7 +407,6 @@ on damage:
 	if name of attacker's tool contains "Dummy Sword":
 		message "" to {_fake}
 	else if {_damage} is 0:
-		set {_total damage} to 0
 		message "<light red>You can not attack the zombie with this!" to attacker
 		stop
 	else:
@@ -422,9 +422,22 @@ on damage:
 		{@debug}:
 			message "{@debugPrefix} <white>Victim is blocking" to console
 	damage the victim by {_total damage} hearts
+	
 	if the health of the victim is less than 1:
+	#When an victim dies (not including players) it will give xp to the player whom killed it and display it as its name before despawning. 
 		kill the victim
+		if victim is player:
+			#Clean up when a player dies, then stop.
+			if {feu.quest.Crazy_house.4.%uuid of victim%} is true:
+				loop {feu.quest.Crazy_house.bossFighters::*}:
+					if uuid of victim is equal to {feu.quest.Crazy_house.bossFighters::%loop-index%}:
+						#If the player dies when fighting lazarus, they'll get removed from the fighting list
+						remove uuid of victim from {feu.quest.Crazy_house.bossFighters::*}
+						if size of {feu.quest.Crazy_house.bossFighters::*} is 0:
+							execute console command "killLazarus"
+			stop
 		if {_zombie ID} is "Lazarus":
+		#Special scenario, player just finished the second quest. 
 			set name of victim to "<light gray>[<r>+150 xp<light gray>]"
 			set {feu.boss.Lazarus.isSpawned} to false
 			loop entities in radius 35 around the victim:
@@ -433,21 +446,29 @@ on damage:
 				set {_minion nr} to "%{_minion nr}%"
 				if {_minion nr} contains "Lazarus' minion":
 					kill loop-entity
-					#{feu.boss.Lazarus.minions.spawned.%{_minion nr}%} is set to false when lazarus spawn agai
+					#{feu.boss.Lazarus.minions.spawned.%{_minion nr}%} is set to false when Lazarus spawn again
 			heal attacker
 			cure attacker
 			execute console command "Crazy_house.Boss.finish %name of attacker%"
+			execute console command "addxp 150 %name of attacker%"
+			stop
 		else if {_zombie ID} contains "Lazarus' minion":
+			#Special case for special zombies
 			set name of victim to "<light gray>[<r>+3 xp<light gray>]"
 			set {_minion nr} to "%{_zombie ID}%"
 			replace all "Lazarus' minion nr " with "" in {_minion nr}
+			execute console command "addxp 3 %name of attacker%"
 			set {feu.boss.Lazarus.minions.spawned.%{_minion nr}%} to false
+			stop
 		else:
+			#There are three different curves, 1-30, 31-100 and greater than 100.
 			if {_zombie level} is less than 31:
 				set {_xp} to 1+{_zombie level}
 			else if {_zombie level} is less than 101:
 				set {_xp} to round(0.41 * {_zombie level} + 18.6)
 			else if {_zombie level} is greater than 100:
+				#This means that fighting a level 120 enemy is pointless since you wont get any more xp. 
+				#TODO Maybe change this?
 				set {_xp} to 60
 			set name of victim to "<light gray>[<r>+%{_xp}% xp<light gray>]"
 			set {_location} to spawn of "Feudalism_4"
@@ -460,57 +481,11 @@ on damage:
 			
 			set {feu.goingHome.%{feu.fixedspawn.ID.%{_location}%}%} to false
 			set {feu.canTarget.%{feu.fixedspawn.ID.%{_location}%}%} to true
-	{@debug}:
-		#if attacker is a zombie:
-		message "{@debugPrefix} Attacker is %attacker%" to console
-		message "{@debugPrefix} <white>victim is %victim%" to console
-		message "{@debugPrefix} Dmg percent Attacker: %{_dmg percent Attacker}% | Dmg percent Victim: %{_dmg percent Victim}%" to console
-		set {_total damage2} to {_damage}*{_calcArmour} + ({_dmg percent Attacker} - {_dmg percent Victim})
-		if attacker is a player:
-			message "{@debugPrefix} <white>Attacker level: %{feu.level.%uuid of attacker%}% || victim level: %{_zombie level}%" to console
-			if name of attacker's tool contains "Dummy Sword":
-				message "{@debugPrefix} D s dmg: 0 " to console #Dummy sword, does no damage
-				set {_total damage} to 0
-			else:
-				message "{@debugPrefix} P dmg: %{_material}% * %{_condition}% * %{_dmg percent Attacker}% = %{_damage}%" to console
-				
-			message "{@debugPrefix} <white>Armour: 1-((%{_helmet}%+%{_chestplate}%+%{_leggings}%+%{_boots}%+%{_dmg percent Victim}%)/100) = %{_calcArmour}%" to console
 			
-			if {_total damage} is less than 1:
-				message "{@debugPrefix} Total dmg < 1: %{_total damage}% (raw: %{_total damage2}%)" to console #total dmg is set to 0 when the attacker is a player and he/she damage less than 1
-			else:
-				message "{@debugPrefix} Total dmg: %{_damage}% * %{_calcArmour}% = %{_total damage}% (raw: %{_total damage2}%)" to console
-		else if attacker is a zombie:
-			message "{@debugPrefix} <white>Attacker level: %{_zombie level}% || victim level: %{feu.level.%uuid of victim%}%" to console
-			if attacker is holding a sword:
-				message "{@debugPrefix} <white>Material: %{_material}%" to console
-				message "{@debugPrefix} Z t dmg: 0.5 + %{_material}% + %{_zombie level}% = %{_damage}%" to console #zombie tool damage
-			else:
-				message "{@debugPrefix} Z n t dmg: 2 + %{_zombie level}% + %{_dmg percent Attacker}% = %{_damage}%" to console #zombie no tool damage
-			message "{@debugPrefix} <white>Armour: 1-(((%{_helmet}%+%{_chestplate}%+%{_leggings}%+%{_boots}%)+%{_dmg percent Victim}%)/100) = %{_calcArmour}%" to console
-			message "{@debugPrefix} Total dmg: %{_damage}% * %{_calcArmour}% + (%{_dmg percent Attacker}% - %{_dmg percent Victim}%) = %{_total damage}% (raw: %{_total damage2}%)" to console
-		
-		if the victim is dead:
-			message "{@debugPrefix} <light red>Victim died!" to console
-	if victim is a zombie or witch:
-		#Makes the entity push move the same way however fast it is originally moving
-		set {_still} to new vector  0, 0, 0
-		set velocity of victim to {_still}
-		
-		push the victim in horizontal direction of attacker with speed 0.4
-		#if victim is on ground:
-		#	push the victim up with speed 0.1
-	if the victim is dead:
-		if victim is player:
-			if {feu.quest.Crazy_house.4.%uuid of victim%} is true:
-				loop {feu.quest.Crazy_house.bossFighters::*}:
-					if uuid of victim is equal to {feu.quest.Crazy_house.bossFighters::%loop-index%}:
-						remove uuid of victim from {feu.quest.Crazy_house.bossFighters::*}
-						if size of {feu.quest.Crazy_house.bossFighters::*} is 0:
-							execute console command "killLazarus"
-			stop
+		#Check if the odds are in your favour, and if so give you a sword
 		if chance of 5%:
 			if chance of 0.1%: #% #Legendary
+				#What type of sword is based on the zombies level
 				if {_zombie level} is higher than 39:
 					give attacker a diamond sword named "<light red>Legendary Crystal Sword" with no nbt with lore "Damage: 54"
 				
@@ -590,7 +565,7 @@ on damage:
 				else:
 					give attacker a wood sword named "<yellow>Basic Wildwood Sword" with no nbt with lore "Damage: 1"
 		#
-		# <Quests>:
+		# <Quests> See how many zombies you have killed
 		#
 		if  {feu.quest.zombiesKilled.%uuid of attacker%} does not exist:
 			set {feu.quest.zombiesKilled.%uuid of attacker%} to 0
@@ -602,11 +577,16 @@ on damage:
 					message "{@You} It seems clear enough. I should search the chest before more arrive." to attacker
 		
 		else if {feu.quest.Crazy_house.2.%uuid of attacker%} is true:
-			if {feu.quest.zombiesKilled.%uuid of attacker%} is less than 5:
+			if {feu.quest.zombiesKilled.%uuid of attacker%} is less than 6:
 				add 1 to {feu.quest.zombiesKilled.%uuid of attacker%}
-			if {feu.quest.zombiesKilled.%uuid of attacker%} is 5:
+			if {feu.quest.zombiesKilled.%uuid of attacker%} is 6:
 				execute console command "Crazy_house.KilledZombies1 %name of attacker%"
-		#message "%{feu.quest.zombiesKilled.%uuid of attacker%}%" to attacker
+		
+		else if {feu.quest.theThird.3.%uuid of attacker%} is true:
+			if {feu.quest.zombiesKilled.%uuid of attacker%} is less than 7:
+				add 1 to {feu.quest.zombiesKilled.%uuid of attacker%}
+			if {feu.quest.zombiesKilled.%uuid of attacker%} is 7:
+				execute console command "theThird.KilledZombies1 %name of attacker%"
 		
 		#
 		# </Quest>
@@ -617,12 +597,6 @@ on damage:
 		else if {_zombie ID} is "SCZ":
 			#ignore this, just a cheap hack... so zombies can spawn without being spawned from skript
 			message "" to {_fake}
-		else if {_zombie ID} is "Lazarus":
-			execute console command "addxp 150 %name of attacker%"
-			stop
-		else if {_zombie ID} contains "Lazarus' minion":
-			execute console command "addxp 3 %name of attacker%"
-			stop
 		else if {feu.fixedspawn.isSpawned.%{_zombie ID}%} exists:
 			set {feu.fixedspawn.isSpawned.%{_zombie ID}%} to false
 		else:
@@ -637,14 +611,62 @@ on damage:
 			set {_xp} to 1
 			message "{@err2} could not find any valid zombie level! In ""on damage"" under ELSE ""{_zombie Level}"" less/greater than X" to console
 		execute console command "addxp %{_xp}% %name of attacker%"
-	else if victim is a zombie: #or skeleton:
+		
+	else if victim is a zombie:
 		if {_zombie ID} contains "Lazarus' minion":
 			set name of victim to "<light red>Minion <r>- %round(health of victim)%/%max health of victim%"
-		else if {_zombie ID} is "SCZ":
-			message "" to {_fake}
+		if {_zombie ID} is "SCZ":
+			set {_nameOfSCZ} to metadata value "Name" of victim
+			set name of victim to "<light red>%{_nameOfSCZ}% <r>- %round(health of victim)%/%max health of victim%"
 			#TODO: add metadata that is the name of the zombie so it can display health
 		else:
 			set name of victim to "<light red>LvL %{_zombie level}% zombie <r>- %round(health of victim)%/%max health of victim%"
+			#Makes the entity push move the same way however fast it is originally moving
+			set {_still} to new vector  0, 0, 0
+			set velocity of victim to {_still}
+			
+			push the victim in horizontal direction of attacker with speed 0.4
+			#if victim is on ground:
+			#	push the victim up with speed 0.1
 	else if {_zombie ID} is "Lazarus":
 		set name of victim to "<red>Lazarus <light red>- %round(victim's health)%/%victim's max health%"
 		
+	{@debug}:
+		#Print out debug info
+		message "{@debugPrefix} Attacker is %attacker%" to console
+		message "{@debugPrefix} <white>victim is %victim%" to console
+		message "{@debugPrefix} Dmg percent Attacker: %{_dmg percent Attacker}% | Dmg percent Victim: %{_dmg percent Victim}%" to console
+		#Calculate the damage if no special case scenarios change it, like when attacking with a dummy sword
+		set {_total damage2} to {_damage}*{_calcArmour} + ({_dmg percent Attacker} - {_dmg percent Victim})
+		if attacker is a player:
+			message "{@debugPrefix} <white>Attacker level: %{feu.level.%uuid of attacker%}% || victim level: %{_zombie level}%" to console
+			if name of attacker's tool contains "Dummy Sword":
+				#Dummy sword, does no damage
+				message "{@debugPrefix} D s dmg: 0 " to console
+				set {_total damage} to 0
+			else:
+				#player damage
+				message "{@debugPrefix} P dmg: %{_material}% * %{_condition}% * %{_dmg percent Attacker}% = %{_damage}%" to console
+				
+			message "{@debugPrefix} <white>Armour: 1-((%{_helmet}%+%{_chestplate}%+%{_leggings}%+%{_boots}%+%{_dmg percent Victim}%)/100) = %{_calcArmour}%" to console
+			
+			if {_total damage} is less than 1:
+				message "{@debugPrefix} Total dmg < 1: %{_total damage}% (raw: %{_total damage2}%)" to console #total dmg is set to 0 when the attacker is a player and he/she damage less than 1
+			else:
+				message "{@debugPrefix} Total dmg: %{_damage}% * %{_calcArmour}% = %{_total damage}% (raw: %{_total damage2}%)" to console
+		else if attacker is a zombie:
+			message "{@debugPrefix} <white>Attacker level: %{_zombie level}% || victim level: %{feu.level.%uuid of victim%}%" to console
+			if attacker is holding a sword:
+				message "{@debugPrefix} <white>Material: %{_material}%" to console
+				#zombie tool damage
+				message "{@debugPrefix} Z t dmg: 0.5 + %{_material}% + %{_zombie level}% = %{_damage}%" to console 
+			else:
+				#zombie no tool damage
+				message "{@debugPrefix} Z n t dmg: 2 + %{_zombie level}% + %{_dmg percent Attacker}% = %{_damage}%" to console 
+			#Armour of victim
+			message "{@debugPrefix} <white>Armour: 1-(((%{_helmet}%+%{_chestplate}%+%{_leggings}%+%{_boots}%)+%{_dmg percent Victim}%)/100) = %{_calcArmour}%" to console
+			#Final damage
+			message "{@debugPrefix} Total dmg: %{_damage}% * %{_calcArmour}% + (%{_dmg percent Attacker}% - %{_dmg percent Victim}%) = %{_total damage}% (raw: %{_total damage2}%)" to console
+		
+		if the victim is dead:
+			message "{@debugPrefix} <light red>Victim died!" to console

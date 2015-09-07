@@ -387,8 +387,8 @@ command /dumpQuestVariables <text> [<player=%player%>]:
 			message "{@err} The console cannot do quests!"
 			stop
 			
-		else if arg-1 is not "starter" or "crazy_house":
-			message "Valid quests are ""starter"" and ""crazy_house"""
+		else if arg-1 is not "starter", "crazy_house" or "theThird":
+			message "Valid quests are ""starter"", ""crazy_house"" or ""theThird"""
 			stop
 			
 		if executor is not console:
@@ -414,6 +414,12 @@ command /dumpQuestVariables <text> [<player=%player%>]:
 			log "{feu.quest.Crazy_house.3.%uuid of arg-2%} == %{feu.quest.Crazy_house.3.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.Crazy_house.4.%uuid of arg-2%} == %{feu.quest.Crazy_house.4.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.Crazy_house.hasLootedChests.%uuid of arg-2%} == %{feu.quest.Crazy_house.hasLootedChests.%uuid of arg-2%}%" to "questDump.log"
+		else if arg-1 is "theThird":
+			log "{feu.quest.theThird.%uuid of arg-2%} == %{feu.quest.theThird.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.1.%uuid of arg-2%} == %{feu.quest.theThird.1.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.2.%uuid of arg-2%} == %{feu.quest.theThird.2.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.3.%uuid of arg-2%} == %{feu.quest.theThird.3.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.4.%uuid of arg-2%} == %{feu.quest.theThird.4.%uuid of arg-2%}%" to "questDump.log"
 		else:
 			log "FATAL ERROR: UNKNOWN VARIABLE ""%arg-1%""! This is an error in the script! Please report this." to "questDump.log"
 			message "FATAL ERROR: UNKNOWN VARIABLE, SEE LOG"

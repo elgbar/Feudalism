@@ -30,8 +30,8 @@ on any movement:
 		else if "%{_BlockInfo}%" is equal to "starter.leaveCastle":
 			execute console command "starter.leaveCastle %player%"
 			stop
-		else if "%{_BlockInfo}%" is equal to "WallAlphaMap":
-			execute console command "WallAlphaMap %player%"
+		else if "%{_BlockInfo}%" is equal to "theThird.wall":
+			execute console command "theThird.wall %player%"
 			stop
 		else if "%{_BlockInfo}%" is equal to "Crazy_house.house1":
 			execute console command "Crazy_house.house1 %player%"
@@ -99,8 +99,7 @@ on rightclick on entity:
 	cancel event
 	if "%entity's name%" contains "Lord Willson":
 		if {feu.quest.Crazy_house.%uuid of player%} is "Completed":
-			message "<green>Lord Wilson<r>:<r> I do not have any more quests for you. Talk to me again after an update." to player
-			#TODO: Start third quest from here
+			execute console command "NPCLordWilson_theThird %player%"
 		else if {feu.quest.starter.%uuid of player%} is "Completed":
 			if {feu.quest.starter.gotPotions.%uuid of player%} is false:
 				if player can hold 2 potion of health:
@@ -120,7 +119,10 @@ on rightclick on entity:
 		execute console command "NPCBlacksmith_starter %player%"
 		
 	else if "%entity's name%" contains "Wall Guard":
-		execute console command "NPCWallGurad %player%"
+		execute console command "NPCWallGuard %player%"
+		
 	else if "%entity's name%" contains "House Guard":
 		execute console command "NPCHouseGuard_CrazyHouse %player%"
 		
+	else if "%entity's name%" contains "Survivor":
+		execute console command "NPCSurvivor %player%"
