@@ -460,6 +460,19 @@ on damage:
 			execute console command "addxp 3 %name of attacker%"
 			set {feu.boss.Lazarus.minions.spawned.%{_minion nr}%} to false
 			stop
+		else if {_zombie ID} is "kiste":
+			#H. Kiste
+			set name of victim to "<light gray>[<r>+22 xp<light gray>]"
+			execute console command "addxp 22 %name of attacker%"
+			set {feu.boss.kiste.isSpawned} to false
+			stop
+		else if {_zombie ID} is "The Janitor":
+			#Blah
+			set name of victim to "<light gray>[<r>+43 xp<light gray>]"
+			execute console command "addxp 43 %name of attacker%"
+			set {feu.boss.janitor.isSpawned} to false
+			give attacker a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item"
+			stop
 		else:
 			#There are three different curves, 1-30, 31-100 and greater than 100.
 			if {_zombie level} is less than 31:
@@ -615,19 +628,22 @@ on damage:
 	else if victim is a zombie:
 		if {_zombie ID} contains "Lazarus' minion":
 			set name of victim to "<light red>Minion <r>- %round(health of victim)%/%max health of victim%"
-		if {_zombie ID} is "SCZ":
+		else if {_zombie ID} is "SCZ":
 			set {_nameOfSCZ} to metadata value "Name" of victim
 			set name of victim to "<light red>%{_nameOfSCZ}% <r>- %round(health of victim)%/%max health of victim%"
-			#TODO: add metadata that is the name of the zombie so it can display health
+		else if {_zombie ID} is "kiste":
+			set name of victim to "<light red>Kiste <r>- %round(health of victim)%/%max health of victim%"
+		else if {_zombie ID} is "The Janitor":
+			set name of victim to "<red>The Janitor <r>- %round(health of victim)%/%max health of victim%"
 		else:
 			set name of victim to "<light red>LvL %{_zombie level}% zombie <r>- %round(health of victim)%/%max health of victim%"
-			#Makes the entity push move the same way however fast it is originally moving
-			set {_still} to new vector  0, 0, 0
-			set velocity of victim to {_still}
-			
-			push the victim in horizontal direction of attacker with speed 0.4
-			#if victim is on ground:
-			#	push the victim up with speed 0.1
+		#Makes the entity push move the same way however fast it is originally moving
+		set {_still} to new vector  0, 0, 0
+		set velocity of victim to {_still}
+		
+		push the victim in horizontal direction of attacker with speed 0.4
+		#if victim is on ground:
+		#	push the victim up with speed 0.1
 	else if {_zombie ID} is "Lazarus":
 		set name of victim to "<red>Lazarus <light red>- %round(victim's health)%/%victim's max health%"
 		

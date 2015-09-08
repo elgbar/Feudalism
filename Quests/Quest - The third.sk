@@ -34,7 +34,7 @@ command /NPCWallGuard <player>:
 		set {_name} to "<green>Wall Guard<r>:<r>"
 		#God this language needs some logical AND and OR...
 		if {feu.quest.theThird.%uuid of arg-1%} is "In progress":
-			message "%{_name}% The signal came from the first house on the right." to arg-1
+			message "%{_name}% You can see the smoke coming out the chimney" to arg-1
 		else:
 			message "%{_name}% This town is under quarantine! You can not enter without Lord Wilson permission." to arg-1
 		
@@ -61,12 +61,14 @@ command /NPCSurvivor <player>:
 	#action: on rightclick on entity
 	executable by: console
 	trigger:
+		execute console command "spawnboss kiste" #He doesn't spawn another way :P
 		set {_name} to "<green>Survivor<r>:<r>"
 		if {feu.quest.theThird.2.%uuid of arg-1%} is true:
 			set {feu.quest.theThird.2.%uuid of arg-1%} to false
 			set {feu.quest.theThird.3.%uuid of arg-1%} to true
 			message "%{_name}% Oh you found me! You are the first person I have seen in months!" to arg-1
-			message "%{_name}% As you saw there are a lot of zombies outside. Can you help me clear some of them out?" to arg-1
+			wait 50 tick
+			message "%{_name}% As you saw there are a lot of zombies outside. Can you help me <gold>clear some of them out<r>?" to arg-1
 		else if {feu.quest.theThird.3.%uuid of arg-1%} is true:
 			message "%{_name}% Kill some of the zombies outside." to arg-1
 		else if {feu.quest.theThird.4.%uuid of arg-1%} is true:
@@ -75,40 +77,42 @@ command /NPCSurvivor <player>:
 			message "%{_name}% Well done! You seem stronger than you look." to arg-1
 			wait 40 tick
 			message "%{_name}% Can you do another task for me?" to arg-1
-			wait 20 tick 
-			message "%{_You}% Sure!"
-			wait 30 tick
-			message "%{_name}% I need something to board up the windows. <gold>Can you take a look around town for some plank-ish material<r>?"
+			wait 20 tick
+			message "%{_name}% I need something to board up the windows. Can you <gold>take a look around town for some plank-ish material<r>? Like the ones on the windows." to arg-1
+			wait 200 tick
+			message "{@You} I should probably look inside chests." to arg-1
 		else if {feu.quest.theThird.5.%uuid of arg-1%} is true:
-			if arg-1 has 4 signs named "Planks" with lore "<light gray>Quest Item":
+			if arg-1 has 4 signs named "<r>Plank" with lore "<light gray>Quest Item":
 				set {feu.quest.theThird.5.%uuid of arg-1%} to false
 				set {feu.quest.theThird.6.%uuid of arg-1%} to true
-				message "%{_name}% Great! Now can I finally board up those windows."
-				wait 35 tick
-				message "%{_name}% There is a reason I haven't left this town."
-				wait 25 tick 
-				message "%{_name}% Not only because this is my house, but another physical reason."
-				wait 40 tick
-				message "%{_name}% To get to the other side of that wall you need to walk trough the sewers."
-				wait 50 tick
-				message "%{_name}% <gold>Down in the sewers there are many dangerous monsters."
+				remove all signs named "<r>Plank" with lore "<light gray>Quest Item" from arg-1's inventory
+				message "%{_name}% Great! Now can I finally board up those windows." to arg-1
+				wait 45 tick
+				message "%{_name}% There is a reason I haven't left this town." to arg-1
 				wait 45 tick 
-				message "%{_name}% To get down there <gold>you need to obtain the key, and only the janitor has it."
+				message "%{_name}% Not only because this is my house, but another physical reason." to arg-1
+				wait 50 tick
+				message "%{_name}% To get to the other side of that wall you need to walk trough the sewers." to arg-1
+				wait 50 tick
+				message "%{_name}% Down in the sewers there are many dangerous monsters." to arg-1
+				wait 45 tick 
+				message "%{_name}% To get down there you need to <gold>obtain the key, and only the janitor has it." to arg-1
+				
 			else:
-				message "%{_name}% You need to bring me 4 planks!"
+				message "%{_name}% You need to bring me 4 planks." to arg-1
 		else if {feu.quest.theThird.6.%uuid of arg-1%} is true:
 			if arg-1 has a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item":
 				set {feu.quest.theThird.6.%uuid of arg-1%} to false
 				set {feu.quest.theThird.7.%uuid of arg-1%} to true
-				message "%{_name}% That's impressive! Now There is only one way down into the sewers."
+				message "%{_name}% That's impressive! Now There is only one way down into the sewers." to arg-1
 				wait 50 tick
-				message "%{_name}% <gold>Go into the well, just outside my door"
+				message "%{_name}% <gold>Go into the well, just outside my door" to arg-1
 				wait 40 tick
-				message "%{_name}% From there on you need to find your own path"
+				message "%{_name}% From there on you must find your own path" to arg-1
 			else:
-				message "%{_name}% To get down into the sewers you need to obtain the key, and only the janitor has it."
+				message "%{_name}% To get down into the sewers you need to obtain the key, but only the janitor has it." to arg-1
 		else if {feu.quest.theThird.7.%uuid of arg-1%} is true:
-			message "%{_name}% Go into the well, just outside my door"
+			message "%{_name}% Go into the well, just outside my door" to arg-1
 		else:
 			message "%{_name}% Hello." to arg-1
 			message "{@err2} Else triggered at %{_name}% for %arg-1%, at quest theThird. See log for more info." to console
@@ -121,4 +125,25 @@ command /theThird.KilledZombies1 <player>:
 		set {_name} to "<green>Survivor<r>:<r>"
 		set {feu.quest.theThird.3.%uuid of arg-1%} to false
 		set {feu.quest.theThird.4.%uuid of arg-1%} to true
-		message "%{_name}% I think that is enough."
+		message "%{_name}% I think that is enough." to arg-1
+		
+command /theThird.signs <player>:
+	#action: On click on chest
+	executable by: console
+	trigger:
+		if arg-1 can hold a sign:
+			give arg-1 a sign named "<r>Plank" with lore "<light gray>Quest Item"
+			if chance of 10%:
+				message "{@You} Another sign. NICE!" to arg-1
+			else if chance of 15%:
+				message "{@You} Found a sign." to arg-1
+			else if chance of 5%:
+				message "{@You} Oh look a RARE sign." to arg-1
+			else:
+				message "{@You} Looks like I've got another sign." to arg-1
+		else:
+			message "{@You} There isn't enough space in my inventory for another sign..." to arg-1
+			
+			
+every 10 seconds:
+	execute console command "spawnboss janitor"

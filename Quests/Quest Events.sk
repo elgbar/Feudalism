@@ -55,6 +55,7 @@ on any movement:
 on rightclick on button:
 	#cancel events need to be here, therefore this can not be converted to commands
 	set {_BlockInfo} to metadata value "BlockInfo" of clicked block
+	#message "%{_BlockInfo}%" #Debug
 	if "%{_BlockInfo}%" is equal to "Starter_house1":
 		cancel event
 		if {feu.quest.starter.3.%uuid of player%} is true:
@@ -74,23 +75,59 @@ on rightclick on button:
 			uncancel event
 		else if {feu.quest.Crazy_house.%uuid of player%} is "Completed":
 			uncancel event
-
+	else if "%{_BlockInfo}%" is equal to "theThird.sewers":
+		cancel event
+		if {feu.quest.theThird.7.%uuid of player%} is true:
+			if player has a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item":
+				remove all tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item" from player's inventory
+				set {feu.quest.theThird.7.%uuid of player%} to false
+				set {feu.quest.theThird.8.%uuid of player%} to true
+				uncancel event
+			else:
+				message "{@err2} Player came too far without a key..." to console
+				log "%player% Tried to enter the sewers in quest the third without a key but with {feu.quest.theThird.7.%uuid of player%} equal to true" to "quest.log"
+				message "{@err2} Something went wrong! How did you manage to come so far? <r>Please contact an admin."
+		else if {feu.quest.theThird.8.%uuid of player%} is true:
+			uncancel event
+			
 on rightclick on chest:
 	cancel event
 	set {_BlockInfo} to metadata value "BlockInfo" of clicked block
+	#message "%{_BlockInfo}%" #Debug
 	if "%{_BlockInfo}%" is equal to "starter.chest1":
 		execute console command "starter.chest1 %player%"
 		stop
 	else if "%{_BlockInfo}%" is equal to "Crazy_house.bossLoot":
-		#can not be a command because of "location of block"
-		set {feu.quest.Crazy_house.hasLootedChests.%uuid of player%} to true
-		if {feu.quest.Crazy_house.%location of block%.%uuid of player%} is false:
-			message "{@You} I have already looted this chest."
-			stop
-		else:
-			set {feu.quest.Crazy_house.%location of block%.%uuid of player%} to false
-			execute console command "Crazy_house.bossLoot %player%"
-			stop
+		#cannot be a command because of "location of block"
+		if {feu.quest.Crazy_house.hasLootedChests.%uuid of player%} isn't true:
+			set {feu.quest.Crazy_house.hasLootedChests.%uuid of player%} to true
+			
+		set {_Crazy_house.getLoot} to true
+		loop {feu.quest.Crazy_house.lootChest.%uuid of player%::*}:
+			if location of clicked block is equal to {feu.quest.Crazy_house.lootChest.%uuid of player%::%loop-index%}:
+				message "{@You} I have already looted this chest."
+				set {_Crazy_house.getLoot} to false
+				stop
+		if {_Crazy_house.getLoot} is true:
+			if {feu.quest.Crazy_house.%uuid of player%} is "Completed":
+				add location of clicked block to {feu.quest.Crazy_house.lootChest.%uuid of player%::*} 
+				execute console command "Crazy_house.bossLoot %player%"
+				stop
+			else:
+				message "{@err} You should not be here, now you cannot loot the chest again..."
+	else if "%{_BlockInfo}%" is equal to "theThird.signs":
+		set {_theThird.getLoot} to true
+		loop {feu.quest.theThird.plankChests.%uuid of player%::*}:
+			if location of clicked block is equal to {feu.quest.theThird.plankChests.%uuid of player%::%loop-index%}:
+				message "{@You} I have already looked in this chest."
+				set {_theThird.getLoot} to false
+				stop
+		if {_theThird.getLoot} is true:
+			if {feu.quest.theThird.5.%uuid of player%} is true:
+				add location of clicked block to {feu.quest.theThird.plankChests.%uuid of player%::*}
+				execute console command "theThird.signs %player%"
+				stop
+	#Has to be last
 	else if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "feu.op":
 		uncancel event
 		

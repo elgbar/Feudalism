@@ -10,7 +10,7 @@ options:
 	
 #Commands
 
-command /fhelp [<integer=1>]:
+command /fhelp:
 	trigger:
 		if {feu.permission.%uuid of player%} is not "feu.player", "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
@@ -23,10 +23,9 @@ command /fhelp [<integer=1>]:
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 		message "<yellow>------<gold>[&aFeudalism Commands<gold>]<yellow>------"
-		if arg-1 is 1:
-			#player commands
-			message "<light red>/stats<r> : <light gray>Show your stats."
-			message "<light red>/credits<r> : <light gray>List the credits."
+		#player commands
+		message "<light red>/stats<r> : <light gray>Show your stats."
+		message "<light red>/credits<r> : <light gray>List the credits."
 		
 		if {feu.permission.%uuid of player%} is "feu.player":
 			stop
@@ -68,7 +67,8 @@ command /fhelp [<integer=1>]:
 		message "<light red>/delLocation <r>: <light gray>Deletes a location set by /setLocation"
 		message "<light red>/saveItem <name of saved item> <r>: <light gray>Saves items OR block with specials tags on them (like enchantment and a name)"
 		message "<light red>/deleteItem <name of saved item> <r>: <light gray>delete items OR block that are saved with command /saveitem)"
-		message "<light red>/changeZombie<r>: <light gray>Change variables on zombies. Tip: you have to stand on the block to change it."
+		message "<light red>/changeZombie<r>: <light gray>Change variables on zombies. Note: You have to stand on the block to change it."
+		message "<light red>/fixZombie<r>: <light gray>Enables a zombie with x ID to spawn."
 		message "<light red>/setBossSpawn<r>: <light gray>Set a spawn point for a boss (currently only Lazarus)."
 		if {feu.permission.%uuid of player%} is "feu.tech":
 			stop
@@ -310,10 +310,20 @@ command /killall [<boolean=false>]:
 				#add 1 to {_nr}
 				set {feu.fixedspawn.isSpawned.%loop-number%} to false
 				
-		set {_spawn boss} to {feu.boss.Lazarus.isSpawned}
+		set {_spawn boss lazarus} to {feu.boss.Lazarus.isSpawned}
 		execute console command "spawnboss lazarus true true" #make lazarus spawn again
-		if {_spawn boss} is true:
+		if {_spawn boss lazarus} is true:
 			execute console command "spawnboss lazarus" #then spawn him if he was spawned
+			
+		set {_spawn boss kiste} to {feu.boss.kiste.isSpawned}
+		execute console command "spawnboss kiste true true" #make kiste spawn again
+		if {_spawn boss kiste} is true:
+			execute console command "spawnboss kiste" #then spawn him if he was spawned
+			
+		set {_spawn boss Janitor} to {feu.boss.Janitor.isSpawned}
+		execute console command "spawnboss Janitor true true" #make Janitor spawn again
+		if {_spawn boss Janitor} is true:
+			execute console command "spawnboss Janitor" #then spawn him if he was spawned
 			
 		if {_kills} does not exist:
 			set {_kills} to "none"
@@ -340,6 +350,8 @@ command /seeSpawns <boolean> [<player=%player%>] [<boolean=false>]:
 			loop {feu.fixedspawn::*}:
 				make arg-2 see block below loop-value as iron block
 			make arg-2 see block below {feu.boss.Lazarus.spawnLoc} as gold block
+			make arg-2 see block below {feu.boss.kiste.spawnLoc} as gold block
+			make arg-2 see block below {feu.boss.janitor.spawnLoc} as gold block
 		else:
 			loop {feu.fixedspawn::*}:
 				make arg-2 see block below loop-value as block below loop-value
@@ -478,7 +490,7 @@ on skript load:
 		#STABLE : A stable build recommended used. (verify: Check every single command, and everything below)
 		#DEVELOP : Finished with a feature, but needs debugging before it can be considered a STABLE build. (verify: Check that quests work and you can kill zombies properly)
 		#UNCERTAIN : Quick upload after finishing a session. Do not use builds which is in this state. Can be multiple UNCERTAIN builds in one day. (verify: Nothing)
-	set {feu.version} to "Build 20 - UNCERTAIN"
+	set {feu.version} to "Build 21 - UNCERTAIN"
 	ban "<none>" due to "can not have a player with that name, change it to play here" #<none> is the console, too bad for the one who has that name :P
 	set {feu.permission.<none>} to "feu.op" #makes the console use all commands
 	if {feu.mainSpawn} does not exist:

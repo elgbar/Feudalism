@@ -41,7 +41,6 @@ command /spawnCostumZombies <integer> <text="Zombie"> [<text="default">] [<text=
 		replace all "_" with " " in {_name}
 		set metadata value "Name" of last spawned entity to "%{_name}%"
 		set the name of last spawned entity to "%{_name}%"
-		set metadata value "Level" of last spawned entity to arg-1
 		
 		#Armour
 		if arg-3 is "leather":
@@ -121,7 +120,7 @@ command /setBossSpawn <text="help">:
 			message "{@err} can not spawn bosses in the air!"
 			stop
 			
-		if arg-1 is "Lazarus":
+		if arg-1 is "Lazarus", "kiste" or "janitor":
 			set {_round Coords} to location of player
 			set {_x} to x coordinate of {_round Coords}
 			set {_y} to y coordinate of {_round Coords}
@@ -130,21 +129,43 @@ command /setBossSpawn <text="help">:
 			set y coordinate of {_round Coords} to floor({_y})+0.5
 			set z coordinate of {_round Coords} to floor({_z})+0.5
 			
+		if arg-1 is "Lazarus":
 			set {feu.boss.Lazarus.spawnLoc} to {_round Coords}
 			set {feu.boss.Lazarus.isSpawned} to false
 			message "{@prefix} Lazarus will now spawn at this location"
+		else if arg-1 is "Kiste":
+			set {feu.boss.kiste.spawnLoc} to {_round Coords}
+			set {feu.boss.kiste.isSpawned} to false
+			message "{@prefix} Kiste will now spawn at this location"
+		else if arg-1 is "janitor":
+			set {feu.boss.Janitor.spawnLoc} to {_round Coords}
+			set {feu.boss.Janitor.isSpawned} to false
+			message "{@prefix} The Janitor will now spawn at this location"
 		else:
 			if {feu.boss.Lazarus.spawnLoc} exists:
 				set {_laz} to true
 			else:
 				set {_laz} to false
+				
+			if {feu.boss.kiste.spawnLoc} exists:
+				set {_kiste} to true
+			else:
+				set {_kiste} to false
+			
+			if {feu.boss.Janitor.spawnLoc} exists:
+				set {_Janitor} to true
+			else:
+				set {_Janitor} to false
+				
 			message "<yellow>------<gold>[&aFeudalism Boss Spawn Location<gold>]<yellow>------"
 			message "<green>Boss name<gold>: <yellow>Lazarus <r>| <green>Quest<gold>: <yellow>Crazy House <r>| <green>Exists<gold>: <yellow>%{_laz}%"
+			message "<green>Boss name<gold>: <yellow>Kiste <r>| <green>Quest<gold>: <yellow>None <r>| <green>Exists<gold>: <yellow>%{_kiste}%"
+			message "<green>Boss name<gold>: <yellow>The Janitor <r>| <green>Quest<gold>: <yellow>The Third <r>| <green>Exists<gold>: <yellow>%{_Janitor}%"
 			#yes I used way too long on this help screen
 			stop
 		make player see block below player as gold block
 		
-command /spawnBoss <text> [<boolean=false> <boolean=false>]: #4th: silent or not
+command /spawnBoss <text> [<boolean=false>] [<boolean=false>]: #3rd: silent or not
 	Usage: /spawnBoss <Boss name | List> [<fix d=false>]
 	executable by: console
 	trigger:
@@ -157,7 +178,7 @@ command /spawnBoss <text> [<boolean=false> <boolean=false>]: #4th: silent or not
 					message "{@prefix} Boss Lazarus fixed"
 				stop
 			if {feu.boss.Lazarus.spawnLoc} does not exist:
-				message "{@err} You need to set Lazarus' spawn first."
+				message "{@err2} You need to set Lazarus' spawn first."
 				stop
 			if {feu.boss.Lazarus.isSpawned} is not true:
 				Spawn a witch at {feu.boss.Lazarus.spawnLoc}
@@ -170,11 +191,71 @@ command /spawnBoss <text> [<boolean=false> <boolean=false>]: #4th: silent or not
 				loop 4 times:
 					set {feu.boss.Lazarus.minions.spawned.%loop-number%} to false
 				set {feu.boss.Lazarus.isSpawned} to true
+		else if arg-1 is "Kiste":
+			if arg-2 is true:
+				set {feu.boss.kiste.isSpawned} to false
+				if arg-3 is false:
+					message "{@prefix} ""Boss"" Kiste fixed"
+				stop
+			else if {feu.boss.kiste.spawnLoc} does not exist:
+				message "{@err2} No spawn exists for Kiste"
+				stop
+			else if {feu.boss.kiste.isSpawned} is not true:
+				#A basic setup from SCZ
+				spawn a zombie at {feu.boss.kiste.spawnLoc}
+				set metadata value "ID" of last spawned entity to "kiste"
+				set metadata value "Level" of last spawned entity to 21
+				equip last spawned entity with all leather armour
+				set metadata value "Name" of last spawned entity to "Kiste"
+				set the name of last spawned entity to "Kiste"
+				set tool of the last spawned entity to a stone sword
+				wait 1 tick
+				set age of last spawned entity to adult
+				set rf maximum health of the last spawned entity to 102
+				heal last spawned entity
+				if the maximum health of {_entity} is not {_health}:
+					delete last spawned entity
+					execute console command "spawnboss kiste"
+				else:
+					set {feu.boss.kiste.isSpawned} to true
+				stop
+		else if arg-1 is "Janitor":
+			if arg-2 is true:
+				set {feu.boss.Janitor.isSpawned} to false
+				if arg-3 is false:
+					message "{@prefix} Boss The Janitor fixed"
+				stop
+			else if {feu.boss.Janitor.spawnLoc} does not exist:
+				message "{@err2} No spawn exists for Janitor"
+				stop
+			else if {feu.boss.Janitor.isSpawned} is not true:
+				#A basic setup from SCZ
+				spawn a zombie at {feu.boss.Janitor.spawnLoc}
+				set metadata value "ID" of last spawned entity to "The Janitor"
+				set metadata value "Level" of last spawned entity to 20
+				equip last spawned entity with all chain armour
+				set metadata value "Name" of last spawned entity to "The Janitor"
+				set the name of last spawned entity to "<red>The Janitor"
+				set tool of the last spawned entity to a iron sword
+				wait 1 tick
+				set age of last spawned entity to adult
+				set rf maximum health of the last spawned entity to 252
+				heal last spawned entity
+				set {feu.boss.Janitor.isSpawned} to true
+				
+				if the maximum health of {_entity} is not {_health}:
+					delete last spawned entity
+					wait 2 tick
+					execute console command "spawnboss Janitor true true"
+					execute console command "spawnboss Janitor"
+				stop
 		else if arg-1 is "list" or "l":
 			message "<green>Boss name: <yellow>Lazarus <r>| <green>Quest: <yellow>Crazy House"
+			message "<green>Boss name: <yellow>Kiste <r>| <green>Quest: <yellow>None"
+			message "<green>Boss name: <yellow>The Janitor <r>| <green>Quest: <yellow>The Third"
 			message "Set second variable to true to fix never spawning bosses."
 		else:
-			message "Correct usage: /spawnBoss <Boss name | List>  [<Distance (d=3)>]"
+			message "Correct usage: /spawnBoss <Boss name | List> [<fix d=false>]"
 			
 command /setFixedZombieSpawn <integer> <text> <text> [<integer=5>]:# [<integer=0.2>]:
 	usage: /sfzs <level> <Armour> <weapon> [<return to spawn distance d=5>] #[<speed (from -1 to 1>]
@@ -320,10 +401,8 @@ command /fixAllZombieSpawns:
 				
 		message "{@prefix} All custom spawned entities will now spawn!"
 		
-			
-			
-command /changeZombie <String> [<String>] [<string>]:
-	usage: fz <ID/Location> [if location: <Level/armour/weapon/RTSD (Return to spawn distance)> else: <ID (of zombie)>] [<new variable>]
+command /fixZombie <String>:
+	usage: fz <ID (of zombie)>
 	aliases: fz
 	executable by: player
 	trigger:
@@ -335,85 +414,100 @@ command /changeZombie <String> [<String>] [<string>]:
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-		if arg-1 is "ID":
-			if {feu.fixedspawn.isSpawned.%arg-2%} exists:
-				set {feu.fixedspawn.isSpawned.%arg-2%} to false
-				message "{@prefix} Fixed the entity spawning with ID %arg-2%!"
-			else:
-				message "{@err} No Entity with that ID!"
+		if arg-1 doesn't exist:
+			message "{@err} You need to specify an ID"
 			stop
-		else if arg-1 is "Location" or "loc":
+			
+		if {feu.fixedspawn.isSpawned.%arg-1%} exists:
+			set {feu.fixedspawn.isSpawned.%arg-1%} to false
+			message "{@prefix} Fixed the entity spawning with ID %arg-1%!"
+		else:
+			message "{@err} No Entity with that ID!"
+			
+command /changeZombie <String> <string>:
+	usage: cz <Level/armour/weapon/RTSD (Return to spawn distance)> <new variable>
+	aliases: cz
+	executable by: player
+	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+		if arg-1 exists:
 			if arg-2 exists:
-				if arg-3 exists:
-					set {_round Coords} to location of player
-					set {_x} to x coordinate of {_round Coords}
-					set {_y} to y coordinate of {_round Coords}
-					set {_z} to z coordinate of {_round Coords}
-					set x coordinate of {_round Coords} to floor({_x})+0.5
-					set y coordinate of {_round Coords} to floor({_y})+0.5
-					set z coordinate of {_round Coords} to floor({_z})+0.5
-					if arg-2 is "level" or "lvl":
-						set {_convert} to arg-3
-						set {_convert} to "%{_convert}%" parsed as a number
-						if {_convert} is less than 1:
-							message "{@err} You can not set the level to less than 1."
-							stop
-						else if {_convert} is greater than 1000:
-							message "{@err} An entity can not be higher than level 1000!"
-							stop
-						if {feu.fixedspawn.lvl.%{_round Coords}%} exists:
-							set {feu.fixedspawn.lvl.%{_round Coords}%} to {_convert}
-							message "{@prefix} The entity spawned at <yellow>%{_round Coords}%<r> will now spawn as a level <gold>%arg-3% <r>zombie."
-							stop
-						else:
-							set {_no go} to true
-					else if arg-2 is "armour" or "armor":
-						if arg-3 is not "leather", "chain", "iron", "gold", "diamond", "none" or "air":
-							message "{@err} An entity can not equip that type of armour!"
-							stop
-						if {feu.fixedspawn.armour.%{_round Coords}%} exists:
-							set {feu.fixedspawn.armour.%{_round Coords}%} to arg-3
-							message "{@prefix} The entity spawned at <yellow>%{_round Coords}%<r> will now spawn with <gold>%arg-3% armour."
-							stop
-						else:
-							set {_no go} to true
-					else if arg-2 is "weapon":
-						if arg-3 is not "wood", "wooden", "stone", "iron", "gold", "diamond", "air" or "none":
-							message "{@err} The entity can not hold that kind of weapon!"
-							stop
-						if {feu.fixedspawn.weapon.%{_round Coords}%} exists:
-							set {feu.fixedspawn.weapon.%{_round Coords}%} to arg-3
-							message "{@prefix} The entity spawned at <yellow>%{_round Coords}%<r> will now spawn with a <gold>%arg-3% sword."
-							stop
-						else:
-							set {_no go} to true
-					else if arg-2 is "RTSD":
-						set {_convert} to arg-3
-						set {_convert} to "%{_convert}%" parsed as a number
-						if {_convert} is less than 1:
-							message "{@err} You can not set that to negative or zero."
-							stop
-						else if {_convert} is greater than 10:
-							message "{@err} Too high!. valid numbers are 1-10"
-							stop
-							
-						if {feu.fixedspawn.returnToSpawn.%{_round Coords}%} exists:
-							set {feu.fixedspawn.returnToSpawn.%{_round Coords}%} to {_convert}
-						else:
-							set {_no go} to true
-						message "{@prefix} The entity spawned at <yellow>%{_round Coords}%<r> will return to it is spawn when it is <gold>%arg-3% <r>away from it."
+				set {_round Coords} to location of player
+				set {_x} to x coordinate of {_round Coords}
+				set {_y} to y coordinate of {_round Coords}
+				set {_z} to z coordinate of {_round Coords}
+				set x coordinate of {_round Coords} to floor({_x})+0.5
+				set y coordinate of {_round Coords} to floor({_y})+0.5
+				set z coordinate of {_round Coords} to floor({_z})+0.5
+				if arg-1 is "level" or "lvl":
+					set {_convert} to arg-2
+					set {_convert} to "%{_convert}%" parsed as a number
+					if {_convert} is less than 1:
+						message "{@err} You can not set the level to less than 1."
 						stop
-					if {_no go} is true:
-						message "{@err} No entity spawns here!"
+					else if {_convert} is greater than 1000:
+						message "{@err} An entity can not be higher than level 1000!"
+						stop
+					if {feu.fixedspawn.lvl.%{_round Coords}%} exists:
+						set {feu.fixedspawn.lvl.%{_round Coords}%} to {_convert}
+						message "{@prefix} The entity spawned at <yellow>%{_round Coords}%<r> will now spawn as a level <gold>%arg-2% <r>zombie."
 						stop
 					else:
-						message "{@err} Unknown variable ""%arg-3%"""
+						set {_no go} to true
+				else if arg-1 is "armour" or "armor":
+					if arg-2 is not "leather", "chain", "iron", "gold", "diamond", "none" or "air":
+						message "{@err} An entity can not equip that type of armour!"
+						stop
+					if {feu.fixedspawn.armour.%{_round Coords}%} exists:
+						set {feu.fixedspawn.armour.%{_round Coords}%} to arg-2
+						message "{@prefix} The entity spawned at <yellow>%{_round Coords}%<r> will now spawn with <gold>%arg-2% armour."
+						stop
+					else:
+						set {_no go} to true
+				else if arg-1 is "weapon":
+					if arg-2 is not "wood", "wooden", "stone", "iron", "gold", "diamond", "air" or "none":
+						message "{@err} The entity can not hold that kind of weapon!"
+						stop
+					if {feu.fixedspawn.weapon.%{_round Coords}%} exists:
+						set {feu.fixedspawn.weapon.%{_round Coords}%} to arg-2
+						message "{@prefix} The entity spawned at <yellow>%{_round Coords}%<r> will now spawn with a <gold>%arg-2% sword."
+						stop
+					else:
+						set {_no go} to true
+				else if arg-1 is "RTSD":
+					set {_convert} to arg-2
+					set {_convert} to "%{_convert}%" parsed as a number
+					if {_convert} is less than 1:
+						message "{@err} You can not set that to negative or zero."
+						stop
+					else if {_convert} is greater than 10:
+						message "{@err} Too high!. valid numbers are 1-10"
+						stop
+						
+					if {feu.fixedspawn.returnToSpawn.%{_round Coords}%} exists:
+						set {feu.fixedspawn.returnToSpawn.%{_round Coords}%} to {_convert}
+					else:
+						set {_no go} to true
+					message "{@prefix} The entity spawned at <yellow>%{_round Coords}%<r> will return to it is spawn when it is <gold>%arg-2% <r>away from it."
+					stop
+				if {_no go} is true:
+					message "{@err} No entity spawns here!"
+					stop
 				else:
-					message "{@err} You need to have a forth variable!"
+					message "{@err} Unknown variable ""%arg-2%"""
 			else:
-				message "{@err} You need to have a third variable!"
-		message "Correct usage: fz <ID/Location> [if location: <Level/armour/weapon/RTSD (Return to spawn distance)> else: <ID (of zombie)>] [<new variable>]"
-		
+				message "{@err} You need to have a second variable!"
+		else:
+			message "{@err} You need to have a first variable!"
+		message "Correct usage: cz <Level/armour/weapon/RTSD (Return to spawn distance)> <new variable>"
+	
 command /blockInfo:
 	aliases: bi
 	executable by: player
@@ -563,7 +657,7 @@ every 3 seconds in world "Feudalism_4":
 		set y coordinate of {_location} to ({_y}) parsed as number
 		set z coordinate of {_location} to ({_z}) parsed as number
 		
-		if "%{_ID}%" contains "Lazarus' minion" or "SCZ":
+		if "%{_ID}%" contains "Lazarus' minion", "kiste", "The Janitor" or "SCZ":
 			message "" to {_fake}
 		else if "%{_ID}%" is not "<none>":
 			#needs optimizing
@@ -582,7 +676,7 @@ every 3 seconds in world "Feudalism_4":
 			if distance between loop-entity and {_location} is greater than {_RTSD}*4:
 				teleport loop-entity to {_location}
 				{@debug}:
-					message "{@debugPrefix} %{_ID}% | <gold>Way too far home! Teleporting entity." to console
+					message "{@debugPrefix} %{_ID}% | <gold>Way too far home! Teleporting entity. (%{_location}%)" to console
 			if {feu.goingHome.%{_ID}%} is true:
 				if distance between loop-entity and {_location} is smaller than {_RTSD}:
 					set {feu.goingHome.%{_ID}%} to false
@@ -613,7 +707,9 @@ every 3 seconds in world "Feudalism_4":
 			else:
 				{@hardDebugging} is true:
 					message "{@debugPrefix} %{_ID}% | <green>Nothing to report on %{_ID}%." to console
-					
+		#else:
+		#	message "{@err2} Unknown ID of zombie!" to console #SHOULDN'T happen, other safeguards are in place
+		
 		if {_Level} does not exist:
 			wait 4 tick #no lower, fully tested
 			set {_ID} to metadata value "ID" of loop-entity

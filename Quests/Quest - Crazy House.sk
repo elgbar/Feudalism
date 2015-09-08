@@ -182,10 +182,7 @@ command /Crazy_house.bossLoot <player>:
 	#action: on click on chest
 	executable by: console
 	trigger:
-		#TODO: make this smoother
-		if {feu.quest.Crazy_house.%uuid of arg-1%} is "Completed":
-			loop 3 times:
-				set {_item} to a random element of {feu.loot.basic::*}
-				give {_item} to the arg-1
-		else:
-			message "{@err} You should not be here, now you cannot loot the chest again..." to arg-1
+		loop 3 times:
+			set {_item} to a random element of {feu.loot.basic::*}
+			give {_item} to the arg-1
+		

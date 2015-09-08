@@ -1,9 +1,10 @@
 Bugs:
-+XP orbs at location on long loop, low priority
++XP orbs at location on long loop, low priority (also hard)
 
 +After levelling up the XP bar is full (can not reproduce) 
 +zombies falling trough floor (minecraft bug?) (less frequent as of 19.05.15) (never happened again since)
 +Helmets might despawn on zombies (mc feature)
++Sometimes NPCs (villages) won't respawn after executing /killall
 
 suggestions:
 

@@ -62,9 +62,16 @@ command /setMetadata <text> [<integer=2>]:
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-		if block arg-2 below player is not bedrock, any button or chest:
-			message "{@err} No bedrock, button or chest %arg-2% blocks below you."
-			stop
+		if block arg-2 below player is not bedrock:
+			if block at player is chest:
+				message "{@prefix} Autofixing. Chests are currently bugged though this fixes it"
+				set {_chect} to true
+			else if block at player's head is any button:
+				message "{@prefix} The metadata is set to your head's location as there is a button there. Use /delmetadata if this was a mistake."
+				set {_button} to true
+			else:
+				message "{@err} No bedrock, button or chest %arg-2% blocks below you."
+				stop
 		set {_arg-2} to arg-2
 		
 		set {_round Coords} to location of player
@@ -77,6 +84,12 @@ command /setMetadata <text> [<integer=2>]:
 		
 		add {_round Coords} to {feu.metadata.loc::*}
 		set {feu.metadata.txt.%{_round Coords}%} to arg-1
+		
+		if {_chect} is true:
+			set {_arg-2} to 0
+		else if {_button} is true:
+			set {_arg-2} to -1
+
 		set {feu.metadata.below.%{_round Coords}%} to {_arg-2}
 		set metadata value "BlockInfo" of block {feu.metadata.below.%{_round Coords}%} below player to "%{feu.metadata.txt.%{_round Coords}%}%"
 		message "{@prefix} Done!"
@@ -151,6 +164,7 @@ command /quest <text="Help"> [<player>] [<boolean=false>] [<boolean=false>]:
 			clear {feu.quest.Crazy_house.2.%uuid of arg-2%}
 			clear {feu.quest.Crazy_house.3.%uuid of arg-2%}
 			clear {feu.quest.Crazy_house.4.%uuid of arg-2%}
+			delete {feu.quest.Crazy_house.lootChest.%uuid of arg-2%::*}
 		else if arg-1 is "theThird":
 			if arg-2 is not set:
 				message "{@err} You need to specify a player."
@@ -164,6 +178,12 @@ command /quest <text="Help"> [<player>] [<boolean=false>] [<boolean=false>]:
 			clear {feu.quest.theThird.2.%uuid of arg-2%}
 			clear {feu.quest.theThird.3.%uuid of arg-2%}
 			clear {feu.quest.theThird.4.%uuid of arg-2%}
+			clear {feu.quest.theThird.5.%uuid of arg-2%}
+			clear {feu.quest.theThird.6.%uuid of arg-2%}
+			clear {feu.quest.theThird.7.%uuid of arg-2%}
+			clear {feu.quest.theThird.8.%uuid of arg-2%}
+			#clear {feu.quest.theThird.9.%uuid of arg-2%}
+			delete {feu.quest.theThird.plankChests.%uuid of arg-2%::*}
 		else:
 			message "/quest <quest> <player> [<boolean, true: done previous quests, false: fully reset>]" to console
 			message "Available quests: <light green>starter <r>, <light green>Crazy_house<r> and <light green>theThird" to console
@@ -177,3 +197,4 @@ command /quest <text="Help"> [<player>] [<boolean=false>] [<boolean=false>]:
 		set {feu.quest.zombiesKilled.%uuid of arg-2%} to 0
 		remove uuid of arg-2 from {feu.quest.Crazy_house.bossFighters::*}
 		remove uuid of arg-2 from {feu.quest.Crazy_house.bossFighters.logedOff::*}
+		teleport arg-2 to {feu.mainSpawn}
