@@ -490,7 +490,7 @@ on skript load:
 		#STABLE : A stable build recommended used. (verify: Check every single command, and everything below)
 		#DEVELOP : Finished with a feature, but needs debugging before it can be considered a STABLE build. (verify: Check that quests work and you can kill zombies properly)
 		#UNCERTAIN : Quick upload after finishing a session. Do not use builds which is in this state. Can be multiple UNCERTAIN builds in one day. (verify: Nothing)
-	set {feu.version} to "Build 21 - UNCERTAIN"
+	set {feu.version} to "Build 22 - UNCERTAIN"
 	ban "<none>" due to "can not have a player with that name, change it to play here" #<none> is the console, too bad for the one who has that name :P
 	set {feu.permission.<none>} to "feu.op" #makes the console use all commands
 	if {feu.mainSpawn} does not exist:

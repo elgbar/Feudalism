@@ -144,6 +144,12 @@ command /theThird.signs <player>:
 		else:
 			message "{@You} There isn't enough space in my inventory for another sign..." to arg-1
 			
+command /theThird.finalDoor:
+	trigger:
+	
 			
 every 10 seconds:
-	execute console command "spawnboss janitor"
+	loop players in radius 100 around {feu.boss.Janitor.spawnLoc}:
+		add 1 to {_players}
+	if {_players} is greater than 0:
+		execute console command "spawnboss janitor"

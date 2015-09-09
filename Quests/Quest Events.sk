@@ -89,6 +89,15 @@ on rightclick on button:
 				message "{@err2} Something went wrong! How did you manage to come so far? <r>Please contact an admin."
 		else if {feu.quest.theThird.8.%uuid of player%} is true:
 			uncancel event
+	else if "%{_BlockInfo}%" is equal to "theThird.finalDoor":
+		cancel event
+		if {feu.quest.theThird.8.%uuid of player%} is true:
+			uncancel event
+			set {feu.quest.theThird.8.%uuid of player%} to false
+			set {feu.quest.theThird.9.%uuid of player%} to true
+			message "{@You} I should report back to Lord Wilson."
+		else if {feu.quest.theThird.9.%uuid of player%} is true:
+			uncancel event
 			
 on rightclick on chest:
 	cancel event
