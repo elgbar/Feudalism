@@ -146,4 +146,4 @@ command /starter.leaveCastle <player>:
 			message "{@You} I need to talk to someone first..." to arg-1
 		else if {feu.quest.starter.%uuid of arg-1%} is "Not started":
 			teleport arg-1 to {feu.quest.starter.leaveCastle}
-			message "{@You} This looks too dangerous." to arg-1
+			message "{@You} I should talk to Lord Willson first." to arg-1

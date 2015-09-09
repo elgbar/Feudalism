@@ -19,7 +19,7 @@ command /delAllMetadata:
 		message "Done! Restart to remove the values"
 		
 command /delMetadata:
-	aliases: /dmd
+	aliases: /dmd, /delmeta
 	executable by: player
 	trigger: 
 		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
@@ -164,15 +164,17 @@ command /quest <text="Help"> [<player>] [<boolean=false>] [<boolean=false>]:
 			clear {feu.quest.Crazy_house.2.%uuid of arg-2%}
 			clear {feu.quest.Crazy_house.3.%uuid of arg-2%}
 			clear {feu.quest.Crazy_house.4.%uuid of arg-2%}
-			delete {feu.quest.Crazy_house.lootChest.%uuid of arg-2%::*}
+			clear {feu.quest.Crazy_house.hasLootedChests.%uuid of arg-2%}
+			clear {feu.quest.Crazy_house.lootChest.%uuid of arg-2%::*}
+			
 		else if arg-1 is "theThird":
 			if arg-2 is not set:
 				message "{@err} You need to specify a player."
 				stop
 			if arg-3 is true:
 				set {feu.quest.starter.%uuid of arg-2%} to "Completed"
-				set {feu.quest.starter.gotPotions.%uuid of arg-2%} to true
 				set {feu.quest.Crazy_house.%uuid of arg-2%} to "Completed"
+				set {feu.quest.starter.gotPotions.%uuid of arg-2%} to true
 			set {feu.quest.theThird.%uuid of arg-2%} to "Not started"
 			clear {feu.quest.theThird.1.%uuid of arg-2%}
 			clear {feu.quest.theThird.2.%uuid of arg-2%}
@@ -182,8 +184,8 @@ command /quest <text="Help"> [<player>] [<boolean=false>] [<boolean=false>]:
 			clear {feu.quest.theThird.6.%uuid of arg-2%}
 			clear {feu.quest.theThird.7.%uuid of arg-2%}
 			clear {feu.quest.theThird.8.%uuid of arg-2%}
-			#clear {feu.quest.theThird.9.%uuid of arg-2%}
-			delete {feu.quest.theThird.plankChests.%uuid of arg-2%::*}
+			clear {feu.quest.theThird.9.%uuid of arg-2%}
+			clear {feu.quest.theThird.plankChests.%uuid of arg-2%::*}
 		else:
 			message "/quest <quest> <player> [<boolean, true: done previous quests, false: fully reset>]" to console
 			message "Available quests: <light green>starter <r>, <light green>Crazy_house<r> and <light green>theThird" to console

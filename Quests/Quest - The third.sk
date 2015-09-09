@@ -52,6 +52,20 @@ command /NPCLordWilson_theThird <player>:
 			message "%{_name}% Hello again %arg-1%! My scouts at the wall have observed a signal from the village. Can you go and check it out?" to arg-1
 		else if {feu.quest.theThird.1.%uuid of arg-1%} is true:
 			message "%{_name}% Go to the wall and talk to the guards there." to arg-1
+		else if {feu.quest.theThird.9.%uuid of arg-1%} is true:
+			set {feu.quest.theThird.%uuid of arg-1%} to "Completed"
+			set {feu.quest.theThird.9.%uuid of arg-1%} to false
+			message "%{_name}% You don't need to tell me anything. I've got my report from the guards." to arg-1
+			wait 40 tick
+			message "%{_name}% You did a very good job!" to arg-1
+			if arg-1 can hold 2 potion of health:
+				give 2 potion of health named "Instant Health I" to arg-1
+				message "%{_name}% Take this as a reward." to arg-1
+				message "{@prefix} You received /placeholder/" to arg-1
+				#set {feu.quest.starter.gotPotions.%uuid of arg-1%} to true
+			else:
+				message "<green>Lord Wilson<r>:<r> You can not hold 2 /placeholder/, talk to me again when you can." to arg-1
+			message "{@prefix} Quest complete!" to arg-1
 		else:
 			message "%{_name}% Hello." to arg-1
 			message "{@err2} Else triggered at %{_name}% for %arg-1%, at quest theThird. See log for more info." to console
@@ -133,23 +147,52 @@ command /theThird.signs <player>:
 	trigger:
 		if arg-1 can hold a sign:
 			give arg-1 a sign named "<r>Plank" with lore "<light gray>Quest Item"
+			if size of {feu.quest.theThird.plankChests.%uuid of arg-1%::*} is 0:
+				message "{@You} Found a plank!" to arg-1
+				stop
 			if chance of 10%:
-				message "{@You} Another sign. NICE!" to arg-1
+				message "{@You} Another plank. NICE!" to arg-1
 			else if chance of 15%:
-				message "{@You} Found a sign." to arg-1
-			else if chance of 5%:
-				message "{@You} Oh look a RARE sign." to arg-1
+				message "{@You} Found a plank." to arg-1
+			else if chance of 2%:
+				message "{@You} Oh look, a RARE plank." to arg-1
 			else:
-				message "{@You} Looks like I've got another sign." to arg-1
+				message "{@You} Looks like I've got another plank." to arg-1
+				
+			if size of {feu.quest.theThird.plankChests.%uuid of arg-1%::*} is 4:
+				message "{@You} I have enough now." to arg-1
 		else:
-			message "{@You} There isn't enough space in my inventory for another sign..." to arg-1
-			
-command /theThird.finalDoor:
+			message "{@You} There isn't enough space in my inventory for another plank..." to arg-1
+		
+command /theThird.finalDoor <player>:
+	#action: On any movement
+	executable by: console
 	trigger:
-	
+		if {feu.quest.theThird.8.%uuid of arg-1%} is true:
+			stop
+		else if {feu.quest.theThird.9.%uuid of arg-1%} is true:
+			stop
+		else if {feu.quest.theThird.%uuid of arg-1%} is "Completed":
+			stop
+		else:
+			teleport arg-1 to {feu.quest.theThird.finalDoor}
 			
+command /theThird.sewers <player>:
+	#action: On any movement
+	executable by: console
+	trigger:
+		if {feu.quest.theThird.7.%uuid of arg-1%} is true:
+			stop
+		else if {feu.quest.theThird.8.%uuid of arg-1%} is true:
+			stop
+		else if {feu.quest.theThird.%uuid of arg-1%} is "Completed":
+			stop
+		else:
+			teleport arg-1 to {feu.quest.theThird.sewers}
+		
 every 10 seconds:
-	loop players in radius 100 around {feu.boss.Janitor.spawnLoc}:
+	loop players in radius 60 around location of {feu.boss.Janitor.spawnLoc}:
 		add 1 to {_players}
 	if {_players} is greater than 0:
 		execute console command "spawnboss janitor"
+		

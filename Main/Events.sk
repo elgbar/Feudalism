@@ -77,7 +77,7 @@ on respawn:
 			teleport player to {feu.quest.Crazy_house.bossExit1}
 		else:
 			message "{@err} An error occured that caused the player %player% not to spawn at a location when doing quest Crazy_house! If you are a developer please look in \plugins\skript\logs\questdump.log to fix this quick!" to console
-			execute console command "/dqv crazy_house %player%"
+			execute console command "dqv crazy_house %player%"
 	if {feu.quest.theThird.%uuid of player%} is "In progress":
 		if {feu.quest.Crazy_house.1.%uuid of player%} is true:
 			teleport player to {feu.mainSpawn}
@@ -168,24 +168,23 @@ on drop:
 		cancel event
 		message "{@You} I should not throw away my only sword.." to player
 		
-on leftclick:
+on click:
+	if target block is anvil, crafting table, furnace, jukebox, chest, ender chest, trapped chest, enchantment table, dispenser, note block or hopper:
+		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
+			cancel event
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			cancel event
+			stop
 	if player is holding a stick named "Debug":
 		if player's target exists:
 			execute player command "/targetinfo"
 		else if target block exists:
 			execute player command "/blockInfo"
 		else:
-			message "No target block or target, plz dont look at teh sky"
-		cancel event
-		
-on rightclick:
-	if player is holding a stick named "Debug":
-		if player's target exists:
-			execute player command "/targetinfo"
-		else if target block exists:
-			execute player command "/blockInfo"
-		else:
-			message "No target block or target, plz dont look at teh sky"
+			message "{@err} No target block or target entity!"
 		cancel event
 		stop
 	if event-block is any door:

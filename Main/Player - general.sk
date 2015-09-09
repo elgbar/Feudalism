@@ -101,6 +101,7 @@ command /setup <player>:
 		#Quest
 		execute console command "quest starter %arg-1% true true"
 		execute console command "quest Crazy_house %arg-1% false true"
+		execute console command "quest theThird %arg-1% false true"
 		
 		#health
 		set max health of arg-1 to 30

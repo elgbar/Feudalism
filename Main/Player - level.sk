@@ -471,7 +471,12 @@ on damage:
 			set name of victim to "<light gray>[<r>+43 xp<light gray>]"
 			execute console command "addxp 43 %name of attacker%"
 			set {feu.boss.janitor.isSpawned} to false
-			give attacker a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item"
+			if {feu.quest.theThird.6.%uuid of attacker%} is true:
+				if attacker has a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item":
+					#using "doesn't have a" instead of "has a" doesn't work...
+					message "" to {_fake}
+				else:
+					give attacker a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item"
 			stop
 		else:
 			#There are three different curves, 1-30, 31-100 and greater than 100.

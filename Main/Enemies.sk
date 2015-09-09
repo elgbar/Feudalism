@@ -250,9 +250,9 @@ command /spawnBoss <text> [<boolean=false>] [<boolean=false>]: #3rd: silent or n
 					execute console command "spawnboss Janitor"
 				stop
 		else if arg-1 is "list" or "l":
-			message "<green>Boss name: <yellow>Lazarus <r>| <green>Quest: <yellow>Crazy House"
-			message "<green>Boss name: <yellow>Kiste <r>| <green>Quest: <yellow>None"
-			message "<green>Boss name: <yellow>The Janitor <r>| <green>Quest: <yellow>The Third"
+			message "<green>Boss name: <yellow>Lazarus <r>| <green>Quest: <yellow>Crazy House <r>| <green>Is spawned: <yellow>%{feu.boss.lazarus.isSpawned}%"
+			message "<green>Boss name: <yellow>Kiste <r>| <green>Quest: <yellow>None <r>| <green>Is spawned: <yellow>%{feu.boss.kiste.isSpawned}%"
+			message "<green>Boss name: <yellow>The Janitor <r>| <green>Quest: <yellow>The Third <r>| <green>Is spawned: <yellow>%{feu.boss.Janitor.isSpawned}%"
 			message "Set second variable to true to fix never spawning bosses."
 		else:
 			message "Correct usage: /spawnBoss <Boss name | List> [<fix d=false>]"
@@ -524,14 +524,14 @@ command /blockInfo:
 		set {_x} to x coordinate of {_round Coords}
 		set {_y} to y coordinate of {_round Coords}
 		set {_z} to z coordinate of {_round Coords}
-		if target block is bedrock:
+		if target block is bedrock, chest or any button:
 			set x coordinate of {_round Coords} to floor({_x})
 			set y coordinate of {_round Coords} to floor({_y}+2)
 			set z coordinate of {_round Coords} to floor({_z})
 			set {_blockInfo} to metadata value "BlockInfo" of target block
 			if {_blockInfo} exists:
 				#message "{@prefix} Number of blocks below: <light red>%{feu.metadata.below.%{_round Coords}%}%"
-				message "{@prefix} Text: <light red>%{_blockInfo}%"
+				message "{@prefix} Metadata text: <yellow>%{_blockInfo}%"
 			else:
 				message "{@err} No metadata on this bedrock"
 			stop

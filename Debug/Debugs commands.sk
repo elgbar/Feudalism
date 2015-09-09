@@ -121,19 +121,22 @@ command /setLevel <integer> [<player=%player%>]:
 		message "{@prefix} You are now level %arg-1%" to arg-2
 		log "%executor% (perm: %{feu.permission.%uuid of player%}%) changed %arg-2%'s (perm: %{feu.permission.%uuid of arg-2%}%) level to %arg-1% (was: %{_prev lvl}%)" to "players.log"
 		
-command /sword <text> [<text>]:
-	usage: /sword <condition (Basic, Uncommon, Rare, Mythical or Legendary)> <material> 
-	executable by: players
+command /sword <text> [<text>] [<player=%player%>]:
+	usage: /sword <condition: Basic, Uncommon, Rare, Mythical or Legendary / OR dummy> [<material (only optinal if dummy)>]
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
+		if arg-3 doesn't exist:
+			message "{@err} Cannot give a sword to the console!"
+			stop
+		else if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
 			message "{@err2} You need to have a permission"
-			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of arg-3%}%)" to "arg-3s.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			
 		if arg-1 is "Dummy":
-			give player a wooden sword named "Dummy Sword" with no nbt with lore "<gold>Spawned sword"  
+			give arg-3 a wooden sword named "Dummy Sword" with no nbt with lore "<gold>Spawned sword"  
 			stop
 		
 		if arg-2 does not exist:
@@ -142,15 +145,15 @@ command /sword <text> [<text>]:
 			
 		if arg-1 is "Basic", "Uncommon", "Rare", "Mythical" or "Legendary":
 			if arg-2 is "wood" or "wildwood":
-				give player a wooden sword named "%arg-1% Wildwood Sword" with no nbt with lore "<gold>Spawned sword" 
+				give arg-3 a wooden sword named "%arg-1% Wildwood Sword" with no nbt with lore "<gold>Spawned sword" 
 			else if arg-2 is "stone" or "rock":
-				give player a stone sword named "%arg-1% Rock Sword" with no nbt with lore "<gold>Spawned sword"
+				give arg-3 a stone sword named "%arg-1% Rock Sword" with no nbt with lore "<gold>Spawned sword"
 			else if arg-2 is "iron" or "steel":
-				give player a iron sword named "%arg-1% Steel Sword" with no nbt with lore "<gold>Spawned sword"
+				give arg-3 a iron sword named "%arg-1% Steel Sword" with no nbt with lore "<gold>Spawned sword"
 			else if arg-2 is "gold" or "Dwemler":
-				give player a gold sword named "%arg-1% Dwemler Sword" with no nbt with lore "<gold>Spawned sword"
+				give arg-3 a gold sword named "%arg-1% Dwemler Sword" with no nbt with lore "<gold>Spawned sword"
 			else if arg-2 is "diamond" or "Crystal":
-				give player a diamond sword named "%arg-1% Crystal Sword" with no nbt with lore "<gold>Spawned sword"
+				give arg-3 a diamond sword named "%arg-1% Crystal Sword" with no nbt with lore "<gold>Spawned sword"
 			else:
 				message "{@err} Unknown material"
 				message "{@prefix} Use: Wood, Wildwood, Stone, Rock, Iron, Steel, Gold, Dwemler, Diamond or Crystal"
@@ -159,6 +162,9 @@ command /sword <text> [<text>]:
 			message "{@err} Unknown condition"
 			message "{@prefix} Use: Basic, Uncommon, Rare, Mythical or Legendary"
 			stop
+			
+		if arg-3 isn't executor:
+			message "%executor% gave you a %arg-1% %arg-2% sword!" to arg-3
 			
 command /loop <integer> <text> <text>:
 	usage: /loop <nr of loops> <player, player as op (po) or console> <command you want to run (use "_" as space between arguments)>
@@ -407,6 +413,7 @@ command /dumpQuestVariables <text> [<player=%player%>]:
 			log "{feu.quest.starter.4.%uuid of arg-2%} == %{feu.quest.starter.4.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.lookingForRing.%uuid of arg-2%} == %{feu.quest.starter.lookingForRing.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.gotPotions.%uuid of arg-2%} == %{feu.quest.starter.gotPotions.%uuid of arg-2%}%" to "questDump.log"
+			
 		else if arg-1 is "crazy_house":
 			log "{feu.quest.Crazy_house.%uuid of arg-2%} == %{feu.quest.Crazy_house.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.Crazy_house.1.%uuid of arg-2%} == %{feu.quest.Crazy_house.1.%uuid of arg-2%}%" to "questDump.log"
@@ -414,12 +421,22 @@ command /dumpQuestVariables <text> [<player=%player%>]:
 			log "{feu.quest.Crazy_house.3.%uuid of arg-2%} == %{feu.quest.Crazy_house.3.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.Crazy_house.4.%uuid of arg-2%} == %{feu.quest.Crazy_house.4.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.Crazy_house.hasLootedChests.%uuid of arg-2%} == %{feu.quest.Crazy_house.hasLootedChests.%uuid of arg-2%}%" to "questDump.log"
+			log "size of {feu.quest.Crazy_house.lootChest.%uuid of arg-2%::*} == %size of {feu.quest.Crazy_house.lootChest.%uuid of arg-2%::*}%" to "questDump.log"
+			
+			
 		else if arg-1 is "theThird":
 			log "{feu.quest.theThird.%uuid of arg-2%} == %{feu.quest.theThird.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.theThird.1.%uuid of arg-2%} == %{feu.quest.theThird.1.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.theThird.2.%uuid of arg-2%} == %{feu.quest.theThird.2.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.theThird.3.%uuid of arg-2%} == %{feu.quest.theThird.3.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.theThird.4.%uuid of arg-2%} == %{feu.quest.theThird.4.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.5.%uuid of arg-2%} == %{feu.quest.theThird.5.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.6.%uuid of arg-2%} == %{feu.quest.theThird.6.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.7.%uuid of arg-2%} == %{feu.quest.theThird.7.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.8.%uuid of arg-2%} == %{feu.quest.theThird.8.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.9.%uuid of arg-2%} == %{feu.quest.theThird.9.%uuid of arg-2%}%" to "questDump.log"
+			log "size of {feu.quest.theThird.plankChests.%uuid of arg-2%::*} == %size of {feu.quest.theThird.plankChests.%uuid of arg-2%::*}%" to "questDump.log"
+			
 		else:
 			log "FATAL ERROR: UNKNOWN VARIABLE ""%arg-1%""! This is an error in the script! Please report this." to "questDump.log"
 			message "FATAL ERROR: UNKNOWN VARIABLE, SEE LOG"
