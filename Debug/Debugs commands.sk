@@ -167,7 +167,7 @@ command /sword <text> [<text>] [<player=%player%>]:
 			message "%executor% gave you a %arg-1% %arg-2% sword!" to arg-3
 			
 command /loop <integer> <text> <text>:
-	usage: /loop <nr of loops> <player, player as op (po) or console> <command you want to run (use "_" as space between arguments)>
+	usage: /loop <nr of loops> <player(player / p), player as op (po / pao) or console (console / c)> <command you want to run (use "_" as space between arguments)>
 	trigger:
 		if "%uuid of player%" is "<none>":
 			message "" to player
@@ -180,26 +180,30 @@ command /loop <integer> <text> <text>:
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 		message "{@warn} There is a 1 second delay between each loop"
+		
 		if arg-1 is less than 1:
 			message "{@err} Number too low."
 			stop
 		else if arg-1 is higher than 60:
 			message "{@err} Number too high."
 			stop
+			
 		set {_cmd} to "%arg-3%"
 		replace all "_" with " " in {_cmd}
-		if arg-2 is "player":
+		if arg-2 is "player" or "p":
 			loop arg-1 times:
 				execute player command "%{_cmd}%"
 				wait 20 tick
-		else if arg-2 is "player as op" or "pso" or "po":
+		else if arg-2 is "pao" or "po":
 			loop arg-1 times:
 				run player command "%{_cmd}%" as op
 				wait 20 tick
-		else:
+		else if arg-2 is "console" or "c":
 			loop arg-1 times:
 				execute console command "%{_cmd}%"
 				wait 20 tick
+		else:
+			message "{@err} Unknown argument 2 ""%arg-2%"""
 #
 #Tools for player:
 #

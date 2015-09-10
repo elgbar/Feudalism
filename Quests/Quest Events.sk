@@ -56,11 +56,11 @@ on any movement:
 		else if "%{_BlockInfo}%" is equal to "theThird.wall":
 			execute console command "theThird.wall %player%"
 			stop
-		else if "%{_BlockInfo}%" is equal to "theThird.finalDoor":
-			execute console command "theThird.finalDoor %player%"
+		else if "%{_BlockInfo}%" is equal to "theThird.finalDoor_movement":
+			execute console command "theThird.finalDoor_movement %player%"
 			stop
-		else if "%{_BlockInfo}%" is equal to "theThird.sewers":
-			execute console command "theThird.sewers %player%"
+		else if "%{_BlockInfo}%" is equal to "theThird.sewers_movement":
+			execute console command "theThird.sewers_movement %player%"
 			stop
 			
 on rightclick on button:
@@ -87,6 +87,10 @@ on rightclick on button:
 		else if {feu.quest.Crazy_house.%uuid of player%} is "Completed":
 			uncancel event
 			
+	else if "%{_BlockInfo}%" is equal to "theThird.sewers_indoor":
+		cancel event
+		if {feu.quest.theThird.%uuid of player%} is "Completed":
+			uncancel event
 	else if "%{_BlockInfo}%" is equal to "theThird.sewers":
 		cancel event
 		if {feu.quest.theThird.7.%uuid of player%} is true:
@@ -140,8 +144,7 @@ on rightclick on chest:
 				add location of clicked block to {feu.quest.Crazy_house.lootChest.%uuid of player%::*} 
 				execute console command "Crazy_house.bossLoot %player%"
 				stop
-			else:
-				message "{@err} You should not be here, now you cannot loot the chest again..."
+				
 	else if "%{_BlockInfo}%" is equal to "theThird.signs":
 		set {_theThird.getLoot} to true
 		loop {feu.quest.theThird.plankChests.%uuid of player%::*}:

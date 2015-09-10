@@ -34,7 +34,7 @@ command /NPCWallGuard <player>:
 		set {_name} to "<green>Wall Guard<r>:<r>"
 		#God this language needs some logical AND and OR...
 		if {feu.quest.theThird.%uuid of arg-1%} is "In progress":
-			message "%{_name}% You can see the smoke coming out the chimney" to arg-1
+			message "%{_name}% You can see the smoke coming out the chimney." to arg-1
 		else:
 			message "%{_name}% This town is under quarantine! You can not enter without Lord Wilson permission." to arg-1
 		
@@ -52,6 +52,8 @@ command /NPCLordWilson_theThird <player>:
 			message "%{_name}% Hello again %arg-1%! My scouts at the wall have observed a signal from the village. Can you go and check it out?" to arg-1
 		else if {feu.quest.theThird.1.%uuid of arg-1%} is true:
 			message "%{_name}% Go to the wall and talk to the guards there." to arg-1
+		else if {feu.quest.theThird.2.%uuid of arg-1%} is true:
+			message "%{_name}% Jump over the wall!" to arg-1
 		else if {feu.quest.theThird.9.%uuid of arg-1%} is true:
 			set {feu.quest.theThird.%uuid of arg-1%} to "Completed"
 			set {feu.quest.theThird.9.%uuid of arg-1%} to false
@@ -89,9 +91,9 @@ command /NPCSurvivor <player>:
 			set {feu.quest.theThird.4.%uuid of arg-1%} to false
 			set {feu.quest.theThird.5.%uuid of arg-1%} to true
 			message "%{_name}% Well done! You seem stronger than you look." to arg-1
-			wait 40 tick
-			message "%{_name}% Can you do another task for me?" to arg-1
 			wait 20 tick
+			message "%{_name}% Can you do another task for me?" to arg-1
+			wait 40 tick
 			message "%{_name}% I need something to board up the windows. Can you <gold>take a look around town for some plank-ish material<r>? Like the ones on the windows." to arg-1
 			wait 200 tick
 			message "{@You} I should probably look inside chests." to arg-1
@@ -120,13 +122,13 @@ command /NPCSurvivor <player>:
 				set {feu.quest.theThird.7.%uuid of arg-1%} to true
 				message "%{_name}% That's impressive! Now There is only one way down into the sewers." to arg-1
 				wait 50 tick
-				message "%{_name}% <gold>Go into the well, just outside my door" to arg-1
+				message "%{_name}% <gold>Go into the maintenance building left of the well." to arg-1
 				wait 40 tick
-				message "%{_name}% From there on you must find your own path" to arg-1
+				message "%{_name}% From there on you must find your own path." to arg-1
 			else:
 				message "%{_name}% To get down into the sewers you need to obtain the key, but only the janitor has it." to arg-1
 		else if {feu.quest.theThird.7.%uuid of arg-1%} is true:
-			message "%{_name}% Go into the well, just outside my door" to arg-1
+			message "%{_name}% Go into the maintenance building left of the well." to arg-1
 		else:
 			message "%{_name}% Hello." to arg-1
 			message "{@err2} Else triggered at %{_name}% for %arg-1%, at quest theThird. See log for more info." to console
@@ -139,7 +141,7 @@ command /theThird.KilledZombies1 <player>:
 		set {_name} to "<green>Survivor<r>:<r>"
 		set {feu.quest.theThird.3.%uuid of arg-1%} to false
 		set {feu.quest.theThird.4.%uuid of arg-1%} to true
-		message "%{_name}% I think that is enough." to arg-1
+		message "%{_name}% I think that's enough." to arg-1
 		
 command /theThird.signs <player>:
 	#action: On click on chest
@@ -147,7 +149,7 @@ command /theThird.signs <player>:
 	trigger:
 		if arg-1 can hold a sign:
 			give arg-1 a sign named "<r>Plank" with lore "<light gray>Quest Item"
-			if size of {feu.quest.theThird.plankChests.%uuid of arg-1%::*} is 0:
+			if size of {feu.quest.theThird.plankChests.%uuid of arg-1%::*} is 1:
 				message "{@You} Found a plank!" to arg-1
 				stop
 			if chance of 10%:
@@ -160,11 +162,11 @@ command /theThird.signs <player>:
 				message "{@You} Looks like I've got another plank." to arg-1
 				
 			if size of {feu.quest.theThird.plankChests.%uuid of arg-1%::*} is 4:
-				message "{@You} I have enough now." to arg-1
+				message "{@You} I've caught them all!" to arg-1
 		else:
 			message "{@You} There isn't enough space in my inventory for another plank..." to arg-1
 		
-command /theThird.finalDoor <player>:
+command /theThird.finalDoor_movement <player>:
 	#action: On any movement
 	executable by: console
 	trigger:
@@ -177,7 +179,7 @@ command /theThird.finalDoor <player>:
 		else:
 			teleport arg-1 to {feu.quest.theThird.finalDoor}
 			
-command /theThird.sewers <player>:
+command /theThird.sewers_movement <player>:
 	#action: On any movement
 	executable by: console
 	trigger:
@@ -188,7 +190,7 @@ command /theThird.sewers <player>:
 		else if {feu.quest.theThird.%uuid of arg-1%} is "Completed":
 			stop
 		else:
-			teleport arg-1 to {feu.quest.theThird.sewers}
+			teleport arg-1 to {feu.quest.theThird.sewers_outdoor}
 		
 every 10 seconds:
 	loop players in radius 60 around location of {feu.boss.Janitor.spawnLoc}:

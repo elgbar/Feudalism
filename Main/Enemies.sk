@@ -448,19 +448,23 @@ command /changeZombie <String> <string>:
 				set z coordinate of {_round Coords} to floor({_z})+0.5
 				if arg-1 is "level" or "lvl":
 					set {_convert} to arg-2
-					set {_convert} to "%{_convert}%" parsed as a number
-					if {_convert} is less than 1:
-						message "{@err} You can not set the level to less than 1."
-						stop
-					else if {_convert} is greater than 1000:
-						message "{@err} An entity can not be higher than level 1000!"
-						stop
-					if {feu.fixedspawn.lvl.%{_round Coords}%} exists:
-						set {feu.fixedspawn.lvl.%{_round Coords}%} to {_convert}
-						message "{@prefix} The entity spawned at <yellow>%{_round Coords}%<r> will now spawn as a level <gold>%arg-2% <r>zombie."
-						stop
+					set {_convert} to "%{_convert}%" parsed as an integer
+					if {_convert} is an integer:
+						if {_convert} is less than 1:
+							message "{@err} You can not set the level to less than 1."
+							stop
+						else if {_convert} is greater than 1000:
+							message "{@err} An entity can not be higher than level 1000!"
+							stop
+						if {feu.fixedspawn.lvl.%{_round Coords}%} exists:
+							set {feu.fixedspawn.lvl.%{_round Coords}%} to {_convert}
+							message "{@prefix} The entity spawned at <yellow>%{_round Coords}%<r> will now spawn as a level <gold>%arg-2% <r>zombie."
+							stop
+						else:
+							set {_no go} to true
 					else:
-						set {_no go} to true
+						message "{@err} You can set a zombie's level to an integer (whole number)!"
+						stop
 				else if arg-1 is "armour" or "armor":
 					if arg-2 is not "leather", "chain", "iron", "gold", "diamond", "none" or "air":
 						message "{@err} An entity can not equip that type of armour!"
@@ -598,12 +602,12 @@ command /targetInfo:
 			else if {_victim ID} does not exist:
 				message "{@warn} Not a custom spawned/corrupt entity or a player!"
 				stop
-			message "<yellow>----<gold>[<green>Metadata values<gold>]<yellow>----"
+			message "<yellow>----<gold>[<green>%name of target entity%<green>'s values<gold>]<yellow>----"
 			message "{@prefix} Level: <light green>%{_victim level}%"
 			message "{@prefix} ID: <light green>%{_victim ID}%"
 			if {_int ID} exists:
 				message "{@prefix} X: <light green>%{_x}% <r>Y: <light green>%{_y}% <r>Z: <light green>%{_z}%"
-			message "<yellow>---<gold>[<green>Calculated variables<gold>]<yellow>---"
+			#message "<yellow>---<gold>[<green>Calculated variables<gold>]<yellow>---"
 			message "{@prefix} Current Health: <light green>%health of target entity%"
 			message "{@prefix} Max Health: <light green>%max health of target entity%"
 			#message "{@prefix} ID Location: <light green>%{_location}%"
@@ -613,7 +617,7 @@ command /targetInfo:
 				message "{@prefix} Can Target: <light green>%{feu.canTarget.%{feu.fixedspawn.ID.%{_location}%}%}%"
 				message "{@prefix} <yellow>Entity spawned automatically"
 			else:
-				message "{@prefix} <yellow>Entity spawned using commands"
+				message "{@prefix} <yellow>Entity spawned using commands or by CONSOLE"
 		else:
 			message "{@err} No entity targeted"
 			stop
@@ -741,7 +745,6 @@ every 15 second in world "Feudalism_4":
 		#set {_location} to loop-value-1's location
 		set {_location} to loop-value-1
 		loop players in radius 35 around location 3 below loop-value-1's location:
-			
 			add 1 to {_players-%loop-index%}
 		{@debug}:
 			{_players-%loop-index%} exists

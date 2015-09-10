@@ -48,6 +48,34 @@ command /delMetadata:
 		if {_spoted} is false:
 			message "{@prefix} No metadata here. Remember its the block you are standing on!"
 			stop
+			
+command /changeMetadata <text>:
+	usage: /changeMetadata <Info>
+	#aliases: /changeMeta
+	executable by: player
+	trigger:
+		#TODO: Fix this, it makes the server die in error messages. Cannot reproduce
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
+		set {_round Coords} to location of player
+		set {_x} to x coordinate of {_round Coords}
+		set {_y} to y coordinate of {_round Coords}
+		set {_z} to z coordinate of {_round Coords}
+		set x coordinate of {_round Coords} to floor({_x})
+		set y coordinate of {_round Coords} to floor({_y})
+		set z coordinate of {_round Coords} to floor({_z})
+		if {feu.metadata.txt.%{_round Coords}%} exists:
+			set {feu.metadata.txt.%{_round Coords}%} to arg-1
+			clear metadata value "BlockInfo" of block {feu.metadata.below.%{_round Coords}%} below player
+			set metadata value "BlockInfo" of block {feu.metadata.below.%{_round Coords}%} below player to "%{feu.metadata.txt.%{_round Coords}%}%"
+			message "{@prefix} New metadata set!"
 		
 command /setMetadata <text> [<integer=2>]:
 	usage: /setMetadata <Info> [<How many blocks below (0=inside player's feet) (d=2)>]
@@ -72,6 +100,7 @@ command /setMetadata <text> [<integer=2>]:
 			else:
 				message "{@err} No bedrock, button or chest %arg-2% blocks below you."
 				stop
+				
 		set {_arg-2} to arg-2
 		
 		set {_round Coords} to location of player
@@ -107,35 +136,49 @@ command /metadata:
 			
 		#on any movements
 		if {_exists.Starter_house1} does not exist:
-			message "{@err2} metadata Starter_house1 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Starter_house1"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.starter.leaveCastle} does not exist:
-			message "{@err2} metadata starter.leaveCastle cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""starter.leaveCastle"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.theThird.wall} does not exist:
-			message "{@err2} metadata theThird.wall cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""theThird.wall"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.house1} does not exist:
-			message "{@err2} metadata Crazy_house.house1 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.house1"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.roomExit1} does not exist:
-			message "{@err2} metadata Crazy_house.roomExit1 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.roomExit1"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.roomExit2} does not exist:
-			message "{@err2} metadata Crazy_house.roomExit2 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.roomExit2"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.Boss.Enter1} does not exist:
-			message "{@err2} metadata Crazy_house.Boss.Enter1 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.Boss.Enter1"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.EnterWrong} does not exist:
-			message "{@err2} metadata Crazy_house.EnterWrong cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.EnterWrong"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.Boss.exitInnerRoom} does not exist:
-			message "{@err2} metadata Crazy_house.Boss.exitInnerRoom cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.Boss.exitInnerRoom"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.wall} does not exist:
+			message "{@err2} Metadata ""theThird.wall"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.finalDoor_movement} does not exist:
+			message "{@err2} Metadata ""theThird.finalDoor_movement"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.sewers_movement} does not exist:
+			message "{@err2} Metadata ""theThird.sewers_movement"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 			
 		#buttons
 		if {_exists.Starter_house1} does not exist:
-			message "{@err2} metadata Starter_house1 cannot be found!This is a click on button event, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Starter_house1"" cannot be found! This is a click on button event, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.house1} does not exist:
-			message "{@err2} metadata Crazy_house.house1 cannot be found!This is a click on button event, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.house1"" cannot be found! This is a click on button event, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.finalDoor} does not exist:
+			message "{@err2} Metadata ""theThird.finalDoor"" cannot be found! This is a click on button event, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.sewers} does not exist:
+			message "{@err2} Metadata ""theThird.sewers"" cannot be found! This is a click on button event, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.sewers_indoor} does not exist:
+			message "{@err2} Metadata ""theThird.sewers_indoor"" cannot be found! This is a click on button event, please set this or quest will behave unexpectedly." to console
 			
 		#Chests
 		if {_exists.starter.chest1} does not exist:
-			message "{@err2} metadata starter.chest1 cannot be found!This is a click on chest event, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""starter.chest1"" cannot be found! This is a click on chest event, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.bossLoot} does not exist:
-			message "{@err2} metadata Crazy_house.bossLoot cannot be found!This is a click on chest event, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.bossLoot"" cannot be found! This is a click on chest event, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.signs} does not exist:
+			message "{@err2} Metadata ""theThird.signs"" cannot be found! This is a click on chest event, please set this or quest will behave unexpectedly." to console
 
 command /quest <text="Help"> [<player>] [<boolean=false>] [<boolean=false>]:
 	executable by: console
