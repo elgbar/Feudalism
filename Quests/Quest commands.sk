@@ -54,7 +54,6 @@ command /changeMetadata <text>:
 	#aliases: /changeMeta
 	executable by: player
 	trigger:
-		#TODO: Fix this, it makes the server die in error messages. Cannot reproduce
 		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
@@ -184,10 +183,11 @@ command /quest <text="Help"> [<player>] [<boolean=false>] [<boolean=false>]:
 	executable by: console
 	usage: /quest <quest | help> <player> [<boolean, true: done previous quests, false: fully reset>]
 	trigger:
-		if arg-1 is "starter":
+		if arg-1 is "starter", "Crazy_house" or "theThird":
 			if arg-2 is not set:
 				message "{@err} You need to specify a player."
 				stop
+		if arg-1 is "starter":
 			set {feu.quest.starter.%uuid of arg-2%} to "Not started"
 			clear {feu.quest.starter.1.%uuid of arg-2%}
 			clear {feu.quest.starter.2.%uuid of arg-2%}
@@ -195,9 +195,6 @@ command /quest <text="Help"> [<player>] [<boolean=false>] [<boolean=false>]:
 			clear {feu.quest.starter.4.%uuid of arg-2%}
 			set {feu.quest.starter.gotPotions.%uuid of arg-2%} to false
 		else if arg-1 is "Crazy_house":
-			if arg-2 is not set:
-				message "{@err} You need to specify a player."
-				stop
 			#This quest is dependent on that the player have finished "starter" quest
 			if arg-3 is true:
 				set {feu.quest.starter.%uuid of arg-2%} to "Completed"
@@ -211,9 +208,7 @@ command /quest <text="Help"> [<player>] [<boolean=false>] [<boolean=false>]:
 			clear {feu.quest.Crazy_house.lootChest.%uuid of arg-2%::*}
 			
 		else if arg-1 is "theThird":
-			if arg-2 is not set:
-				message "{@err} You need to specify a player."
-				stop
+			#This quest is dependent on that the player have finished "starter" and "Crazy_house" quest
 			if arg-3 is true:
 				set {feu.quest.starter.%uuid of arg-2%} to "Completed"
 				set {feu.quest.Crazy_house.%uuid of arg-2%} to "Completed"

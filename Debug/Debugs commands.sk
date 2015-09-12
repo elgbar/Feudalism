@@ -204,7 +204,14 @@ command /loop <integer> <text> <text>:
 				wait 20 tick
 		else:
 			message "{@err} Unknown argument 2 ""%arg-2%"""
-#
+			
+command /fixnameszombie:
+	trigger:
+		loop {feu.fixedspawn::*}:
+			set {feu.fixedspawn.name.%loop-value%} to "Zombie"
+			set {feu.fixedspawn.displayLevel.%loop-value%} to "true"
+		message "done"
+#		
 #Tools for player:
 #
 		

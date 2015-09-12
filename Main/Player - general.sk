@@ -118,7 +118,7 @@ every 30 seconds:
 	loop all players in "Feudalism_4":
 		loop-player is alive
 		health of loop-player is not max health of loop-player
-		add 2.5 to loop-player's health
+		add 5 to loop-player's health
 			
 on join:
 	loop {feu.resetPlayer::*}:

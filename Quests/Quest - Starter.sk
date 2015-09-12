@@ -28,7 +28,6 @@ command /starter.chest1 <player>:
 	#action: on rightclick on chest
 	executable by: console
 	trigger:
-		#TODO: Max distance between you and your chest
 		if {feu.quest.starter.3.%uuid of arg-1%} is true:
 			if {feu.quest.zombiesKilled.%uuid of arg-1%} is greater than 2:
 				if arg-1 can hold a gold nugget:
@@ -38,7 +37,7 @@ command /starter.chest1 <player>:
 					clear {feu.quest.zombiesKilled.%uuid of arg-1%}
 					message "{@You} Now where is the gold ring in this chest?" to arg-1
 					wait 3 second
-					add a gold nugget named "<gold>Old gold ring" with lore "<light gray>Quest Item" to arg-1's inventory#<gold>Old gold ring item
+					add a gold nugget named "<gold>Old gold ring" with lore "<light gray>Quest Item" to arg-1's inventory
 					set {feu.quest.starter.lookingForRing.%uuid of arg-1%} to false
 					message "{@You} There it is. I should leave before they kill me!" to arg-1
 				else:
@@ -75,7 +74,7 @@ command /NPCLordWilson_starter <player>:
 				set {feu.quest.starter.%uuid of arg-1%} to "Completed"
 				message "%{_name}% Thank you for your help! Here take this." to arg-1
 				remove a gold nugget named "<gold>Old gold ring" with lore "<light gray>Quest Item" from arg-1's inventory
-				if arg-1 can hold 2 potion of health:
+				if arg-1 can hold 2 potion of health named "Instant Health I":
 					give 2 potion of health named "Instant Health I" to the arg-1
 					message "{@prefix} You received two minor health potions!" to arg-1
 					set {feu.quest.starter.gotPotions.%uuid of arg-1%} to true
@@ -87,7 +86,7 @@ command /NPCLordWilson_starter <player>:
 				message "%{_name}% You need to get get the ring." to arg-1
 		else:
 			message "%{_name}% Hello." to arg-1
-			message "{@err2} Else triggered at %{_name}% for %arg-1% for Starter" to console
+			message "{@err2} Else triggered at %{_name}%<light red> for <r>%arg-1%<light red> for Starter" to console
 			execute console command "dqv starter %arg-1%"
 			
 command /NPCBlacksmith_starter <player>:
@@ -128,7 +127,7 @@ command /NPCBlacksmith_starter <player>:
 			#TODO make a shop here
 		else:
 			message "%{_name}% Hello." to arg-1
-			message "{@err2} Else triggered at %{_name}% for %arg-1%" to console
+			message "{@err2} Else triggered at %{_name}%<light red> for <r>%arg-1%" to console
 			execute console command "dqv starter %arg-1%"
 			
 command /starter.leaveCastle <player>:

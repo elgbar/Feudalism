@@ -315,11 +315,6 @@ command /killall [<boolean=false>]:
 		if {_spawn boss lazarus} is true:
 			execute console command "spawnboss lazarus" #then spawn him if he was spawned
 			
-		set {_spawn boss kiste} to {feu.boss.kiste.isSpawned}
-		execute console command "spawnboss kiste true true" #make kiste spawn again
-		if {_spawn boss kiste} is true:
-			execute console command "spawnboss kiste" #then spawn him if he was spawned
-			
 		set {_spawn boss Janitor} to {feu.boss.Janitor.isSpawned}
 		execute console command "spawnboss Janitor true true" #make Janitor spawn again
 		if {_spawn boss Janitor} is true:
@@ -329,10 +324,11 @@ command /killall [<boolean=false>]:
 			set {_kills} to "none"
 		if arg-1 is false:
 			message "<yellow>Killed <light red>%{_kills}% <yellow>mobs!"
-		execute console command "respawnNPC"
+		execute console command "respawnNPC" 
+		
 command /seeSpawns <boolean> [<player=%player%>] [<boolean=false>]:
 	usage: /seeSpawns <boolean> [<player d=yourself>]
-	aliases: sp
+	aliases: ss
 	trigger:
 		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
@@ -350,7 +346,6 @@ command /seeSpawns <boolean> [<player=%player%>] [<boolean=false>]:
 			loop {feu.fixedspawn::*}:
 				make arg-2 see block below loop-value as iron block
 			make arg-2 see block below {feu.boss.Lazarus.spawnLoc} as gold block
-			make arg-2 see block below {feu.boss.kiste.spawnLoc} as gold block
 			make arg-2 see block below {feu.boss.janitor.spawnLoc} as gold block
 		else:
 			loop {feu.fixedspawn::*}:
@@ -363,10 +358,11 @@ command /seeSpawns <boolean> [<player=%player%>] [<boolean=false>]:
 command /respawnNPC:
 	executable by: console
 	trigger:
-		#TODO: Make this NOT print out shit to console.
+		#TODO: Make this NOT print out shit to console. URGENT! Cannot have this in a stable build...
 		set {_citizen nr::*} to 20, 21, 25, 26, 27, 29 and 35
-		loop size of {_citizen nr::*} times:
-			execute console command "npc select %{_citizen nr::%loop-number%}%"
+		loop {_citizen nr::*}:
+			#respawn citizen %loop-value%
+			execute console command "npc select %loop-value%"
 			wait 1 tick
 			execute console command "npc spawn"
 			
@@ -374,7 +370,7 @@ command /spawnNPC <text> <text>:
 	usage: /spawnNPC <name> <villager profession>
 	executable by: player
 	trigger:
-		#TODO: make tech use this command too
+		# TODO: make tech use this command too, don't have permission (bukkit, not my permission)
 		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
@@ -385,7 +381,6 @@ command /spawnNPC <text> <text>:
 			stop
 			
 		if arg-2 is not "priest", "blacksmith", "librarian", "butcher" or "farmer":
-			#message "{@err} Unknown profession"
 			message "{@prefix} Valid professions: priest, blacksmith, librarian, butcher or farmer"
 			stop
 			
@@ -487,6 +482,7 @@ command /loot.basic:
 		set {feu.loot.basic::19} to leather chestplate
 		set {feu.loot.basic::20} to chain leggings
 		#message "%{feu.loot.basic::*}% are in Grandma's Basket"
+		
 #events
 
 on world load:
@@ -500,7 +496,7 @@ on skript load:
 		#STABLE : A stable build recommended used. (verify: Check every single command, and everything below)
 		#DEVELOP : Finished with a feature, but needs debugging before it can be considered a STABLE build. (verify: Check that quests work and you can kill zombies properly)
 		#UNCERTAIN : Quick upload after finishing a session. Do not use builds which is in this state. Can be multiple UNCERTAIN builds in one day. (verify: Nothing)
-	set {feu.version} to "Build 24 - DEVELOP"
+	set {feu.version} to "Build 25 - DEVELOP"
 	ban "<none>" due to "can not have a player with that name, change it to play here" #<none> is the console, too bad for the one who has that name :P
 	set {feu.permission.<none>} to "feu.op" #makes the console use all commands
 	if {feu.mainSpawn} does not exist:

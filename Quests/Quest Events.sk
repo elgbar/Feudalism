@@ -64,6 +64,8 @@ on any movement:
 			stop
 			
 on rightclick on button:
+	if player's gamemode is creative:
+		stop
 	#cancel events need to be here, therefore this can not be converted to commands
 	set {_BlockInfo} to metadata value "BlockInfo" of clicked block
 	#message "%{_BlockInfo}%" #Debug

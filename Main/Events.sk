@@ -39,7 +39,6 @@ On Level Change:
 		
 on death of player:
 	set death message to ""
-	#wait 1 tick
 	#force the player to respawn #TODO fix this
 	set {feu.xpBar.%uuid of player%} to level progress of the player
 	loop {feu.quest.Crazy_house.bossFighters::*}:
@@ -49,10 +48,16 @@ on death of player:
 			stop loop
 	if size of {feu.quest.Crazy_house.bossFighters::*} is 0:
 		execute console command "killLazarus"
+		
 on respawn:
 	wait 2 tick
 	set player's level to {feu.level.%uuid of player%}
+	
+	#You loose 5 percent for dying.
 	set level progress of the player to {feu.xpBar.%uuid of player%}
+	set {_5 percent} to ({feu.currXP.%uuid of player%}/{feu.maxXP.%uuid of player%})*5
+	
+	execute console command "addxp -%{_5 percent}% %player% false true"
 	if {feu.quest.Crazy_house.hasLootedChests.%uuid of player%} is false: 
 		teleport player to {feu.quest.Crazy_house.loot}
 		stop
