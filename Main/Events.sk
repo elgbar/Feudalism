@@ -70,6 +70,7 @@ on respawn:
 				teleport player to {feu.quest.Crazy_house.roomExit1}
 			else:
 				teleport player to {feu.quest.Crazy_house.roomExit1}
+				
 			loop entities in radius 2 around player:
 				set {_ID} to metadata value "ID" of loop-entity
 				if {feu.fixedspawn.isSpawned.%{_ID}%} exists:
@@ -83,6 +84,7 @@ on respawn:
 		else:
 			message "{@err} An error occured that caused the player %player% not to spawn at a location when doing quest Crazy_house! If you are a developer please look in \plugins\skript\logs\questdump.log to fix this quick!" to console
 			execute console command "dqv crazy_house %player%"
+		stop
 	if {feu.quest.theThird.%uuid of player%} is "In progress":
 		if {feu.quest.theThird.1.%uuid of player%} is true:
 			teleport player to {feu.mainSpawn}
@@ -92,8 +94,9 @@ on respawn:
 			teleport player to {feu.mainSpawn}
 		else:
 			teleport player to {feu.quest.theThird.SurvivorSpawn}
-	else:
-		teleport player to {feu.mainSpawn}
+		stop
+		
+	teleport player to {feu.mainSpawn}
 		
 on teleport:
 	if {feu.quest.Crazy_house.4.%uuid of player%} is true:
@@ -226,11 +229,11 @@ On consume:
 			cancel event
 	else if player is holding a potion of:
 		if name of tool is "Instant Health I":
-			add 5 to player's health
-		else if name of tool is "Instant Health II":
 			add 10 to player's health
-		else if name of tool is "Instant Health III":
+		else if name of tool is "Instant Health II":
 			add 20 to player's health
+		else if name of tool is "Instant Health III":
+			add 30 to player's health
 		else:
 			message "{@warn} %player% is drinking an unknown potion!" to console
 		delete player's tool

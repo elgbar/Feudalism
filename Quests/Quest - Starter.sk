@@ -81,7 +81,8 @@ command /NPCLordWilson_starter <player>:
 				else:
 					message "%{_name}% You can not hold two potions, talk to me again when you can." to arg-1
 				heal the arg-1
-				message "{@prefix} Quest complete!" to arg-1
+				#message "{@prefix} Quest complete!" to arg-1
+				send arg-1 title "<gold>Quest complete!" with subtitle "<light gray>The Intro" for 4 seconds
 			else:
 				message "%{_name}% You need to get get the ring." to arg-1
 		else:

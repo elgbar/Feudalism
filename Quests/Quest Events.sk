@@ -162,11 +162,12 @@ on rightclick on chest:
 	#Has to be last
 	else if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "feu.op":
 		uncancel event
-		
-on rightclick on entity:
-	entity's name exists
+			
+#on rightclick on entity:
+on Citizen right click:
+	target entity's name exists
 	cancel event
-	if "%entity's name%" contains "Lord Willson":
+	if "%target entity's name%" contains "Lord Willson":
 		if {feu.quest.theThird.%uuid of player%} is "Completed":
 			message "<green>Lord Wilson<r>:<r> There are no more quests in this demo." to player
 		else if {feu.quest.Crazy_house.%uuid of player%} is "Completed":
@@ -187,15 +188,16 @@ on rightclick on entity:
 			execute console command "NPCLordWilson_starter %player%"
 		
 	#1st quest
-	else if "%entity's name%" contains "Blacksmith":
+	else if "%target entity's name%" contains "Blacksmith":
 		execute console command "NPCBlacksmith_starter %player%"
 		
 	#2nd quest
-	else if "%entity's name%" contains "House Guard":
+	else if "%target entity's name%" contains "House Guard":
 		execute console command "NPCHouseGuard_CrazyHouse %player%"
 		
 	#3rd quest
-	else if "%entity's name%" contains "Wall Guard":
-		execute console command "NPCWallGuard %player%"
-	else if "%entity's name%" contains "Survivor":
+	else if "%target entity's name%" contains "Wall Guard":
+		execute console command "NPCWallGuard %player% %event-number%"
+		
+	else if "%target entity's name%" contains "Survivor":
 		execute console command "NPCSurvivor %player%"
