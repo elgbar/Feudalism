@@ -65,6 +65,7 @@ on any movement:
 			
 on rightclick on button:
 	if player's gamemode is creative:
+		message "{@warn} Door open because you're in creative."
 		stop
 	#cancel events need to be here, therefore this can not be converted to commands
 	set {_BlockInfo} to metadata value "BlockInfo" of clicked block
@@ -95,28 +96,29 @@ on rightclick on button:
 			uncancel event
 	else if "%{_BlockInfo}%" is equal to "theThird.sewers":
 		cancel event
-		if {feu.quest.theThird.7.%uuid of player%} is true:
+		if {feu.quest.theThird.6.%uuid of player%} is true:
 			if player has a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item":
+				set {feu.quest.theThird.6.%uuid of player%} to false
+				set {feu.quest.theThird.7.%uuid of player%} to true
+				heal player
 				remove all tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item" from player's inventory
-				set {feu.quest.theThird.7.%uuid of player%} to false
-				set {feu.quest.theThird.8.%uuid of player%} to true
 				uncancel event
 			else:
 				message "{@err2} Player came too far without a key..." to console
 				log "%player% Tried to enter the sewers in quest the third without a key but with {feu.quest.theThird.7.%uuid of player%} equal to true" to "quest.log"
 				message "{@err2} Something went wrong! How did you manage to come so far? <r>Please contact an admin."
-		else if {feu.quest.theThird.8.%uuid of player%} is true:
+		else if {feu.quest.theThird.7.%uuid of player%} is true:
 			uncancel event
 		else if {feu.quest.theThird.%uuid of player%} is "Completed":
 			uncancel event
 	else if "%{_BlockInfo}%" is equal to "theThird.finalDoor":
 		cancel event
-		if {feu.quest.theThird.8.%uuid of player%} is true:
-			set {feu.quest.theThird.8.%uuid of player%} to false
-			set {feu.quest.theThird.9.%uuid of player%} to true
+		if {feu.quest.theThird.7.%uuid of player%} is true:
+			set {feu.quest.theThird.7.%uuid of player%} to false
+			set {feu.quest.theThird.8.%uuid of player%} to true
 			message "{@You} I should report back to Lord Wilson."
 			uncancel event
-		else if {feu.quest.theThird.9.%uuid of player%} is true:
+		else if {feu.quest.theThird.8.%uuid of player%} is true:
 			uncancel event
 		else if {feu.quest.theThird.%uuid of player%} is "Completed":
 			uncancel event

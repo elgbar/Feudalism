@@ -63,13 +63,13 @@ on respawn:
 		stop
 	if {feu.quest.Crazy_house.%uuid of player%} is "In progress":
 		if {feu.quest.Crazy_house.2.%uuid of player%} is true:
-			set {_ran1} to a random integer between 0.9 and 2.1
 			set {feu.godMode.%uuid of player%} to true
 			
-			if {_ran1} is 1:
+			if chance of 50%:
 				teleport player to {feu.quest.Crazy_house.roomExit1}
 			else:
-				teleport player to {feu.quest.Crazy_house.roomExit1}
+				teleport player to {feu.quest.Crazy_house.roomExit2}
+				#TODO get right name for ^
 				
 			loop entities in radius 2 around player:
 				set {_ID} to metadata value "ID" of loop-entity
@@ -88,14 +88,15 @@ on respawn:
 	if {feu.quest.theThird.%uuid of player%} is "In progress":
 		if {feu.quest.theThird.1.%uuid of player%} is true:
 			teleport player to {feu.mainSpawn}
-		else if {feu.quest.theThird.8.%uuid of player%} is true:
+		else if {feu.quest.theThird.7.%uuid of player%} is true:
 			teleport player to {feu.quest.theThird.sewers}
-		else if {feu.quest.theThird.9.%uuid of player%} is true:
+		else if {feu.quest.theThird.8.%uuid of player%} is true:
 			teleport player to {feu.mainSpawn}
 		else:
 			teleport player to {feu.quest.theThird.SurvivorSpawn}
 		stop
 		
+	#If all fails, or plays don't have an quest active
 	teleport player to {feu.mainSpawn}
 		
 on teleport:

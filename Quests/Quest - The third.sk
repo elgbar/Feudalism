@@ -59,9 +59,9 @@ command /NPCLordWilson_theThird <player>:
 			message "%{_name}% Go to the wall and talk to the guards there." to arg-1
 		else if {feu.quest.theThird.2.%uuid of arg-1%} is true:
 			message "%{_name}% Jump over the wall!" to arg-1
-		else if {feu.quest.theThird.9.%uuid of arg-1%} is true:
+		else if {feu.quest.theThird.8.%uuid of arg-1%} is true:
 			set {feu.quest.theThird.%uuid of arg-1%} to "Completed"
-			set {feu.quest.theThird.9.%uuid of arg-1%} to false
+			set {feu.quest.theThird.8.%uuid of arg-1%} to false
 			message "%{_name}% You don't need to tell me anything. I've got my report from the guards." to arg-1
 			wait 40 tick
 			message "%{_name}% You did a very good job!" to arg-1
@@ -119,28 +119,21 @@ command /NPCSurvivor <player>:
 					message "{@prefix} You received two medium health potions!" to arg-1
 				else:
 					message "%{_name}% Looks like you don't have enough space for those potions.. I'll still heal you though!" to arg-1
-				wait 45 tick
+				wait 30 tick
 				message "%{_name}% There is a reason I haven't left this town." to arg-1
-				wait 45 tick 
-				message "%{_name}% Not only because this is my house, but another physical reason." to arg-1
-				wait 50 tick
-				message "%{_name}% To get to the other side of that wall you need to walk trough the sewers." to arg-1
-				wait 50 tick
-				message "%{_name}% Down in the sewers there are many dangerous monsters." to arg-1
-				wait 45 tick 
-				message "%{_name}% To get down there you need to <gold>obtain the key, and only the janitor has it." to arg-1
-			else:
+				wait 40 tick 
+				#message "%{_name}% Not only because this is my house, but another physical reason." to arg-1
+				#wait 50 tick
+				message "%{_name}% To get to the other side of the wall you need to walk trough the sewers." to arg-1
+				wait 50 tick 
+				message "%{_name}% But to get down there you need to <gold>obtain the key from The Janitor<r>." to arg-1
+				wait 50 tick 
+				message "%{_name}% He's somewhere in the village, and is probaly wearing chain armour" to arg-1
+			else: 
 				message "%{_name}% You need to bring me 4 planks." to arg-1
 		else if {feu.quest.theThird.6.%uuid of arg-1%} is true:
 			if arg-1 has a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item":
-				set {feu.quest.theThird.6.%uuid of arg-1%} to false
-				set {feu.quest.theThird.7.%uuid of arg-1%} to true
-				message "%{_name}% That's impressive! Now There is only one way down into the sewers." to arg-1
-				heal arg-1
-				wait 50 tick
-				message "%{_name}% <gold>Go into the maintenance building left of the well." to arg-1
-				wait 40 tick
-				message "%{_name}% From there on you must find your own path." to arg-1
+				message "%{_name}% You have the key. Go into the maintenance building left of the well." to arg-1
 			else:
 				message "%{_name}% To get down into the sewers you need to obtain the key, but only the janitor has it." to arg-1
 		else if {feu.quest.theThird.7.%uuid of arg-1%} is true:
@@ -186,9 +179,9 @@ command /theThird.finalDoor_movement <player>:
 	#action: On any movement
 	executable by: console
 	trigger:
-		if {feu.quest.theThird.8.%uuid of arg-1%} is true:
+		if {feu.quest.theThird.7.%uuid of arg-1%} is true:
 			stop
-		else if {feu.quest.theThird.9.%uuid of arg-1%} is true:
+		else if {feu.quest.theThird.8.%uuid of arg-1%} is true:
 			stop
 		else if {feu.quest.theThird.%uuid of arg-1%} is "Completed":
 			stop
@@ -199,9 +192,11 @@ command /theThird.sewers_movement <player>:
 	#action: On any movement
 	executable by: console
 	trigger:
-		if {feu.quest.theThird.7.%uuid of arg-1%} is true:
+		if {feu.quest.theThird.6.%uuid of arg-1%} is true:
+			#I'm too lazy.. ok?
+			set {feu.quest.theThird.7.%uuid of arg-1%} to true
 			stop
-		else if {feu.quest.theThird.8.%uuid of arg-1%} is true:
+		else if {feu.quest.theThird.7.%uuid of arg-1%} is true:
 			stop
 		else if {feu.quest.theThird.%uuid of arg-1%} is "Completed":
 			stop

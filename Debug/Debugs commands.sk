@@ -468,35 +468,35 @@ command /dumpQuestVariables <text> [<player=%player%>]:
 #Only op can use these commands
 #
 
-command /forwards:
-	permission: op
-	trigger:
-		loop 20 times:
-			wait 1 tick
-			push the player in horizontal direction of player with speed 0.2
+#command /forwards:
+#	permission: op
+#	trigger:
+#		loop 20 times:
+#			wait 1 tick
+#			push the player in horizontal direction of player with speed 0.2
 		
-command /stun:
-	permission: op
-	trigger:
-		#both work
-		set {_still} to new vector  0, 0, 0
-		loop 40 times:
-			wait 0.5 tick
-			set velocity of player to {_still}
-		stop
+#command /stun:
+#	permission: op
+#	trigger:
+#		#both work
+#		set {_still} to new vector  0, 0, 0
+#		loop 40 times:
+#			wait 0.5 tick
+#			set velocity of player to {_still}
+#		stop
 		
 		#old
-		set {_orgPos} to player's position
-		loop 4 times:
-			set {_shakePos} to {_orgPos}
-			add 0.1 to y-coordinate of {_shakePos}
-			teleport player to {_shakePos}
-			wait 0.5 tick
-			subtract 0.1 from y-coordinate of {_shakePos}
-			teleport player to {_shakePos}
-			wait 0.5 tick
-			teleport player to {_orgPos}
-			wait 0.5 tick
+#		set {_orgPos} to player's position
+#		loop 4 times:
+#			set {_shakePos} to {_orgPos}
+#			add 0.1 to y-coordinate of {_shakePos}
+#			teleport player to {_shakePos}
+#			wait 0.5 tick
+#			subtract 0.1 from y-coordinate of {_shakePos}
+#			teleport player to {_shakePos}
+#			wait 0.5 tick
+#			teleport player to {_orgPos}
+#			wait 0.5 tick
 		#message "done!"
 		
 #<Quick option menu>
@@ -509,31 +509,30 @@ command /stun:
 		#send player title "<light green>Welcome Back" with subtitle "<light gray>FOREVER" for 5 seconds
 		#format slot 1 of player's current inventory to random element out of all items to be unstealable
 		
-on click with clock:
-	player is op
-	show "s;9;i;shears;n;Death;l;Kill yourself;c;resetplayer %player% requested" with 1 row named "Thingy" to player
+#on click with clock:
+#	player is op
+#	show "s;9;i;shears;n;Death;l;Kill yourself;c;resetplayer %player% requested" with 1 row named "Thingy" to player
 
-on click with shears:
-	player is op
-	clock's name is "Death"
-	kill the player
-	#force player to spawn
+#on click with shears:
+#	player is op
+#	clock's name is "Death"
+#	kill the player
+#	#force player to spawn
 
 #</Quick option menu>
 
-on chat:
-	player is op
-	message is "1":
-		set {helmet.%uuid of player%} to "%helmet of the player%"
-		set {chestplate.%uuid of player%} to "%chestplate of the player%"
-		set {legging.%uuid of player%} to "%legging of the player%"
-		set {boots.%uuid of player%} to "%boots of the player%"
-		Message "1"
-	message is "2":
-		equip the player with {helmet.%uuid of player%} parsed as item
-		equip the player with {chestplate.%uuid of player%} parsed as item
-		equip the player with {legging.%uuid of player%} parsed as item
-		equip the player with {boots.%uuid of player%} parsed as item
-		Message "2"
-
+#on chat:
+#	player is op
+#	message is "1":
+#		set {helmet.%uuid of player%} to "%helmet of the player%"
+#		set {chestplate.%uuid of player%} to "%chestplate of the player%"
+#		set {legging.%uuid of player%} to "%legging of the player%"
+#		set {boots.%uuid of player%} to "%boots of the player%"
+#		Message "1"
+#	message is "2":
+#		equip the player with {helmet.%uuid of player%} parsed as item
+#		equip the player with {chestplate.%uuid of player%} parsed as item
+#		equip the player with {legging.%uuid of player%} parsed as item
+#		equip the player with {boots.%uuid of player%} parsed as item
+#		Message "2"
 	
