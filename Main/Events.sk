@@ -193,7 +193,7 @@ on click:
 			stop
 	if player is holding a stick named "Debug":
 		if player's target exists:
-			execute player command "/targetinfo"
+			stop
 		else if target block exists:
 			execute player command "/blockInfo"
 		else:

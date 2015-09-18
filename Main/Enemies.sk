@@ -632,13 +632,13 @@ command /targetInfo:
 			else if {_victim ID} does not exist:
 				message "{@warn} Not a custom spawned/corrupt entity or a player!"
 				stop
-			if target is a zombie:
+			if {_name} exists:
 				message "<yellow>----<gold>[<green>%{_name}%<green>'s values<gold>]<yellow>----"
+				message "{@prefix} Name: <light green>%{_Name}% <r>(Display level: &a%{_displayLevel}%<r>)"
 			else:
 				message "<yellow>----<gold>[<green>%name of target entity%<green>'s values<gold>]<yellow>----"
 			message "{@prefix} Level: <light green>%{_victim level}%"
 			message "{@prefix} ID: <light green>%{_victim ID}%"
-			message "{@prefix} Name: <light green>%{_Name}% <r>(Display level: &a%{_displayLevel}%<r>)"
 			message "{@prefix} Current Health / Max Health: <light green>%health of target entity% <r>/ &a%max health of target entity%"
 			if {_int ID} exists:
 				message "{@prefix} X: <light green>%{_x}% <r>Y: <light green>%{_y}% <r>Z: <light green>%{_z}%"

@@ -197,6 +197,7 @@ command /Crazy_house.bossLoot <player>:
 	#action: on click on chest
 	executable by: console
 	trigger:
+		message "{@You} Good ol' loot"
 		loop 3 times:
 			set {_item} to a random element of {feu.loot.basic::*}
 			give {_item} to the arg-1

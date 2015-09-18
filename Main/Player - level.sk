@@ -183,6 +183,8 @@ on damage:
 		#Stop spamming when in godmode
 			message "---" to console
 	if attacker is holding a stick named "Debug":
+		attacker's target exists
+		execute attacker command "/targetinfo"
 		stop
 	if victim is a player:
 		if {feu.godMode.%uuid of victim%} is true:
@@ -262,15 +264,15 @@ on damage:
 			if {_time} is greater than 25 seconds:
 				#set {feu.boss.Lazarus.minions.time} to now
 				loop 4 times:
-					set {_spawnZeds} to true
-					if {feu.boss.Lazarus.minions.spawned.%loop-number%} is true:
-						set {_spawnZeds} to false
+					set {_spawnZeds} to false
+					if {feu.boss.Lazarus.minions.spawned.%loop-number%} is false:
+						set {_spawnZeds} to true
 					if {_spawnZeds} is true:
 						spawn a zombie at {_lazarus}
-						set {_entity} to last spawned zombie
+						set {_entity} to last spawned entity
 						set metadata value "ID" of {_entity} to "Lazarus' minion nr %loop-number%"
 						set metadata value "Level" of {_entity} to "3"
-						set name of {_entity} to "<light red>Minion <r>- %round(health of {_entity})%/%max health of {_entity}%"
+						set name of last spawned entity to "<light red>Minion <r>- %round(health of {_entity})%/%max health of {_entity}%"
 						wait 2 tick
 						set age of {_entity} to baby
 						set rf maximum health of {_entity} to 40

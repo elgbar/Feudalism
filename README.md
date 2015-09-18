@@ -16,5 +16,12 @@ To run Feudalism you need some addons to skript and the plugin Citizens:
 
 +Citizens 2.0.16-SNAPSHOT (build 1239)
 
+Soft dependent:
+
++ChunkLoader 1.8.0
+
 You can find all all addons and skript itself at http://www.skunity.com/
-and Citizens here: http://ci.citizensnpcs.co/job/Citizens2/
+
+For other plugins:
+Citizens: http://ci.citizensnpcs.co/job/Citizens2/
+ChunkLoader: http://dev.bukkit.org/bukkit-plugins/chunkloader/

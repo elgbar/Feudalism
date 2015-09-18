@@ -208,7 +208,8 @@ command /loop <integer> <text> <text>:
 				wait 20 tick
 		else:
 			message "{@err} Unknown argument 2 ""%arg-2%"""
-			
+			stop
+		message "{@prefix} Loop done!"
 command /fixnameszombie:
 	trigger:
 		loop {feu.fixedspawn::*}:

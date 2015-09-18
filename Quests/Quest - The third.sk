@@ -104,7 +104,7 @@ command /NPCSurvivor <player>:
 			wait 30 tick
 			message "%{_name}% There are materials scattered around town." to arg-1
 			wait 30 tick
-			message "%{_name}% See if you could find any chests..." to arg-1
+			message "%{_name}% See if you find some laying around in chests.." to arg-1
 		else if {feu.quest.theThird.5.%uuid of arg-1%} is true:
 			if arg-1 has 4 signs named "<r>Plank" with lore "<light gray>Quest Item":
 				set {feu.quest.theThird.5.%uuid of arg-1%} to false
