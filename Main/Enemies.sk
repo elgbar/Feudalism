@@ -15,7 +15,7 @@ command /spawnCostumZombies <integer> <text="Zombie"> [<text="default">] [<text=
 	aliases: scz
 	executable by: players
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
+		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
@@ -106,11 +106,22 @@ command /spawnCostumZombies <integer> <text="Zombie"> [<text="default">] [<text=
 command /deleteBossSpawn <text="help">:
 	aliases: dbs
 	usage: /dbs <Boss name>
-	executable by: console
 	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		if arg-1 is "Lazarus" or "janitor":
 			clear {feu.boss.%arg-1%.spawnLoc}
 			set {feu.boss.%arg-1%.isSpawned} to true
+		else:
+			message "Usage: /dbs <Boss name>"
+			stop
 		message "{@prefix} Boss spawn deleted"
 		
 command /setBossSpawn <text="help">:
@@ -168,8 +179,17 @@ command /setBossSpawn <text="help">:
 		
 command /spawnBoss <text> [<boolean=false>] [<boolean=false>]: #3rd: silent or not
 	Usage: /spawnBoss <Boss name | List> [<fix d=false>] 
-	executable by: console
+	aliases: sb
 	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		if arg-1 is "Lazarus":
 			if arg-2 is true:
 				set {feu.boss.Lazarus.isSpawned} to false

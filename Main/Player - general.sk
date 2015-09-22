@@ -29,6 +29,7 @@ command /resetPlayer <offline player> [<text="help">]:
 			if arg-1 is online:
 				message "{@prefix} <light red>You will be reset because of <red>hacking<light red>!" to arg-1
 				message "{@prefix} <light red>If you think this is a mistake apply for a pardon here:<gold> ""need-link.now""" to arg-1
+				#TODO Get a link
 				message "{@prefix} <light red>Because of this you will be kicked in 30 seconds." to arg-1
 				add arg-1 to {feu.resetPlayer::*}
 				wait 30 seconds

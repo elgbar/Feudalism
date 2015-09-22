@@ -49,6 +49,7 @@ on death of player:
 	if size of {feu.quest.Crazy_house.bossFighters::*} is 0:
 		execute console command "killLazarus"
 		
+		
 on respawn:
 	wait 2 tick
 	set player's level to {feu.level.%uuid of player%}
@@ -69,7 +70,6 @@ on respawn:
 				teleport player to {feu.quest.Crazy_house.roomExit1}
 			else:
 				teleport player to {feu.quest.Crazy_house.roomExit2}
-				#TODO get right name for ^
 				
 			loop entities in radius 2 around player:
 				set {_ID} to metadata value "ID" of loop-entity
@@ -96,12 +96,13 @@ on respawn:
 			teleport player to {feu.quest.theThird.SurvivorSpawn}
 		stop
 		
-	#If all fails, or plays don't have an quest active
+	#If all fails, or player don't have an quest active
 	teleport player to {feu.mainSpawn}
 		
 on teleport:
 	if {feu.quest.Crazy_house.4.%uuid of player%} is true:
 		remove uuid of player from {feu.quest.Crazy_house.bossFighters::*}
+		
 on command:
 	cancel event
 	if "%command%" is "help":
@@ -109,7 +110,7 @@ on command:
 			message "{@prefix} <green>Use the command /fhelp to see feudalism commands"
 			uncancel event
 			stop
-		execute player command "/fhelp"
+		execute player command "/f%complete command%" #this translates to /fhelp %arg%
 		stop
 	else if "%command%" is "god":
 		#cancel event

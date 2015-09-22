@@ -51,7 +51,7 @@ command /delMetadata:
 			
 command /changeMetadata <text>:
 	usage: /changeMetadata <Info>
-	#aliases: /changeMeta
+	aliases: /cmd
 	executable by: player
 	trigger:
 		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
@@ -231,7 +231,7 @@ command /quest <text="Help"> [<player>] [<boolean=false>] [<boolean=false>]:
 			
 		#Global variables
 		if arg-4 is false:
-			message "{@prefix} Enabling quest %arg-1% for %arg-2%"
+			#message "{@prefix} Enabling quest %arg-1% for %arg-2%"
 			message "{@prefix} Quest %arg-1% has been reset for you." to arg-2
 			
 		clear {feu.quest.zombiesKilled.%uuid of arg-2%}

@@ -23,6 +23,22 @@ on any movement:
 	#entity is a player
 	wait 1 tick
 	if block 2 below the player is bedrock:
+		if player's gamemode is creative:
+			set {_loc} to location of player
+			set {_round Coords} to location of player
+			set {_x} to x coordinate of {_round Coords}
+			set {_y} to y coordinate of {_round Coords}
+			set {_z} to z coordinate of {_round Coords}
+			set x coordinate of {_round Coords} to floor({_x})
+			set y coordinate of {_round Coords} to floor({_y})
+			set z coordinate of {_round Coords} to floor({_z})
+			#Need to set yaw and pitch to 0 because on any movement is when you look around too and location of player includes player's yaw and pitch
+			set yaw of {_round Coords} to 0
+			set pitch of {_round Coords} to 0 
+			if {feu.lastBedrockWalked.%player%} is not {_round Coords}:
+				set {feu.lastBedrockWalked.%player%} to {_round Coords}
+				message "{@warn} No metadata check on walked block since you're in creative"
+			stop
 		set {_BlockInfo} to metadata value "BlockInfo" of block 2 below player
 		#1st quest
 		if "%{_BlockInfo}%" is equal to "Starter_house1":
@@ -65,7 +81,7 @@ on any movement:
 			
 on rightclick on button:
 	if player's gamemode is creative:
-		message "{@warn} Door open because you're in creative."
+		message "{@warn} Door opened because you're in creative."
 		stop
 	#cancel events need to be here, therefore this can not be converted to commands
 	set {_BlockInfo} to metadata value "BlockInfo" of clicked block
@@ -111,6 +127,11 @@ on rightclick on button:
 			uncancel event
 		else if {feu.quest.theThird.%uuid of player%} is "Completed":
 			uncancel event
+	else if "%{_BlockInfo}%" is equal to "theThird.sewers_outside":
+		if {feu.quest.theThird.%uuid of player%} is "Completed":
+			stop
+		cancel event
+		message "{@You} The button doesn't work"
 	else if "%{_BlockInfo}%" is equal to "theThird.finalDoor":
 		cancel event
 		if {feu.quest.theThird.7.%uuid of player%} is true:

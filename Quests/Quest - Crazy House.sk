@@ -133,7 +133,7 @@ command /NPCLordWilson_CrazyHouse <player>:
 	executable by: console
 	trigger:
 		set {_name} to "<green>Lord Wilson<r>:<r>"
-		if {feu.quest.Crazy_house.1.%uuid of arg-1%} does not exist:
+		if {feu.quest.Crazy_house.%uuid of arg-1%} is "Not started":
 			if {feu.level.%uuid of arg-1%} is less than 5:
 				message "%{_name}% Come talk to me again when you are a higher level." to arg-1
 				stop

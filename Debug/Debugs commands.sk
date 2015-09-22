@@ -168,14 +168,12 @@ command /sword <text> [<text>] [<player=%player%>]:
 			stop
 			
 		if arg-3 isn't executor:
-			message "%executor% gave you a %arg-1% %arg-2% sword!" to arg-3
+			message "{@prefix} %executor% gave you a %arg-1% %arg-2% sword!" to arg-3
 			
 command /loop <integer> <text> <text>:
 	usage: /loop <nr of loops> <player(player / p), player as op (po / pao) or console (console / c)> <command you want to run (use "_" as space between arguments)>
 	trigger:
-		if "%uuid of player%" is "<none>":
-			message "" to player
-		else if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
@@ -210,12 +208,22 @@ command /loop <integer> <text> <text>:
 			message "{@err} Unknown argument 2 ""%arg-2%"""
 			stop
 		message "{@prefix} Loop done!"
-command /fixnameszombie:
+		
+command /fixNamesZombie:
 	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
 		loop {feu.fixedspawn::*}:
 			set {feu.fixedspawn.name.%loop-value%} to "Zombie"
 			set {feu.fixedspawn.displayLevel.%loop-value%} to "true"
-		message "done"
+		message "{@prefix} All fixedSpawn entities will now be named 'Zombie' and display their level"
 #		
 #Tools for player:
 #
@@ -394,9 +402,10 @@ command /distance:
 			message "{@err} No target block"
 		
 command /dumpQuestVariables <text> [<player=%player%>]:
+	usage: /DQV <quest> [<player>]
 	aliases: dqv
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
@@ -512,7 +521,7 @@ command /dumpQuestVariables <text> [<player=%player%>]:
 		
 #on click with clock:
 #	player is op
-#	show "s;9;i;shears;n;Death;l;Kill yourself;c;resetplayer %player% requested" with 1 row named "Thingy" to player
+#	show "s;14;i;gold nugget;n;<gold>Old gold ring;l;<light gray>Quest Item;" with 3 row named "Old chest" to player
 
 #on click with shears:
 #	player is op

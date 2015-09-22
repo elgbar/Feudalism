@@ -10,7 +10,7 @@ options:
 	
 #Commands
 
-command /fhelp:
+command /fhelp [<text>]:
 	trigger:
 		if {feu.permission.%uuid of player%} is not "feu.player", "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
@@ -22,81 +22,179 @@ command /fhelp:
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-		message "<yellow>------<gold>[&aFeudalism Commands<gold>]<yellow>------"
-		#player commands
-		message "<light red>/stats<r> : <light gray>Show your stats."
-		message "<light red>/credits<r> : <light gray>List the credits."
-		
-		if {feu.permission.%uuid of player%} is "feu.player":
-			stop
 			
-		#Mod commands
-		message "<yellow>------<gold>[&aStaff Commands<gold>]<yellow>------"
-		message "<light red>/god<r> : <light gray>Enable godmode for you."
-		message "<light red>/ungod<r> : <light gray>Disable godmode for you."
-		message "<light red>/killall<r> : <light gray>Kills every mob in the world."
-		message "<light red>/fixAllZombieSpawns <r>: <light gray>Makes all the fixed spawn points enable spawning."
-		message "<light red>/spawnCostumZombies <light green>(<r>SCZ<light green>)<r> : <light gray>Spawn a custom zombie."
-		message "<light red>/debugStick <r>: <light gray>Gives you a stick to automaticly use blockinfo and targetinfo"
-		message "<light red>/targetInfo <light green>(<r>TI<light green>)<r> : <light gray>Lists variables of the target zombie."
-		message "<light red>/blockInfo <light green>(<r>BI<light green>)<r><r> : <light gray>Show info about a block."
-		message "<light red>/spawn<r> : <light gray>Teleport any player to spawn."
-		message "<light red>/fly<r> : <light gray>Enable flight for yourself."
-		message "<light red>/unfly<r> : <light gray>Disable flight for yourself."
-		message "<light red>/HealthPotion<r> : <light gray>Give a health potion to yourself."
-		message "<light red>/seeSpawns<r> : <light gray>See where the fixed zombies will spawn."
-		
-		if {feu.permission.%uuid of player%} is "feu.mod":
-			stop
+		#Player chooses a level to display, ie if an admin wants to be showed mod commands he simply do /fhelp mod
+		if arg-1 exists:
+			if "%arg-1%" is "player":
+				set {_help level::*} to 1
+			else if "%arg-1%" is "mod" or "Moderator":
+				if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
+					message "{@err} You cannot view moterator commands!"
+					stop
+				else:
+					set {_help level::*} to 2
+			else if "%arg-1%" is "tech" or "Technician":
+				if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
+					message "{@err} You cannot view technician commands!"
+					stop
+				else:
+					set {_help level::*} to 3
+			else if "%arg-1%" is "admin" or "Administrator":
+				if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
+					message "{@err} You cannot view administrator commands!"
+					stop
+				else:
+					set {_help level::*} to 4
+			else if "%arg-1%" is "op" or "Operator":
+				if {feu.permission.%uuid of player%} is not "feu.op":
+					message "{@err} You cannot view operator commands!"
+					stop
+				else:
+					set {_help level::*} to 5
+					
+			else if "%arg-1%" is "console":
+				if "%uuid of player%" is not "<none>":
+					message "{@err} You cannot view console commands!"
+					stop
+				else:
+					set {_help level::*} to 6
+			else:
+				message "Usage: /help <rank>"
+				stop
+			set {_title perm} to "%arg-1%"
+		else:
+			if "%uuid of player%" is "<none>":
+				set {_help level::*} to 1, 2, 3, 4, 5 and 6
+			else if {feu.permission.%uuid of player%} is "feu.player":
+				set {_help level::*} to 1
+			else if {feu.permission.%uuid of player%} is "feu.mod":
+				set {_help level::*} to 1 and 2
+			else if {feu.permission.%uuid of player%} is "feu.tech":
+				set {_help level::*} to 1, 2 and 3
+			else if {feu.permission.%uuid of player%} is "feu.admin":
+				set {_help level::*} to 1, 2, 3 and 4
+			else if {feu.permission.%uuid of player%} is "feu.op":
+				set {_help level::*} to 1, 2, 3, 4 and 5
+				
+		loop {_help level::*}:
+			if 1 is equal to {_help level::%loop-index%}:
+				message "<yellow>------<gold>[&aFeudalism Commands<gold>]<yellow>------"
+				loop {feu.help.player::*}:
+					message {feu.help.player::%loop-index-2%}
+				if size of {_help level::*} is 1:
+					#If only help.player is displayed, then you dont want the staff message
+					stop
+					
+		if "%{_help level::*}%" doesn't contain "6":
+			if size of {_help level::*} is 1:
+				message "<yellow>------<gold>[&aStaff Commands for <cyan>%{_title perm}%<gold>]<yellow>------"
+			else:
+				message "<yellow>------<gold>[&aStaff Commands<gold>]<yellow>------"
+				
+		loop {_help level::*}:
+			if 2 is equal to {_help level::%loop-index%}:
+				loop {feu.help.mod::*}:
+					message {feu.help.mod::%loop-index-2%}
+		loop {_help level::*}:
+			if 3 is equal to {_help level::%loop-index%}:
+				loop {feu.help.tech::*}:
+					message {feu.help.tech::%loop-index-2%}
+		loop {_help level::*}:
+			if 4 is equal to {_help level::%loop-index%}:
+				loop {feu.help.admin::*}:
+					message {feu.help.admin::%loop-index-2%}
+		loop {_help level::*}:
+			if 5 is equal to {_help level::%loop-index%}:
+				loop {feu.help.op::*}:
+					message {feu.help.op::%loop-index-2%}
+		loop {_help level::*}:
+			if 6 is equal to {_help level::%loop-index%}:
+				message "<yellow>------<gold>[&aConsole Commands<gold>]<yellow>------"
+				loop {feu.help.console::*}:
+					message {feu.help.console::%loop-index-2%}
 			
-		#Tech commands
-		message "<light red>/distance <r>: <light gray>Shows you the distance to your target block"
-		message "<light red>/get <r>: <light gray>Gives you your current target block, and shows ID and DATA"
-		message "<light red>/copyPaste <r>: <light gray>Gives you a copy to your current tool"
-		message "<light red>/gms <r>: <light gray>Set your gamemode to survival"
-		message "<light red>/gma <r>: <light gray>Set your gamemode to adventure"
-		message "<light red>/gmc <r>: <light gray>Set your gamemode to creative"
-		message "<light red>/crop <r>: <light gray>Make an circle around you to crops, if the block below is soil"
-		message "<light red>/grass <r>: <light gray>Make an circle around you to grass"
-		message "<light red>/soil <r>: <light gray>Make an circle around you to soil"
-		message "<light red>/setFixedZombieSpawn <light green>(<r>SFZS<light green>)<r> : <light gray>Sets a new spawn point for zombies to spawn"
-		message "<light red>/removeFixedSpawn <light green>(<r>RFS<light green>)<r> : <light gray>Remove the fixed zombie spawn at the player's location "
-		message "<light red>/setMetadata <light green>(<r>SMD<light green>)<r> : <light gray>Sets a metadata used in quests"
-		message "<light red>/delMetadata <light green>(<r>DMD<light green>)<r> : <light gray>Removes the metadata at player's location"
-		message "<light red>/setLocation <r>: <light gray>Sets a location (can be used for teleportation) with the format ""{feu.arg-1.arg-2}"""
-		message "<light red>/delLocation <r>: <light gray>Deletes a location set by /setLocation"
-		message "<light red>/saveItem <name of saved item> <r>: <light gray>Saves items OR block with specials tags on them (like enchantment and a name)"
-		message "<light red>/deleteItem <name of saved item> <r>: <light gray>delete items OR block that are saved with command /saveitem)"
-		message "<light red>/changeZombie<r>: <light gray>Change variables on zombies. Note: You have to stand on the block to change it."
-		message "<light red>/fixZombie<r>: <light gray>Enables a zombie with x ID to spawn."
-		message "<light red>/setBossSpawn<r>: <light gray>Set a spawn point for a boss (currently only Lazarus)."
-		if {feu.permission.%uuid of player%} is "feu.tech":
-			stop
-			
-		#admin commands
-		message "<light red>/resetPlayer <r>: <light gray>Reset a player because of hacking or if it requested."
-		message "<light red>/sword <r>: <light gray>Gives you a Feudalism sword."
-		message "<light red>/loop <r>: <light gray>Loops a command every second."
-		message "<light red>/speed <r>: <light gray>Change your flying speed."
-		message "<light red>/permission <r>: <light gray>Sets the permission of a player."
-		message "<light red>/fullyClear <light green>(<r>fc<light green>)<r> : <light gray>Removes everything from the player."
-		message "<light red>/op <r>: <light gray>Op your self."
-		message "<light red>/spawnNPC <r>: <light gray>Spawn a NPC (villager) TO REMOVE: 1)Look at npc 2) do command /npc sel 3) do /npc rem"
-		if {feu.permission.%uuid of player%} is "feu.admin":
-			stop
+command /help.player:
+	executable by: console
+	trigger:
+		set {feu.help.player::1} to "<light red>/stats<r> : <light gray>Show your stats."
+		set {feu.help.player::2} to "<light red>/credits<r> : <light gray>List the credits."
+		set {feu.help.player::3} to "<light red>/help<r> : <light gray>Display help screen."
 		
-		#OP commands
-		message "<light red>/setLevel <r>: <light gray>Set a player's level, max 150. DO NOT MISUSE THIS"
-		message "<light red>/setMainSpawn <r>: <light gray>Set the main spawn of feudalism"
-		message "<light red>/addXP <r>: <light gray>Adds xp to a player"
-		if "%uuid of player%" is "<none>":
-			#Console commands
-			message "<yellow>------<gold>[&aConsole Commands<gold>]<yellow>------"
-			message "<light red>/setup <r>: <light gray>Resets a player"
-			message "<light red>/removeAllFixedSpawns <r>: <light gray>Remove every singe one of the fixed spawn points for zombies"
-			message "<light red>/delAllMetadata <r>: <light gray>Remove all Metadata used by quests"
-			message "<light red>/quest <r>: <light gray>Set the progress of quests for a player"
-
+command /help.mod:
+	executable by: console
+	trigger:
+		set {feu.help.mod::1} to "<light red>/god<r> : <light gray>Enable godmode for you."
+		set {feu.help.mod::2} to "<light red>/ungod<r> : <light gray>Disable godmode for you."
+		set {feu.help.mod::3} to "<light red>/killall<r> : <light gray>Kills every mob in the world."
+		set {feu.help.mod::4} to "<light red>/fixAllZombieSpawns <r>: <light gray>Makes all the fixed spawn points enable spawning."
+		set {feu.help.mod::5} to "<light red>/spawnCostumZombies <light green>(<r>SCZ<light green>)<r> : <light gray>Spawn a custom zombie."
+		set {feu.help.mod::6} to "<light red>/debugStick <r>: <light gray>Gives you a stick to automaticly use blockinfo and targetinfo"
+		set {feu.help.mod::7} to "<light red>/targetInfo <light green>(<r>TI<light green>)<r> : <light gray>Lists variables of the target zombie." 
+		set {feu.help.mod::8} to "<light red>/blockInfo <light green>(<r>BI<light green>)<r> : <light gray>Show info about a block."#Do mods need block info? 
+		set {feu.help.mod::9} to "<light red>/spawn<r> : <light gray>Teleport any player to spawn."
+		set {feu.help.mod::10} to "<light red>/fly<r> : <light gray>Enable flight for yourself."
+		set {feu.help.mod::11} to "<light red>/unfly<r> : <light gray>Disable flight for yourself."
+		set {feu.help.mod::12} to "<light red>/HealthPotion<r> : <light gray>Give a health potion to yourself."
+		set {feu.help.mod::13} to "<light red>/seeSpawns<r> : <light gray>See where the fixed zombies will spawn."
+		set {feu.help.mod::14} to "<light red>/spawnBoss<r> : <light gray>Spawn a boss, or enable it to spawn if wont."
+		
+command /help.tech:
+	executable by: console
+	trigger:
+		set {feu.help.tech::1} to "<light red>/distance <r>: <light gray>Shows you the distance to your target block"
+		set {feu.help.tech::2} to "<light red>/get <r>: <light gray>Gives you your current target block, and shows ID and DATA"
+		set {feu.help.tech::3} to "<light red>/copyPaste <r>: <light gray>Gives you a copy to your current tool"
+		set {feu.help.tech::4} to "<light red>/gms <r>: <light gray>Set your gamemode to survival"
+		set {feu.help.tech::5} to "<light red>/gma <r>: <light gray>Set your gamemode to adventure"
+		set {feu.help.tech::6} to "<light red>/gmc <r>: <light gray>Set your gamemode to creative"
+		set {feu.help.tech::7} to "<light red>/crop <r>: <light gray>Make an circle around you to crops, if the block below is soil"
+		set {feu.help.tech::8} to "<light red>/grass <r>: <light gray>Make an circle around you to grass"
+		set {feu.help.tech::9} to "<light red>/soil <r>: <light gray>Make an circle around you to soil"
+		set {feu.help.tech::10} to "<light red>/setFixedZombieSpawn <light green>(<r>SFZS<light green>)<r> : <light gray>Sets a new spawn point for zombies to spawn"
+		set {feu.help.tech::11} to "<light red>/removeFixedSpawn <light green>(<r>RFS<light green>)<r> : <light gray>Remove the fixed zombie spawn at the player's location "
+		set {feu.help.tech::12} to "<light red>/setMetadata <light green>(<r>SMD<light green>)<r> : <light gray>Sets a metadata used in quests"
+		set {feu.help.tech::13} to "<light red>/delMetadata <light green>(<r>DMD<light green>)<r> : <light gray>Removes the metadata at player's location"
+		set {feu.help.tech::14} to "<light red>/changeMetadata <light green>(<r>CMD<light green>)<r> : <light gray>Changes the metadata at player's location"
+		set {feu.help.tech::15} to "<light red>/setLocation <r>: <light gray>Sets a location (can be used for teleportation) with the format ""{feu.arg-1.arg-2}"""
+		set {feu.help.tech::16} to "<light red>/delLocation <r>: <light gray>Deletes a location set by /setLocation"
+		set {feu.help.tech::17} to "<light red>/saveItem <name of saved item> <r>: <light gray>Saves items OR block with specials tags on them (like enchantment and a name)"
+		set {feu.help.tech::18} to "<light red>/deleteItem <name of saved item> <r>: <light gray>delete items OR block that are saved with command /saveitem)"
+		set {feu.help.tech::19} to "<light red>/changeZombie<r>: <light gray>Change variables on zombies. Note: You have to stand on the block to change it."
+		set {feu.help.tech::20} to "<light red>/fixZombie<r>: <light gray>Enables a zombie with X ID-number to spawn."
+		set {feu.help.tech::21} to "<light red>/setBossSpawn<r>: <light gray>Set a spawn point for a boss." #Can be used to change it too
+		
+command /help.admin:
+	executable by: console
+	trigger:
+		set {feu.help.admin::1} to "<light red>/deleteBossSpawn<r>: <light gray>Delete a spawn point for a boss."
+		set {feu.help.admin::2} to "<light red>/dumpQuestVariables <light green>(<r>DQV<light green>)<r>: <light gray>Dumps quest variables for a spesific player and quest. Can be viewed under .\plugins\Skript\logs\questdumps.log"
+		set {feu.help.admin::3} to "<light red>/resetPlayer <r>: <light gray>Reset a player because of hacking or if it requested."
+		set {feu.help.admin::4} to "<light red>/sword <r>: <light gray>Gives you a Feudalism sword."
+		set {feu.help.admin::5} to "<light red>/loop <r>: <light gray>Loops a command every second."
+		set {feu.help.admin::6} to "<light red>/speed <r>: <light gray>Change your flying speed."
+		set {feu.help.admin::7} to "<light red>/permission <r>: <light gray>Sets the permission of a player."
+		set {feu.help.admin::8} to "<light red>/fullyClear <light green>(<r>fc<light green>)<r> : <light gray>Removes everything from the player."
+		set {feu.help.admin::9} to "<light red>/op <r>: <light gray>Op your self."
+		set {feu.help.admin::10} to "<light red>/spawnNPC <r>: <light gray>Spawn a NPC (villager) TO REMOVE: 1)Look at npc 2) do command /npc sel 3) do /npc rem"
+		set {feu.help.admin::11} to "<light red>/fixNamesZombie <r>: <light gray>Sets name of fixedspawn zombies to a default 'Zombie'. Please do no use this if you don't know what it is."
+		
+command /help.op:
+	executable by: console
+	trigger:
+		set {feu.help.op::1} to "<light red>/setLevel <r>: <light gray>Set a player's level, max 150. DO NOT MISUSE THIS"
+		set {feu.help.op::2} to "<light red>/setMainSpawn <r>: <light gray>Set the main spawn of feudalism"
+		set {feu.help.op::3} to "<light red>/addXP <r>: <light gray>Adds xp to a player"
+		
+command /help.console:
+	executable by: console
+	trigger:
+		
+		set {feu.help.console::1} to "<light red>/setup <r>: <light gray>Resets a player."
+		set {feu.help.console::2} to "<light red>/removeAllFixedSpawns <r>: <light gray>Remove every singe one of the fixed spawn points for zombies."
+		set {feu.help.console::3} to "<light red>/delAllMetadata <r>: <light gray>Remove all Metadata used by quests."
+		set {feu.help.console::4} to "<light red>/quest <r>: <light gray>Set the progress of quests for a player."
+		set {feu.help.console::5} to "<light red>/respawnNPC <r>: <light gray>Respawn every NPC."
+		
 command /credits:
 	aliases: /credit
 	trigger:
@@ -246,6 +344,7 @@ command /HealthPotion <integer>:
 	aliases: hp
 	usage: HP <1,2 or 3>
 	trigger:
+		#TODO: You can throw away potions you spawn
 		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
@@ -358,8 +457,8 @@ command /seeSpawns <boolean> [<player=%player%>] [<boolean=false>]:
 command /respawnNPC:
 	executable by: console
 	trigger:
-		#TODO: Make this NOT print out shit to console. URGENT! Cannot have this in a stable build...
-		#The npc despawning is caused by unloading of chunks
+		#TODO: Make this NOT print out shit to console. 
+		#Low priotity as it is no longer used by /killall, was a chunk unload/load error
 		set {_citizen nr::*} to 20, 21, 25, 26, 27, 29 and 36
 		loop {_citizen nr::*}:
 			#respawn citizen %loop-value%
@@ -462,26 +561,16 @@ command /loot.basic:
 	#description: Set red riding hood items
 	executable by: console
 	trigger:
-		set {feu.loot.basic::1} to a wood sword named "<yellow>Basic Wildwood Sword" with no nbt with lore "Damage: 1"
-		set {feu.loot.basic::2} to a wood sword named "<yellow>Basic Wildwood Sword" with no nbt with lore "Damage: 1"
-		set {feu.loot.basic::3} to a wood sword named "<yellow>Basic Wildwood Sword" with no nbt with lore "Damage: 1"
-		set {feu.loot.basic::4} to a wood sword named "<yellow>Basic Wildwood Sword" with no nbt with lore "Damage: 1"
-		set {feu.loot.basic::5} to a wood sword named "<light green>Uncommon Wildwood Sword" with no nbt with lore "Damage: 1.5"
-		set {feu.loot.basic::6} to a wood sword named "<light green>Uncommon Wildwood Sword" with no nbt with lore "Damage: 1.5"
-		set {feu.loot.basic::8} to a wood sword named "<light green>Uncommon Wildwood Sword" with no nbt with lore "Damage: 1.5"
-		set {feu.loot.basic::7} to a wood sword named "<light green>Uncommon Wildwood Sword" with no nbt with lore "Damage: 1.5"
-		set {feu.loot.basic::9} to a wood sword named "<light blue>Rare Wildwood Sword" with no nbt with lore "Damage: 2.5"
-		set {feu.loot.basic::10} to a wood sword named "<light blue>Rare Wildwood Sword" with no nbt with lore "Damage: 2.5"
-		set {feu.loot.basic::11} to air
-		set {feu.loot.basic::12} to air
-		set {feu.loot.basic::13} to air
-		set {feu.loot.basic::14} to air
-		set {feu.loot.basic::15} to air
-		set {feu.loot.basic::16} to air
-		set {feu.loot.basic::17} to leather boots
-		set {feu.loot.basic::18} to chain helmet
-		set {feu.loot.basic::19} to leather chestplate
-		set {feu.loot.basic::20} to chain leggings
+		set {feu.loot.basic::1} to a wood sword named "<light green>Uncommon Wildwood Sword" with no nbt with lore "Damage: 1.5"
+		set {feu.loot.basic::2} to a wood sword named "<light green>Uncommon Wildwood Sword" with no nbt with lore "Damage: 1.5"
+		set {feu.loot.basic::3} to a wood sword named "<light green>Uncommon Wildwood Sword" with no nbt with lore "Damage: 1.5"
+		set {feu.loot.basic::4} to a wood sword named "<light blue>Rare Wildwood Sword" with no nbt with lore "Damage: 2.5"
+		set {feu.loot.basic::5} to a wood sword named "<light blue>Rare Wildwood Sword" with no nbt with lore "Damage: 2.5"
+		set {feu.loot.basic::6} to chain helmet
+		set {feu.loot.basic::7} to chain leggings
+		set {feu.loot.basic::8} to air
+		set {feu.loot.basic::9} to air
+		set {feu.loot.basic::10} to air
 		#message "%{feu.loot.basic::*}% are in Grandma's Basket"
 		
 #events
@@ -497,7 +586,7 @@ on skript load:
 		#STABLE : A stable build recommended used. (verify: Check every single command, and everything below)
 		#DEVELOP : Finished with a feature, but needs debugging before it can be considered a STABLE build. (verify: Check that quests work and you can kill zombies properly)
 		#UNCERTAIN : Quick upload after finishing a session. Do not use builds which is in this state. Can be multiple UNCERTAIN builds in one day. (verify: Nothing)
-	set {feu.version} to "Build 28 - DEVELOP"
+	set {feu.version} to "Build 29 - DEVELOP"
 	ban "<none>" due to "can not have a player with that name, change it to play here" #<none> is the console, too bad for the one who has that name :P
 	set {feu.permission.<none>} to "feu.op" #makes the console use all commands
 	if {feu.mainSpawn} does not exist:
@@ -511,6 +600,13 @@ on skript load:
 	#General
 	execute console command "loot.basic"
 	
+	#Help screen
+	execute console command "help.player"
+	execute console command "help.mod"
+	execute console command "help.tech"
+	execute console command "help.admin"
+	execute console command "help.op"
+	execute console command "help.console"
 	#Starter quest:
 	if {feu.quest.starter.house1} does not exist:
 		#teleport

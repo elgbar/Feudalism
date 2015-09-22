@@ -30,6 +30,7 @@ command /starter.chest1 <player>:
 	trigger:
 		if {feu.quest.starter.3.%uuid of arg-1%} is true:
 			if {feu.quest.zombiesKilled.%uuid of arg-1%} is greater than 2:
+				
 				if arg-1 can hold a gold nugget:
 					set {feu.quest.starter.4.%uuid of arg-1%} to true
 					set {feu.quest.starter.3.%uuid of arg-1%} to false
