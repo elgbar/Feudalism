@@ -193,6 +193,7 @@ command /quest <text="Help"> [<player>] [<boolean=false>] [<boolean=false>]:
 			clear {feu.quest.starter.2.%uuid of arg-2%}
 			clear {feu.quest.starter.3.%uuid of arg-2%}
 			clear {feu.quest.starter.4.%uuid of arg-2%}
+			clear {feu.quest.starter.5.%uuid of arg-2%}
 			set {feu.quest.starter.gotPotions.%uuid of arg-2%} to false
 		else if arg-1 is "Crazy_house":
 			#This quest is dependent on that the player have finished "starter" quest

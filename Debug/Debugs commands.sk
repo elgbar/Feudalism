@@ -125,6 +125,7 @@ command /setLevel <integer> [<player=%player%>]:
 		message "{@prefix} You are now level %arg-1%" to arg-2
 		log "%executor% (perm: %{feu.permission.%uuid of player%}%) changed %arg-2%'s (perm: %{feu.permission.%uuid of arg-2%}%) level to %arg-1% (was: %{_prev lvl}%)" to "players.log"
 		
+		
 command /sword <text> [<text>] [<player=%player%>]:
 	usage: /sword <condition: Basic, Uncommon, Rare, Mythical or Legendary / OR dummy> [<material (only optinal if dummy)>]
 	trigger:
@@ -148,6 +149,11 @@ command /sword <text> [<text>] [<player=%player%>]:
 			stop
 			
 		if arg-1 is "Basic", "Uncommon", "Rare", "Mythical" or "Legendary":
+			#Doesn't work
+			#set {_first char Upper} to the first character of arg-1 
+			#set {_first char Upper} to all characters of {_first char Upper} converted to uppercase
+			#set {_last chars lower} to subtext of arg-1 from characters 2 to (the length of arg-1)
+			#set {_last chars lower} to all characters of {_last chars lower} converted to lowercase
 			if arg-2 is "wood" or "wildwood":
 				give arg-3 a wooden sword named "%arg-1% Wildwood Sword" with no nbt with lore "<gold>Spawned sword" 
 			else if arg-2 is "stone" or "rock":
@@ -169,6 +175,26 @@ command /sword <text> [<text>] [<player=%player%>]:
 			
 		if arg-3 isn't executor:
 			message "{@prefix} %executor% gave you a %arg-1% %arg-2% sword!" to arg-3
+			
+			
+command /deleteTool:
+	usage: /dt (PS: A tool is whatever you hold)
+	aliases: /dt
+	trigger:
+		if executor is console:
+			message "{@err} Cannot take a sword to the console!"
+			stop
+		else if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "arg-3s.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			
+		message "{@prefix} %name of player's tool% deleted!"
+		
+		delete player's tool
 			
 command /loop <integer> <text> <text>:
 	usage: /loop <nr of loops> <player(player / p), player as op (po / pao) or console (console / c)> <command you want to run (use "_" as space between arguments)>
@@ -436,6 +462,7 @@ command /dumpQuestVariables <text> [<player=%player%>]:
 			log "{feu.quest.starter.2.%uuid of arg-2%} == %{feu.quest.starter.2.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.3.%uuid of arg-2%} == %{feu.quest.starter.3.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.4.%uuid of arg-2%} == %{feu.quest.starter.4.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.starter.5.%uuid of arg-2%} == %{feu.quest.starter.5.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.lookingForRing.%uuid of arg-2%} == %{feu.quest.starter.lookingForRing.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.gotPotions.%uuid of arg-2%} == %{feu.quest.starter.gotPotions.%uuid of arg-2%}%" to "questDump.log"
 			

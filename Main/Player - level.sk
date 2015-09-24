@@ -275,7 +275,7 @@ on damage:
 						set {_entity} to last spawned entity
 						set metadata value "ID" of {_entity} to "Lazarus' minion nr %loop-number%"
 						set metadata value "Level" of {_entity} to "3"
-						set name of last spawned entity to "<light red>Minion <r>- %round(health of {_entity})%/%max health of {_entity}%"
+						set name of last spawned entity to "<light red>Minion <r> %round(health of {_entity})%/%max health of {_entity}%"
 						wait 2 tick
 						set age of {_entity} to baby
 						set rf maximum health of {_entity} to 40
@@ -498,7 +498,12 @@ on damage:
 					#using "doesn't have a" instead of "has a" doesn't work...
 					message "" to {_fake}
 				else:
-					give attacker a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item"
+					if attacker can hold a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item":
+						give attacker a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item"
+					else:
+						message "{@You} I don't have any more space for his key..." to attacker
+						drop a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item" above victim
+					
 			stop
 		else:
 			#There are three different curves, 1-30, 31-100 and greater than 100.
@@ -615,7 +620,7 @@ on damage:
 		if  {feu.quest.zombiesKilled.%uuid of attacker%} does not exist:
 			set {feu.quest.zombiesKilled.%uuid of attacker%} to 0
 			
-		if {feu.quest.starter.3.%uuid of attacker%} is true:
+		if {feu.quest.starter.4.%uuid of attacker%} is true:
 			if {feu.quest.zombiesKilled.%uuid of attacker%} is less than 3:
 				add 1 to {feu.quest.zombiesKilled.%uuid of attacker%}
 				if {feu.quest.zombiesKilled.%uuid of attacker%} is 3:
@@ -659,25 +664,25 @@ on damage:
 		
 	else if victim is a zombie:
 		if {_zombie ID} contains "Lazarus' minion":
-			set name of victim to "<light red>Minion <r>- %round(health of victim)%/%max health of victim%"
+			set name of victim to "<light red>Minion <r> %round(health of victim)%/%max health of victim%"
 		else if {_zombie ID} is "SCZ":
-			set name of victim to "<light red>%{_zombieName}% <r>- %round(health of victim)%/%max health of victim%"
+			set name of victim to "<light red>%{_zombieName}% <r> %round(health of victim)%/%max health of victim%"
 		else if {_zombie ID} is "The Janitor":
-			set name of victim to "<red>The Janitor <r>- %round(health of victim)%/%max health of victim%"
+			set name of victim to "<red>The Janitor <r> %round(health of victim)%/%max health of victim%"
 		else if "%{_displayLevel}%" is "true":
-			set name of victim to "<light red>%{_zombieName}% LvL %{_zombie level}% <r>- %round(health of victim)%/%max health of victim%"
+			set name of victim to "<light red>%{_zombieName}% LvL %{_zombie level}% <r>%round(health of victim)%/%max health of victim%"
 		else:
-			set name of victim to "<light red>%{_zombieName}% <r>- %round(health of victim)%/%max health of victim%"
-		#Makes the entity push move the same way however fast it is originally moving
-		set {_still} to new vector  0, 0, 0
-		set velocity of victim to {_still}
-		
-		push the victim in horizontal direction of attacker with speed 0.4
-		#if victim is on ground:
-		#	push the victim up with speed 0.1
+			set name of victim to "<light red>%{_zombieName}% <r> %round(health of victim)%/%max health of victim%"
 	else if {_zombie ID} is "Lazarus":
-		set name of victim to "<red>Lazarus <light red>- %round(victim's health)%/%victim's max health%"
+		set name of victim to "<red>Lazarus <r>%round(victim's health)%/%victim's max health%"
 		
+	#Makes the entity push move the same way however fast it is originally moving
+	set {_still} to new vector  0, 0, 0
+	set velocity of victim to {_still}
+	
+	push the victim in horizontal direction of attacker with speed 0.4
+	#if victim is on ground:
+	#	push the victim up with speed 0.1
 	{@debug}:
 		#Print out debug info
 		message "{@debugPrefix} Attacker is %attacker%" to console

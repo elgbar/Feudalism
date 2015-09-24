@@ -59,7 +59,7 @@ command /fhelp [<text>]:
 				else:
 					set {_help level::*} to 6
 			else:
-				message "Usage: /help <rank>"
+				message "Usage: /help <rank: Player, Moderator, Technician, Administrator, Operator or Console>"
 				stop
 			set {_title perm} to "%arg-1%"
 		else:
@@ -470,7 +470,7 @@ command /spawnNPC <text> <text>:
 	usage: /spawnNPC <name> <villager profession>
 	executable by: player
 	trigger:
-		# TODO: make tech use this command too, don't have permission (bukkit, not my permission)
+		#TODO: make tech use this command too, don't have permission (bukkit, not my permission)
 		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
@@ -586,8 +586,8 @@ on skript load:
 		#STABLE : A stable build recommended used. (verify: Check every single command, and everything below)
 		#DEVELOP : Finished with a feature, but needs debugging before it can be considered a STABLE build. (verify: Check that quests work and you can kill zombies properly)
 		#UNCERTAIN : Quick upload after finishing a session. Do not use builds which is in this state. Can be multiple UNCERTAIN builds in one day. (verify: Nothing)
-	set {feu.version} to "Build 29 - DEVELOP"
-	ban "<none>" due to "can not have a player with that name, change it to play here" #<none> is the console, too bad for the one who has that name :P
+	set {feu.version} to "Build 30 - STABLE"
+	ban "<none>" due to "Can not have a player with that name, change it to play here" #<none> is the console, too bad for the one who has that name :P
 	set {feu.permission.<none>} to "feu.op" #makes the console use all commands
 	if {feu.mainSpawn} does not exist:
 		#teleport
@@ -675,7 +675,11 @@ on skript load:
 	if {feu.quest.theThird.sewers_outdoor} does not exist:
 		#Teleport
 		message "{@err2} The required variable <gold>{feu.quest.theThird.sewers_outdoor} <r>does not exist." to console
+		
+	#Gamerules
 	execute console command "gamerule keepInventory true"
+	execute console command "gamerule mobGriefing false" #mobs can't pick up items
+	
 	execute console command "metadata"
 	wait 20 tick
 	execute console command "killall true"

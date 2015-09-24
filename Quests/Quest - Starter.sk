@@ -16,6 +16,8 @@ command /house1_door <player>:
 	trigger:
 		if {feu.quest.starter.%uuid of arg-1%} is "Completed": 
 			message "{@You} I do not want to go inside there again.." to arg-1
+		else if {feu.quest.starter.5.%uuid of arg-1%} is true:
+			stop
 		else if {feu.quest.starter.4.%uuid of arg-1%} is true:
 			stop
 		else if {feu.quest.starter.3.%uuid of arg-1%} is true:
@@ -28,12 +30,12 @@ command /starter.chest1 <player>:
 	#action: on rightclick on chest
 	executable by: console
 	trigger:
-		if {feu.quest.starter.3.%uuid of arg-1%} is true:
+		if {feu.quest.starter.4.%uuid of arg-1%} is true:
 			if {feu.quest.zombiesKilled.%uuid of arg-1%} is greater than 2:
 				
 				if arg-1 can hold a gold nugget:
-					set {feu.quest.starter.4.%uuid of arg-1%} to true
-					set {feu.quest.starter.3.%uuid of arg-1%} to false
+					set {feu.quest.starter.5.%uuid of arg-1%} to true
+					set {feu.quest.starter.4.%uuid of arg-1%} to false
 					set {feu.quest.starter.lookingForRing.%uuid of arg-1%} to true
 					clear {feu.quest.zombiesKilled.%uuid of arg-1%}
 					message "{@You} Now where is the gold ring in this chest?" to arg-1
@@ -70,8 +72,10 @@ command /NPCLordWilson_starter <player>:
 		else if {feu.quest.starter.3.%uuid of arg-1%} is true:
 			message "%{_name}% Go behind this castle, find the Winchester's house, kill the zombies then look in their chest." to arg-1
 		else if {feu.quest.starter.4.%uuid of arg-1%} is true:
+			message "%{_name}% Go behind this castle, find the Winchester's house, kill the zombies then look in their chest." to arg-1 #TODO change text a bit
+		else if {feu.quest.starter.5.%uuid of arg-1%} is true:
 			if arg-1 has a gold nugget named "<gold>Old gold ring" with lore "<light gray>Quest Item":
-				set {feu.quest.starter.4.%uuid of arg-1%} to false
+				set {feu.quest.starter.5.%uuid of arg-1%} to false
 				set {feu.quest.starter.%uuid of arg-1%} to "Completed"
 				message "%{_name}% Thank you for your help! Here take this." to arg-1
 				remove a gold nugget named "<gold>Old gold ring" with lore "<light gray>Quest Item" from arg-1's inventory
@@ -141,6 +145,8 @@ command /starter.leaveCastle <player>:
 		else if {feu.quest.starter.3.%uuid of arg-1%}:
 			stop
 		else if {feu.quest.starter.4.%uuid of arg-1%}:
+			stop
+		else if {feu.quest.starter.5.%uuid of arg-1%}:
 			stop
 		else if {feu.quest.starter.%uuid of arg-1%} is "In progress":
 			teleport arg-1 to {feu.quest.starter.leaveCastle}

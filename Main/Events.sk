@@ -173,6 +173,8 @@ on place:
 	
 on drop:
 	if lore of event-item is "<light gray>Quest Item" or "<gold>Spawned sword":
+		if {feu.permission.%uuid of player%} is "feu.op":
+			stop
 		message "{@You} This item looks important." to player
 		cancel event
 	else if event-item is xp orb:
@@ -307,10 +309,6 @@ on zombie break door:
 on weather change:
 	set weather to sun
 	
-On Physics:
-	block is dirt or grass
-	cancel event
-
 on spread:
 	cancel event
 	

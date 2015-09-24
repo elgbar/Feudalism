@@ -96,8 +96,8 @@ command /setup <player>:
 		set level progress of the arg-1 to 0
 		set {feu.maxXP.%uuid of arg-1%} to 80
 		set {feu.currXP.%uuid of arg-1%} to 0
+		set {feu.oldMaxXP.%uuid of arg-1%} to 0
 		set {feu.XPtoNextLevel.%uuid of arg-1%} to {feu.maxXP.%uuid of arg-1%}
-		set {feu.printXP.%uuid of arg-1%} to true
 		
 		#Quest
 		execute console command "quest starter %arg-1% true true"
@@ -162,11 +162,12 @@ on join:
 		loop {feu.quest.Crazy_house.bossFighters.logedOff::*}:
 			if uuid of player is equal to {feu.quest.Crazy_house.bossFighters.logedOff::%loop-index%}:
 				#Teleport arg-1 to {feu.quest.Crazy_house.boss1}
+				teleport player to {feu.quest.Crazy_house.boss1}
+				wait 1 tick
 				remove uuid of player from {feu.quest.Crazy_house.bossFighters.logedOff::*}
 				add uuid of player to {feu.quest.Crazy_house.bossFighters::*}
 				message "<light red>Lazarus<r>: You will not escape me by logging off!"
 				execute console command "spawnBoss lazarus"
-				teleport player to {feu.quest.Crazy_house.boss1}
 			stop loop
 			
 	else if {_equal} is false:

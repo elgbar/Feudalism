@@ -74,11 +74,11 @@ command /NPCLordWilson_theThird <player>:
 			if arg-1 can hold 3 potion of health named "Instant Health III":
 				give 3 potion of health named "Instant Health III" to arg-1
 				message "%{_name}% Take this as a reward." to arg-1
-				message "{@prefix} You received two large potion of health" to arg-1
-				#TODO: What if inventory is full?
-				#set {feu.quest.starter.gotPotions.%uuid of arg-1%} to true
+				message "{@prefix} You received three large potion of health" to arg-1
+				set {feu.quest.theThird.gotPotions.%uuid of arg-1%} to true
 			else:
-				message "<green>Lord Wilson<r>:<r> You can not hold 2 large potion of health, talk to me again when you can." to arg-1
+				message "<green>Lord Wilson<r>:<r> You can not hold three large potion of health, talk to me again when you can." to arg-1
+				set {feu.quest.theThird.gotPotions.%uuid of arg-1%} to false
 			send arg-1 title "<gold>Quest complete!" with subtitle "<light gray>The Village" for 4 seconds
 			heal arg-1
 		else:
@@ -156,30 +156,28 @@ command /theThird.KilledZombies1 <player>:
 		set {_name} to "<green>Survivor<r>:<r>"
 		set {feu.quest.theThird.3.%uuid of arg-1%} to false
 		set {feu.quest.theThird.4.%uuid of arg-1%} to true
-		message "%{_name}% I think that's enough." to arg-1
+		message "{@You} I think that's enough." to arg-1
 		
 command /theThird.signs <player>:
 	#action: On click on chest
 	executable by: console
 	trigger:
-		if arg-1 can hold a sign:
-			give arg-1 a sign named "<r>Plank" with lore "<light gray>Quest Item"
-			if size of {feu.quest.theThird.plankChests.%uuid of arg-1%::*} is 1:
-				message "{@You} Found a plank!" to arg-1
-				stop
-			if chance of 10%:
-				message "{@You} Another plank. NICE!" to arg-1
-			else if chance of 15%:
-				message "{@You} Found a plank." to arg-1
-			else if chance of 2%:
-				message "{@You} Oh look, a RARE plank." to arg-1
-			else:
-				message "{@You} Looks like I've got another plank." to arg-1
-				
-			if size of {feu.quest.theThird.plankChests.%uuid of arg-1%::*} is 4:
-				message "{@You} I've caught them all!" to arg-1
+		give arg-1 a sign named "<r>Plank" with lore "<light gray>Quest Item"
+		if size of {feu.quest.theThird.plankChests.%uuid of arg-1%::*} is 1:
+			message "{@You} Found a plank!" to arg-1
+			stop
+		if chance of 10%:
+			message "{@You} Another plank. NICE!" to arg-1
+		else if chance of 15%:
+			message "{@You} Found a plank." to arg-1
+		else if chance of 2%:
+			message "{@You} Oh look, a RARE plank." to arg-1
 		else:
-			message "{@You} There isn't enough space in my inventory for another plank..." to arg-1
+			message "{@You} Looks like I've got another plank." to arg-1
+			
+		if size of {feu.quest.theThird.plankChests.%uuid of arg-1%::*} is 4:
+			message "{@You} I've caught them all!" to arg-1
+	
 		
 command /theThird.finalDoor_movement <player>:
 	#action: On any movement

@@ -30,28 +30,33 @@ command /Crazy_house.Boss.Enter1 <player>:
 		if {feu.quest.Crazy_house.3.%uuid of arg-1%} is true:
 			set {feu.quest.Crazy_house.3.%uuid of arg-1%} to false
 			set {feu.quest.Crazy_house.4.%uuid of arg-1%} to true
-			execute console command "spawnBoss lazarus"
 			Teleport arg-1 to {feu.quest.Crazy_house.boss1}
+			execute console command "spawnBoss lazarus"
+			wait 1 tick
 			add uuid of arg-1 to {feu.quest.Crazy_house.bossFighters::*}
 			message "<light red>Lazarus<r>: So we finally meet face to face! Too bad you will die!" to arg-1
 			wait 80 tick
 			message "{@You} I should watch out for his minions..." to arg-1
 		else if {feu.quest.Crazy_house.4.%uuid of arg-1%} is true:
 			set {_equal} to false
+			Teleport arg-1 to {feu.quest.Crazy_house.boss1}
 			loop {feu.quest.Crazy_house.bossFighters::*}:
 				if uuid of arg-1 is equal to {feu.quest.Crazy_house.bossFighters::%loop-index%}:
 					set {_equal} to true
 					message "<light red>Lazarus<r>: You cannot leave now!" to arg-1
 					if {feu.boss.Lazarus.isSpawned} is not true:
 						execute console command "spawnBoss lazarus"
+
 			if {_equal} is false:
+				wait 1 tick
 				add uuid of arg-1 to {feu.quest.Crazy_house.bossFighters::*}
 				execute console command "spawnBoss lazarus"
-			Teleport arg-1 to {feu.quest.Crazy_house.boss1}
+				
+			
 		else:
 			message "{@You} I should not be here..." to arg-1
 			teleport arg-1 to {feu.quest.Crazy_house.roomExit1}
-			
+
 command /Crazy_house.Boss.finish <player>:
 	#action: Boss death
 	executable by: console
@@ -197,7 +202,7 @@ command /Crazy_house.bossLoot <player>:
 	#action: on click on chest
 	executable by: console
 	trigger:
-		message "{@You} Good ol' loot"
+		message "{@You} Good ol' loot" to arg-1
 		loop 3 times:
 			set {_item} to a random element of {feu.loot.basic::*}
 			give {_item} to the arg-1

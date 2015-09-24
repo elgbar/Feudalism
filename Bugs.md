@@ -3,6 +3,7 @@ Bugs:
 +Helmets despawn on zombies after some time (mc feature)
 +Sometimes NPCs (villages) won't respawn after executing /killall
 ++Temp fixed, now there is spam to the console when using the command -.-
++Skript gives random errors after a while
 
 
 Cannot reproduce bugs:

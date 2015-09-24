@@ -8,7 +8,7 @@ What we aim to do make here is a minecraft server ran entierly by skript and a f
 To run Feudalism you need some addons to skript and the plugin Citizens:
 
 +skript 2.1.2
-++RandomSK Beta 2.0
+++RandomSK 2.7.1
 ++skQuery 3.22.1
 ++WildSkript 1.8
 ++skRayFall 1.6.6

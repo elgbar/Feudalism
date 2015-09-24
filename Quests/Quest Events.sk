@@ -22,7 +22,7 @@ options:
 on any movement:
 	#entity is a player
 	wait 1 tick
-	if block 2 below the player is bedrock:
+	if block 2 or 3 below the player is bedrock:
 		if player's gamemode is creative:
 			set {_loc} to location of player
 			set {_round Coords} to location of player
@@ -38,8 +38,13 @@ on any movement:
 			if {feu.lastBedrockWalked.%player%} is not {_round Coords}:
 				set {feu.lastBedrockWalked.%player%} to {_round Coords}
 				message "{@warn} No metadata check on walked block since you're in creative"
+			#Display the message only once
 			stop
 		set {_BlockInfo} to metadata value "BlockInfo" of block 2 below player
+		if {_BlockInfo} doesn't exist:
+			set {_BlockInfo} to metadata value "BlockInfo" of block 3 below player
+		#Not 100% but close enough (gates to castle walls)
+		
 		#1st quest
 		if "%{_BlockInfo}%" is equal to "Starter_house1":
 			execute console command "house1_door %player%"
@@ -89,13 +94,16 @@ on rightclick on button:
 	if "%{_BlockInfo}%" is equal to "Starter_house1":
 		cancel event
 		if {feu.quest.starter.3.%uuid of player%} is true:
-			if {feu.quest.zombiesKilled.%uuid of player%} is 0:
-				message "{@You} This must be the house" to player
+			set {feu.quest.starter.3.%uuid of player%} to false
+			set {feu.quest.starter.4.%uuid of player%} to true
+			message "{@You} This must be the house" to player
 			uncancel event
+		else if {feu.quest.starter.5.%uuid of player%} is true:
+			uncancel event
+		else if {feu.quest.starter.5.%uuid of player%} is true:
+			message "{@You} Why would I do that? I barley survived!"
 		else if {feu.quest.starter.%uuid of player%} is "Completed": 
 			message "{@You} I do not want to go inside there again.." to player
-		else if {feu.quest.starter.4.%uuid of player%} is true:
-			message "{@You} Why would I do that? I barley survived!"
 		else:
 			message "{@You} That is a creepy place, I do not want to go in there without a sword!" to player
 			
@@ -179,9 +187,12 @@ on rightclick on chest:
 				stop
 		if {_theThird.getLoot} is true:
 			if {feu.quest.theThird.5.%uuid of player%} is true:
-				add location of clicked block to {feu.quest.theThird.plankChests.%uuid of player%::*}
-				execute console command "theThird.signs %player%"
-				stop
+				if player can hold a sign named "<r>Plank" with lore "<light gray>Quest Item":
+					add location of clicked block to {feu.quest.theThird.plankChests.%uuid of player%::*}
+					execute console command "theThird.signs %player%"
+					stop
+				else:
+					message "{@You} There isn't enough space in my inventory for any planks..." to player
 	#Has to be last
 	else if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "feu.op":
 		uncancel event
@@ -192,7 +203,17 @@ on Citizen right click:
 	cancel event
 	if "%target entity's name%" contains "Lord Willson":
 		if {feu.quest.theThird.%uuid of player%} is "Completed":
-			message "<green>Lord Wilson<r>:<r> There are no more quests in this demo." to player
+			if {feu.quest.theThird.gotPotions.%uuid of player%} is false:
+				if player can hold 3 potion of health named "Instant Health III":
+					give 3 potion of health named "Instant Health III" to player
+					message "<green>Lord Wilson<r>:<r> Take this as a reward." to player
+					message "{@prefix} You received three large potion of health" to player
+					set {feu.quest.theThird.gotPotions.%uuid of player%} to true
+				else:
+					message "<green>Lord Wilson<r>:<r> You can not hold three large potion of health, talk to me again when you can." to player
+			else:
+				#TODO Continue form here
+				message "<green>Lord Wilson<r>:<r> There are no more quests in this demo." to player
 		else if {feu.quest.Crazy_house.%uuid of player%} is "Completed":
 			execute console command "NPCLordWilson_theThird %player%"
 		else if {feu.quest.starter.%uuid of player%} is "Completed":
@@ -205,7 +226,6 @@ on Citizen right click:
 				else:
 					message "<green>Lord Wilson<r>:<r> You can not hold two potions, talk to me again when you can." to player
 				stop
-				
 			execute console command "NPCLordWilson_CrazyHouse %player%"
 		else:
 			execute console command "NPCLordWilson_starter %player%"
@@ -224,3 +244,8 @@ on Citizen right click:
 		
 	else if "%target entity's name%" contains "Survivor":
 		execute console command "NPCSurvivor %player%"
+		
+On Pick Up:
+	if event-item is tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item":
+		if {feu.quest.theThird.6.%uuid of player%} is not true:
+			cancel event
