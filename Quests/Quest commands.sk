@@ -19,7 +19,7 @@ command /delAllMetadata:
 		message "Done! Restart to remove the values"
 		
 command /delMetadata:
-	aliases: /dmd
+	aliases: /dmd, /delmeta
 	executable by: player
 	trigger: 
 		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
@@ -48,6 +48,33 @@ command /delMetadata:
 		if {_spoted} is false:
 			message "{@prefix} No metadata here. Remember its the block you are standing on!"
 			stop
+			
+command /changeMetadata <text>:
+	usage: /changeMetadata <Info>
+	aliases: /cmd
+	executable by: player
+	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
+		set {_round Coords} to location of player
+		set {_x} to x coordinate of {_round Coords}
+		set {_y} to y coordinate of {_round Coords}
+		set {_z} to z coordinate of {_round Coords}
+		set x coordinate of {_round Coords} to floor({_x})
+		set y coordinate of {_round Coords} to floor({_y})
+		set z coordinate of {_round Coords} to floor({_z})
+		if {feu.metadata.txt.%{_round Coords}%} exists:
+			set {feu.metadata.txt.%{_round Coords}%} to arg-1
+			clear metadata value "BlockInfo" of block {feu.metadata.below.%{_round Coords}%} below player
+			set metadata value "BlockInfo" of block {feu.metadata.below.%{_round Coords}%} below player to "%{feu.metadata.txt.%{_round Coords}%}%"
+			message "{@prefix} New metadata set!"
 		
 command /setMetadata <text> [<integer=2>]:
 	usage: /setMetadata <Info> [<How many blocks below (0=inside player's feet) (d=2)>]
@@ -62,9 +89,17 @@ command /setMetadata <text> [<integer=2>]:
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-		if block arg-2 below player is not bedrock, any button or chest:
-			message "{@err} No bedrock, button or chest %arg-2% blocks below you."
-			stop
+		if block arg-2 below player is not bedrock:
+			if block at player is chest:
+				message "{@prefix} Autofixing. Chests are currently bugged though this fixes it"
+				set {_chect} to true
+			else if block at player's head is any button:
+				message "{@prefix} The metadata is set to your head's location as there is a button there. Use /delmetadata if this was a mistake."
+				set {_button} to true
+			else:
+				message "{@err} No bedrock, button or chest %arg-2% blocks below you."
+				stop
+				
 		set {_arg-2} to arg-2
 		
 		set {_round Coords} to location of player
@@ -77,6 +112,12 @@ command /setMetadata <text> [<integer=2>]:
 		
 		add {_round Coords} to {feu.metadata.loc::*}
 		set {feu.metadata.txt.%{_round Coords}%} to arg-1
+		
+		if {_chect} is true:
+			set {_arg-2} to 0
+		else if {_button} is true:
+			set {_arg-2} to -1
+
 		set {feu.metadata.below.%{_round Coords}%} to {_arg-2}
 		set metadata value "BlockInfo" of block {feu.metadata.below.%{_round Coords}%} below player to "%{feu.metadata.txt.%{_round Coords}%}%"
 		message "{@prefix} Done!"
@@ -94,74 +135,107 @@ command /metadata:
 			
 		#on any movements
 		if {_exists.Starter_house1} does not exist:
-			message "{@err2} metadata Starter_house1 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Starter_house1"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.starter.leaveCastle} does not exist:
-			message "{@err2} metadata starter.leaveCastle cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
-		if {_exists.WallAlphaMap} does not exist:
-			message "{@err2} metadata WallAlphaMap cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""starter.leaveCastle"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.wall} does not exist:
+			message "{@err2} Metadata ""theThird.wall"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.house1} does not exist:
-			message "{@err2} metadata Crazy_house.house1 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.house1"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.roomExit1} does not exist:
-			message "{@err2} metadata Crazy_house.roomExit1 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.roomExit1"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.roomExit2} does not exist:
-			message "{@err2} metadata Crazy_house.roomExit2 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.roomExit2"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.Boss.Enter1} does not exist:
-			message "{@err2} metadata Crazy_house.Boss.Enter1 cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.Boss.Enter1"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.EnterWrong} does not exist:
-			message "{@err2} metadata Crazy_house.EnterWrong cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.EnterWrong"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.Boss.exitInnerRoom} does not exist:
-			message "{@err2} metadata Crazy_house.Boss.exitInnerRoom cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.Boss.exitInnerRoom"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.wall} does not exist:
+			message "{@err2} Metadata ""theThird.wall"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.finalDoor_movement} does not exist:
+			message "{@err2} Metadata ""theThird.finalDoor_movement"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.sewers_movement} does not exist:
+			message "{@err2} Metadata ""theThird.sewers_movement"" cannot be found! This is a on any movement metadata, please set this or quest will behave unexpectedly." to console
 			
 		#buttons
 		if {_exists.Starter_house1} does not exist:
-			message "{@err2} metadata Starter_house1 cannot be found!This is a click on button event, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Starter_house1"" cannot be found! This is a click on button event, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.house1} does not exist:
-			message "{@err2} metadata Crazy_house.house1 cannot be found!This is a click on button event, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.house1"" cannot be found! This is a click on button event, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.finalDoor} does not exist:
+			message "{@err2} Metadata ""theThird.finalDoor"" cannot be found! This is a click on button event, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.sewers} does not exist:
+			message "{@err2} Metadata ""theThird.sewers"" cannot be found! This is a click on button event, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.sewers_indoor} does not exist:
+			message "{@err2} Metadata ""theThird.sewers_indoor"" cannot be found! This is a click on button event, please set this or quest will behave unexpectedly." to console
 			
 		#Chests
 		if {_exists.starter.chest1} does not exist:
-			message "{@err2} metadata starter.chest1 cannot be found!This is a click on chest event, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""starter.chest1"" cannot be found! This is a click on chest event, please set this or quest will behave unexpectedly." to console
 		if {_exists.Crazy_house.bossLoot} does not exist:
-			message "{@err2} metadata Crazy_house.bossLoot cannot be found!This is a click on chest event, please set this or quest will behave unexpectedly." to console
+			message "{@err2} Metadata ""Crazy_house.bossLoot"" cannot be found! This is a click on chest event, please set this or quest will behave unexpectedly." to console
+		if {_exists.theThird.signs} does not exist:
+			message "{@err2} Metadata ""theThird.signs"" cannot be found! This is a click on chest event, please set this or quest will behave unexpectedly." to console
 
 command /quest <text="Help"> [<player>] [<boolean=false>] [<boolean=false>]:
 	executable by: console
 	usage: /quest <quest | help> <player> [<boolean, true: done previous quests, false: fully reset>]
 	trigger:
-		if arg-1 is "starter":
+		if arg-1 is "starter", "Crazy_house" or "theThird":
 			if arg-2 is not set:
 				message "{@err} You need to specify a player."
 				stop
+		if arg-1 is "starter":
 			set {feu.quest.starter.%uuid of arg-2%} to "Not started"
 			clear {feu.quest.starter.1.%uuid of arg-2%}
 			clear {feu.quest.starter.2.%uuid of arg-2%}
 			clear {feu.quest.starter.3.%uuid of arg-2%}
 			clear {feu.quest.starter.4.%uuid of arg-2%}
+			clear {feu.quest.starter.5.%uuid of arg-2%}
 			set {feu.quest.starter.gotPotions.%uuid of arg-2%} to false
 		else if arg-1 is "Crazy_house":
-			if arg-2 is not set:
-				message "{@err} You need to specify a player."
-				stop
 			#This quest is dependent on that the player have finished "starter" quest
 			if arg-3 is true:
-				if {feu.quest.starter.%uuid of arg-2%} is not "Completed":
-					set {feu.quest.starter.%uuid of arg-2%} to "Completed"
-					set {feu.quest.starter.gotPotions.%uuid of arg-2%} to true
+				set {feu.quest.starter.%uuid of arg-2%} to "Completed"
+				set {feu.quest.starter.gotPotions.%uuid of arg-2%} to true
 			set {feu.quest.Crazy_house.%uuid of arg-2%} to "Not started"
 			clear {feu.quest.Crazy_house.1.%uuid of arg-2%}
 			clear {feu.quest.Crazy_house.2.%uuid of arg-2%}
 			clear {feu.quest.Crazy_house.3.%uuid of arg-2%}
 			clear {feu.quest.Crazy_house.4.%uuid of arg-2%}
+			clear {feu.quest.Crazy_house.hasLootedChests.%uuid of arg-2%}
+			clear {feu.quest.Crazy_house.lootChest.%uuid of arg-2%::*}
+			
+		else if arg-1 is "theThird":
+			#This quest is dependent on that the player have finished "starter" and "Crazy_house" quest
+			if arg-3 is true:
+				set {feu.quest.starter.%uuid of arg-2%} to "Completed"
+				set {feu.quest.Crazy_house.%uuid of arg-2%} to "Completed"
+				set {feu.quest.starter.gotPotions.%uuid of arg-2%} to true
+			set {feu.quest.theThird.%uuid of arg-2%} to "Not started"
+			clear {feu.quest.theThird.1.%uuid of arg-2%}
+			clear {feu.quest.theThird.2.%uuid of arg-2%}
+			clear {feu.quest.theThird.3.%uuid of arg-2%}
+			clear {feu.quest.theThird.4.%uuid of arg-2%}
+			clear {feu.quest.theThird.5.%uuid of arg-2%}
+			clear {feu.quest.theThird.6.%uuid of arg-2%}
+			clear {feu.quest.theThird.7.%uuid of arg-2%}
+			clear {feu.quest.theThird.8.%uuid of arg-2%}
+			clear {feu.quest.theThird.9.%uuid of arg-2%}
+			clear {feu.quest.theThird.plankChests.%uuid of arg-2%::*}
 		else:
 			message "/quest <quest> <player> [<boolean, true: done previous quests, false: fully reset>]" to console
-			message "Available quests: <light green>starter <r>and <light green>Crazy_house" to console
+			message "Available quests: <light green>starter <r>, <light green>Crazy_house<r> and <light green>theThird" to console
 			stop
 			
 		#Global variables
 		if arg-4 is false:
-			message "{@prefix} Enabling quest %arg-1% for %arg-2%"
+			#message "{@prefix} Enabling quest %arg-1% for %arg-2%"
 			message "{@prefix} Quest %arg-1% has been reset for you." to arg-2
 			
-		set {feu.quest.zombiesKilled.%uuid of arg-2%} to 0
+		clear {feu.quest.zombiesKilled.%uuid of arg-2%}
 		remove uuid of arg-2 from {feu.quest.Crazy_house.bossFighters::*}
 		remove uuid of arg-2 from {feu.quest.Crazy_house.bossFighters.logedOff::*}
+		teleport arg-2 to {feu.mainSpawn}

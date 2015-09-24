@@ -39,7 +39,6 @@ On Level Change:
 		
 on death of player:
 	set death message to ""
-	#wait 1 tick
 	#force the player to respawn #TODO fix this
 	set {feu.xpBar.%uuid of player%} to level progress of the player
 	loop {feu.quest.Crazy_house.bossFighters::*}:
@@ -49,22 +48,29 @@ on death of player:
 			stop loop
 	if size of {feu.quest.Crazy_house.bossFighters::*} is 0:
 		execute console command "killLazarus"
+		
+		
 on respawn:
 	wait 2 tick
 	set player's level to {feu.level.%uuid of player%}
+	
+	#You loose 5 percent for dying.
 	set level progress of the player to {feu.xpBar.%uuid of player%}
+	set {_5 percent} to ({feu.currXP.%uuid of player%}/{feu.maxXP.%uuid of player%})*5
+	
+	execute console command "addxp -%{_5 percent}% %player% false true"
 	if {feu.quest.Crazy_house.hasLootedChests.%uuid of player%} is false: 
 		teleport player to {feu.quest.Crazy_house.loot}
 		stop
 	if {feu.quest.Crazy_house.%uuid of player%} is "In progress":
 		if {feu.quest.Crazy_house.2.%uuid of player%} is true:
-			set {_ran1} to a random integer between 0.9 and 2.1
 			set {feu.godMode.%uuid of player%} to true
 			
-			if {_ran1} is 1:
+			if chance of 50%:
 				teleport player to {feu.quest.Crazy_house.roomExit1}
 			else:
-				teleport player to {feu.quest.Crazy_house.roomExit1}
+				teleport player to {feu.quest.Crazy_house.roomExit2}
+				
 			loop entities in radius 2 around player:
 				set {_ID} to metadata value "ID" of loop-entity
 				if {feu.fixedspawn.isSpawned.%{_ID}%} exists:
@@ -77,13 +83,26 @@ on respawn:
 			teleport player to {feu.quest.Crazy_house.bossExit1}
 		else:
 			message "{@err} An error occured that caused the player %player% not to spawn at a location when doing quest Crazy_house! If you are a developer please look in \plugins\skript\logs\questdump.log to fix this quick!" to console
-			execute console command "/dqv crazy_house %player%"
-	else:
-		teleport player to {feu.mainSpawn}
+			execute console command "dqv crazy_house %player%"
+		stop
+	if {feu.quest.theThird.%uuid of player%} is "In progress":
+		if {feu.quest.theThird.1.%uuid of player%} is true:
+			teleport player to {feu.mainSpawn}
+		else if {feu.quest.theThird.7.%uuid of player%} is true:
+			teleport player to {feu.quest.theThird.sewers}
+		else if {feu.quest.theThird.8.%uuid of player%} is true:
+			teleport player to {feu.mainSpawn}
+		else:
+			teleport player to {feu.quest.theThird.SurvivorSpawn}
+		stop
+		
+	#If all fails, or player don't have an quest active
+	teleport player to {feu.mainSpawn}
 		
 on teleport:
 	if {feu.quest.Crazy_house.4.%uuid of player%} is true:
 		remove uuid of player from {feu.quest.Crazy_house.bossFighters::*}
+		
 on command:
 	cancel event
 	if "%command%" is "help":
@@ -91,7 +110,7 @@ on command:
 			message "{@prefix} <green>Use the command /fhelp to see feudalism commands"
 			uncancel event
 			stop
-		execute player command "/fhelp"
+		execute player command "/f%complete command%" #this translates to /fhelp %arg%
 		stop
 	else if "%command%" is "god":
 		#cancel event
@@ -154,6 +173,8 @@ on place:
 	
 on drop:
 	if lore of event-item is "<light gray>Quest Item" or "<gold>Spawned sword":
+		if {feu.permission.%uuid of player%} is "feu.op":
+			stop
 		message "{@You} This item looks important." to player
 		cancel event
 	else if event-item is xp orb:
@@ -163,24 +184,23 @@ on drop:
 		cancel event
 		message "{@You} I should not throw away my only sword.." to player
 		
-on leftclick:
+on click:
+	if target block is anvil, crafting table, furnace, jukebox, chest, ender chest, trapped chest, enchantment table, dispenser, note block or hopper:
+		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
+			cancel event
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			cancel event
+			stop
 	if player is holding a stick named "Debug":
 		if player's target exists:
-			execute player command "/targetinfo"
+			stop
 		else if target block exists:
 			execute player command "/blockInfo"
 		else:
-			message "No target block or target, plz dont look at teh sky"
-		cancel event
-		
-on rightclick:
-	if player is holding a stick named "Debug":
-		if player's target exists:
-			execute player command "/targetinfo"
-		else if target block exists:
-			execute player command "/blockInfo"
-		else:
-			message "No target block or target, plz dont look at teh sky"
+			message "{@err} No target block or target entity!"
 		cancel event
 		stop
 	if event-block is any door:
@@ -213,11 +233,11 @@ On consume:
 			cancel event
 	else if player is holding a potion of:
 		if name of tool is "Instant Health I":
-			add 5 to player's health
-		else if name of tool is "Instant Health II":
 			add 10 to player's health
-		else if name of tool is "Instant Health III":
+		else if name of tool is "Instant Health II":
 			add 20 to player's health
+		else if name of tool is "Instant Health III":
+			add 30 to player's health
 		else:
 			message "{@warn} %player% is drinking an unknown potion!" to console
 		delete player's tool
@@ -289,10 +309,6 @@ on zombie break door:
 on weather change:
 	set weather to sun
 	
-On Physics:
-	block is dirt or grass
-	cancel event
-
 on spread:
 	cancel event
 	

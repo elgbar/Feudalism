@@ -103,6 +103,9 @@ command /setLevel <integer> [<player=%player%>]:
 		if arg-1 is greater than 150:
 			message "{@err} You can not be that high level"
 			stop 
+		else if arg-1 is less than 1:
+			message "{@err} You cannot be a negative or zero level"
+			stop 
 		set {_prev lvl} to {feu.level.%uuid of arg-2%}
 		set {feu.level.%uuid of arg-2%} to arg-1
 		set arg-2's level to {feu.level.%uuid of arg-2%}
@@ -117,23 +120,28 @@ command /setLevel <integer> [<player=%player%>]:
 			set {feu.currXP.%uuid of arg-2%} to {feu.oldMaxXP.%uuid of arg-2%}
 		else:
 			set {feu.currXP.%uuid of arg-2%} to 0
+			set {feu.oldMaxXP.%uuid of arg-2%} to 0
 		execute console command "setMaxHealth %arg-2%"
 		message "{@prefix} You are now level %arg-1%" to arg-2
 		log "%executor% (perm: %{feu.permission.%uuid of player%}%) changed %arg-2%'s (perm: %{feu.permission.%uuid of arg-2%}%) level to %arg-1% (was: %{_prev lvl}%)" to "players.log"
 		
-command /sword <text> [<text>]:
-	usage: /sword <condition (Basic, Uncommon, Rare, Mythical or Legendary)> <material> 
-	executable by: players
+		
+command /sword <text> [<text>] [<player=%player%>]:
+	usage: /sword <condition: Basic, Uncommon, Rare, Mythical or Legendary / OR dummy> [<material (only optinal if dummy)>]
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
+		if arg-3 doesn't exist:
+			message "{@err} Cannot give a sword to the console!"
+			stop
+		else if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
 			message "{@err2} You need to have a permission"
-			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of arg-3%}%)" to "arg-3s.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
+			
 		if arg-1 is "Dummy":
-			give player a wooden sword named "Dummy Sword" with no nbt with lore "<gold>Spawned sword"  
+			give arg-3 a wooden sword named "Dummy Sword" with no nbt with lore "<gold>Spawned sword"  
 			stop
 		
 		if arg-2 does not exist:
@@ -141,16 +149,21 @@ command /sword <text> [<text>]:
 			stop
 			
 		if arg-1 is "Basic", "Uncommon", "Rare", "Mythical" or "Legendary":
+			#Doesn't work
+			#set {_first char Upper} to the first character of arg-1 
+			#set {_first char Upper} to all characters of {_first char Upper} converted to uppercase
+			#set {_last chars lower} to subtext of arg-1 from characters 2 to (the length of arg-1)
+			#set {_last chars lower} to all characters of {_last chars lower} converted to lowercase
 			if arg-2 is "wood" or "wildwood":
-				give player a wooden sword named "%arg-1% Wildwood Sword" with no nbt with lore "<gold>Spawned sword" 
+				give arg-3 a wooden sword named "%arg-1% Wildwood Sword" with no nbt with lore "<gold>Spawned sword" 
 			else if arg-2 is "stone" or "rock":
-				give player a stone sword named "%arg-1% Rock Sword" with no nbt with lore "<gold>Spawned sword"
+				give arg-3 a stone sword named "%arg-1% Rock Sword" with no nbt with lore "<gold>Spawned sword"
 			else if arg-2 is "iron" or "steel":
-				give player a iron sword named "%arg-1% Steel Sword" with no nbt with lore "<gold>Spawned sword"
+				give arg-3 a iron sword named "%arg-1% Steel Sword" with no nbt with lore "<gold>Spawned sword"
 			else if arg-2 is "gold" or "Dwemler":
-				give player a gold sword named "%arg-1% Dwemler Sword" with no nbt with lore "<gold>Spawned sword"
+				give arg-3 a gold sword named "%arg-1% Dwemler Sword" with no nbt with lore "<gold>Spawned sword"
 			else if arg-2 is "diamond" or "Crystal":
-				give player a diamond sword named "%arg-1% Crystal Sword" with no nbt with lore "<gold>Spawned sword"
+				give arg-3 a diamond sword named "%arg-1% Crystal Sword" with no nbt with lore "<gold>Spawned sword"
 			else:
 				message "{@err} Unknown material"
 				message "{@prefix} Use: Wood, Wildwood, Stone, Rock, Iron, Steel, Gold, Dwemler, Diamond or Crystal"
@@ -160,12 +173,33 @@ command /sword <text> [<text>]:
 			message "{@prefix} Use: Basic, Uncommon, Rare, Mythical or Legendary"
 			stop
 			
-command /loop <integer> <text> <text>:
-	usage: /loop <nr of loops> <player, player as op (po) or console> <command you want to run (use "_" as space between arguments)>
+		if arg-3 isn't executor:
+			message "{@prefix} %executor% gave you a %arg-1% %arg-2% sword!" to arg-3
+			
+			
+command /deleteTool:
+	usage: /dt (PS: A tool is whatever you hold)
+	aliases: /dt
 	trigger:
-		if "%uuid of player%" is "<none>":
-			message "" to player
+		if executor is console:
+			message "{@err} Cannot take a sword to the console!"
+			stop
 		else if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "arg-3s.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			
+		message "{@prefix} %name of player's tool% deleted!"
+		
+		delete player's tool
+			
+command /loop <integer> <text> <text>:
+	usage: /loop <nr of loops> <player(player / p), player as op (po / pao) or console (console / c)> <command you want to run (use "_" as space between arguments)>
+	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
@@ -174,27 +208,49 @@ command /loop <integer> <text> <text>:
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 		message "{@warn} There is a 1 second delay between each loop"
+		
 		if arg-1 is less than 1:
 			message "{@err} Number too low."
 			stop
 		else if arg-1 is higher than 60:
 			message "{@err} Number too high."
 			stop
+			
 		set {_cmd} to "%arg-3%"
 		replace all "_" with " " in {_cmd}
-		if arg-2 is "player":
+		if arg-2 is "player" or "p":
 			loop arg-1 times:
 				execute player command "%{_cmd}%"
 				wait 20 tick
-		else if arg-2 is "player as op" or "pso" or "po":
+		else if arg-2 is "pao" or "po":
 			loop arg-1 times:
 				run player command "%{_cmd}%" as op
 				wait 20 tick
-		else:
+		else if arg-2 is "console" or "c":
 			loop arg-1 times:
 				execute console command "%{_cmd}%"
 				wait 20 tick
-#
+		else:
+			message "{@err} Unknown argument 2 ""%arg-2%"""
+			stop
+		message "{@prefix} Loop done!"
+		
+command /fixNamesZombie:
+	trigger:
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
+			message "{@err} You do not have permission for this command!"
+			stop
+		else if {feu.permission.%uuid of player%} does not exist:
+			message "{@err2} You need to have a permission"
+			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
+			set {feu.permission.%uuid of player%} to "feu.player"
+			stop
+			
+		loop {feu.fixedspawn::*}:
+			set {feu.fixedspawn.name.%loop-value%} to "Zombie"
+			set {feu.fixedspawn.displayLevel.%loop-value%} to "true"
+		message "{@prefix} All fixedSpawn entities will now be named 'Zombie' and display their level"
+#		
 #Tools for player:
 #
 		
@@ -372,9 +428,10 @@ command /distance:
 			message "{@err} No target block"
 		
 command /dumpQuestVariables <text> [<player=%player%>]:
+	usage: /DQV <quest> [<player>]
 	aliases: dqv
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.tech", "feu.admin" or "feu.op":
+		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:
@@ -387,8 +444,8 @@ command /dumpQuestVariables <text> [<player=%player%>]:
 			message "{@err} The console cannot do quests!"
 			stop
 			
-		else if arg-1 is not "starter" or "crazy_house":
-			message "Valid quests are ""starter"" and ""crazy_house"""
+		else if arg-1 is not "starter", "crazy_house" or "theThird":
+			message "Valid quests are ""starter"", ""crazy_house"" or ""theThird"""
 			stop
 			
 		if executor is not console:
@@ -405,8 +462,10 @@ command /dumpQuestVariables <text> [<player=%player%>]:
 			log "{feu.quest.starter.2.%uuid of arg-2%} == %{feu.quest.starter.2.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.3.%uuid of arg-2%} == %{feu.quest.starter.3.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.4.%uuid of arg-2%} == %{feu.quest.starter.4.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.starter.5.%uuid of arg-2%} == %{feu.quest.starter.5.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.lookingForRing.%uuid of arg-2%} == %{feu.quest.starter.lookingForRing.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.starter.gotPotions.%uuid of arg-2%} == %{feu.quest.starter.gotPotions.%uuid of arg-2%}%" to "questDump.log"
+			
 		else if arg-1 is "crazy_house":
 			log "{feu.quest.Crazy_house.%uuid of arg-2%} == %{feu.quest.Crazy_house.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.Crazy_house.1.%uuid of arg-2%} == %{feu.quest.Crazy_house.1.%uuid of arg-2%}%" to "questDump.log"
@@ -414,6 +473,22 @@ command /dumpQuestVariables <text> [<player=%player%>]:
 			log "{feu.quest.Crazy_house.3.%uuid of arg-2%} == %{feu.quest.Crazy_house.3.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.Crazy_house.4.%uuid of arg-2%} == %{feu.quest.Crazy_house.4.%uuid of arg-2%}%" to "questDump.log"
 			log "{feu.quest.Crazy_house.hasLootedChests.%uuid of arg-2%} == %{feu.quest.Crazy_house.hasLootedChests.%uuid of arg-2%}%" to "questDump.log"
+			log "size of {feu.quest.Crazy_house.lootChest.%uuid of arg-2%::*} == %size of {feu.quest.Crazy_house.lootChest.%uuid of arg-2%::*}%" to "questDump.log"
+			
+			
+		else if arg-1 is "theThird":
+			log "{feu.quest.theThird.%uuid of arg-2%} == %{feu.quest.theThird.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.1.%uuid of arg-2%} == %{feu.quest.theThird.1.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.2.%uuid of arg-2%} == %{feu.quest.theThird.2.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.3.%uuid of arg-2%} == %{feu.quest.theThird.3.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.4.%uuid of arg-2%} == %{feu.quest.theThird.4.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.5.%uuid of arg-2%} == %{feu.quest.theThird.5.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.6.%uuid of arg-2%} == %{feu.quest.theThird.6.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.7.%uuid of arg-2%} == %{feu.quest.theThird.7.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.8.%uuid of arg-2%} == %{feu.quest.theThird.8.%uuid of arg-2%}%" to "questDump.log"
+			log "{feu.quest.theThird.9.%uuid of arg-2%} == %{feu.quest.theThird.9.%uuid of arg-2%}%" to "questDump.log"
+			log "size of {feu.quest.theThird.plankChests.%uuid of arg-2%::*} == %size of {feu.quest.theThird.plankChests.%uuid of arg-2%::*}%" to "questDump.log"
+			
 		else:
 			log "FATAL ERROR: UNKNOWN VARIABLE ""%arg-1%""! This is an error in the script! Please report this." to "questDump.log"
 			message "FATAL ERROR: UNKNOWN VARIABLE, SEE LOG"
@@ -430,35 +505,35 @@ command /dumpQuestVariables <text> [<player=%player%>]:
 #Only op can use these commands
 #
 
-command /forwards:
-	permission: op
-	trigger:
-		loop 20 times:
-			wait 1 tick
-			push the player in horizontal direction of player with speed 0.2
+#command /forwards:
+#	permission: op
+#	trigger:
+#		loop 20 times:
+#			wait 1 tick
+#			push the player in horizontal direction of player with speed 0.2
 		
-command /stun:
-	permission: op
-	trigger:
-		#both work
-		set {_still} to new vector  0, 0, 0
-		loop 40 times:
-			wait 0.5 tick
-			set velocity of player to {_still}
-		stop
+#command /stun:
+#	permission: op
+#	trigger:
+#		#both work
+#		set {_still} to new vector  0, 0, 0
+#		loop 40 times:
+#			wait 0.5 tick
+#			set velocity of player to {_still}
+#		stop
 		
 		#old
-		set {_orgPos} to player's position
-		loop 4 times:
-			set {_shakePos} to {_orgPos}
-			add 0.1 to y-coordinate of {_shakePos}
-			teleport player to {_shakePos}
-			wait 0.5 tick
-			subtract 0.1 from y-coordinate of {_shakePos}
-			teleport player to {_shakePos}
-			wait 0.5 tick
-			teleport player to {_orgPos}
-			wait 0.5 tick
+#		set {_orgPos} to player's position
+#		loop 4 times:
+#			set {_shakePos} to {_orgPos}
+#			add 0.1 to y-coordinate of {_shakePos}
+#			teleport player to {_shakePos}
+#			wait 0.5 tick
+#			subtract 0.1 from y-coordinate of {_shakePos}
+#			teleport player to {_shakePos}
+#			wait 0.5 tick
+#			teleport player to {_orgPos}
+#			wait 0.5 tick
 		#message "done!"
 		
 #<Quick option menu>
@@ -471,31 +546,30 @@ command /stun:
 		#send player title "<light green>Welcome Back" with subtitle "<light gray>FOREVER" for 5 seconds
 		#format slot 1 of player's current inventory to random element out of all items to be unstealable
 		
-on click with clock:
-	player is op
-	show "s;9;i;shears;n;Death;l;Kill yourself;c;resetplayer %player% requested" with 1 row named "Thingy" to player
+#on click with clock:
+#	player is op
+#	show "s;14;i;gold nugget;n;<gold>Old gold ring;l;<light gray>Quest Item;" with 3 row named "Old chest" to player
 
-on click with shears:
-	player is op
-	clock's name is "Death"
-	kill the player
-	#force player to spawn
+#on click with shears:
+#	player is op
+#	clock's name is "Death"
+#	kill the player
+#	#force player to spawn
 
 #</Quick option menu>
 
-on chat:
-	player is op
-	message is "1":
-		set {helmet.%uuid of player%} to "%helmet of the player%"
-		set {chestplate.%uuid of player%} to "%chestplate of the player%"
-		set {legging.%uuid of player%} to "%legging of the player%"
-		set {boots.%uuid of player%} to "%boots of the player%"
-		Message "1"
-	message is "2":
-		equip the player with {helmet.%uuid of player%} parsed as item
-		equip the player with {chestplate.%uuid of player%} parsed as item
-		equip the player with {legging.%uuid of player%} parsed as item
-		equip the player with {boots.%uuid of player%} parsed as item
-		Message "2"
-
+#on chat:
+#	player is op
+#	message is "1":
+#		set {helmet.%uuid of player%} to "%helmet of the player%"
+#		set {chestplate.%uuid of player%} to "%chestplate of the player%"
+#		set {legging.%uuid of player%} to "%legging of the player%"
+#		set {boots.%uuid of player%} to "%boots of the player%"
+#		Message "1"
+#	message is "2":
+#		equip the player with {helmet.%uuid of player%} parsed as item
+#		equip the player with {chestplate.%uuid of player%} parsed as item
+#		equip the player with {legging.%uuid of player%} parsed as item
+#		equip the player with {boots.%uuid of player%} parsed as item
+#		Message "2"
 	

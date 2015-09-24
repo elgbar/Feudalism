@@ -1,0 +1,215 @@
+options:
+	debug: false
+	
+	prefix: <gold>[&aFeudalism<gold>]<r>
+	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
+	
+	warn: <gold>[<yellow>WARNING<gold>]:<r>
+	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
+	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
+	
+	You: <light green>%arg-1%<r>:<r>
+	
+command /theThird.wall <player>:
+	#action: on any movement
+	executable by: console
+	trigger:
+		set {_name} to "<green>Wall Guard<r>:<r>"
+		if {feu.quest.theThird.%uuid of arg-1%} is "In progress":
+			if {feu.quest.theThird.1.%uuid of arg-1%} is true:
+				#teleport arg-1 to {feu.quest.theThird.insideWall}
+				message "%{_name}% There might be survivors in the village." to arg-1
+				set {feu.quest.theThird.1.%uuid of arg-1%} to false
+				set {feu.quest.theThird.2.%uuid of arg-1%} to true
+		#else if {feu.quest.theThird.2.%uuid of arg-1%} is true:
+		#	teleport arg-1 to {feu.quest.theThird.insideWall}
+		else:
+			#message "%{_name}% This town is under quarantine! You can not enter without Lord Wilson permission." to arg-1
+			teleport arg-1 to {feu.quest.theThird.Wall}
+		
+command /NPCWallGuard <player> <integer>:
+	#action: on rightclick on entity
+	executable by: console
+	trigger:
+		set {_name} to "<green>Wall Guard<r>:<r>"
+		#God this language needs some logical AND and OR...
+		if {feu.quest.theThird.%uuid of arg-1%} is "Not started":
+			message "%{_name}% The town is under quarantine! You can not enter without Lord Wilson permission." to arg-1
+		else if {feu.quest.theThird.%uuid of arg-1%} is "In progress":
+			if arg-2 is 25:
+				message "%{_name}% Jump over the barricade to enter the town" to arg-1
+			else if arg-2 is 26:
+				message "%{_name}% There is smoke coming out the chimney." to arg-1
+			else if arg-2 is 27:
+				message "%{_name}% There might still be survivors remaining in the village." to arg-1
+		else if {feu.quest.theThird.%uuid of arg-1%} is "Completed":
+			message "%{_name}% You are not allowed to enter again." to arg-1
+		else:
+			message "%{_name}% Hello." to arg-1
+			message "{@err2} Else triggered at %{_name}%<light red> for <r>%arg-1%<light red>, at quest theThird. See log for more info." to console
+			execute console command "dqv theThird %arg-1%"
+		
+command /NPCLordWilson_theThird <player>:
+	#action: on rightclick on entity
+	executable by: console
+	trigger:
+		set {_name} to "<green>Lord Wilson<r>:<r>"
+		if {feu.quest.theThird.%uuid of arg-1%} is "Not started":
+			if {feu.level.%uuid of arg-1%} is less than 10:
+				message "%{_name}% I need someone with more experience." to arg-1
+				stop
+			set {feu.quest.theThird.%uuid of arg-1%} to "In progress"
+			set {feu.quest.theThird.1.%uuid of arg-1%} to true
+			message "%{_name}% Hello again %arg-1%! My scouts at the wall have observed a signal from the village. Can you go and check it out?" to arg-1
+		else if {feu.quest.theThird.1.%uuid of arg-1%} is true:
+			message "%{_name}% Go to the wall and talk to the guards there." to arg-1
+		else if {feu.quest.theThird.2.%uuid of arg-1%} is true:
+			message "%{_name}% Jump over the wall!" to arg-1
+		else if {feu.quest.theThird.8.%uuid of arg-1%} is true:
+			set {feu.quest.theThird.%uuid of arg-1%} to "Completed"
+			set {feu.quest.theThird.8.%uuid of arg-1%} to false
+			message "%{_name}% You don't need to tell me anything. I've got my report from the guards." to arg-1
+			wait 40 tick
+			message "%{_name}% You did a very good job!" to arg-1
+			if arg-1 can hold 3 potion of health named "Instant Health III":
+				give 3 potion of health named "Instant Health III" to arg-1
+				message "%{_name}% Take this as a reward." to arg-1
+				message "{@prefix} You received three large potion of health" to arg-1
+				set {feu.quest.theThird.gotPotions.%uuid of arg-1%} to true
+			else:
+				message "<green>Lord Wilson<r>:<r> You can not hold three large potion of health, talk to me again when you can." to arg-1
+				set {feu.quest.theThird.gotPotions.%uuid of arg-1%} to false
+			send arg-1 title "<gold>Quest complete!" with subtitle "<light gray>The Village" for 4 seconds
+			heal arg-1
+		else:
+			message "%{_name}% Hello." to arg-1
+			message "{@err2} Else triggered at %{_name}%<light red> for <r>%arg-1%<light red>, at quest theThird. See log for more info." to console
+			execute console command "dqv theThird %arg-1%"
+			
+command /NPCSurvivor <player>:
+	#action: on rightclick on entity
+	executable by: console
+	trigger:
+		set {_name} to "<green>Survivor<r>:<r>"
+		if {feu.quest.theThird.2.%uuid of arg-1%} is true:
+			set {feu.quest.theThird.2.%uuid of arg-1%} to false
+			set {feu.quest.theThird.3.%uuid of arg-1%} to true
+			set {feu.quest.zombiesKilled.%uuid of arg-1%} to 0
+			message "%{_name}% Oh you found me! You are the first person I have seen in months!" to arg-1
+			wait 50 tick
+			message "%{_name}% As you saw there are a lot of zombies outside. Can you help me <gold>clear some of them out<r>?" to arg-1
+		else if {feu.quest.theThird.3.%uuid of arg-1%} is true:
+			message "%{_name}% Kill some of the zombies outside." to arg-1
+		else if {feu.quest.theThird.4.%uuid of arg-1%} is true:
+			set {feu.quest.theThird.4.%uuid of arg-1%} to false
+			set {feu.quest.theThird.5.%uuid of arg-1%} to true
+			heal arg-1
+			message "%{_name}% Well done, but there is something else you could help me with." to arg-1
+			wait 30 tick
+			message "%{_name}% I need to board up these windows." to arg-1
+			wait 30 tick
+			message "%{_name}% There are materials scattered around town." to arg-1
+			wait 30 tick
+			message "%{_name}% See if you find some laying around in chests.." to arg-1
+		else if {feu.quest.theThird.5.%uuid of arg-1%} is true:
+			if arg-1 has 4 signs named "<r>Plank" with lore "<light gray>Quest Item":
+				set {feu.quest.theThird.5.%uuid of arg-1%} to false
+				set {feu.quest.theThird.6.%uuid of arg-1%} to true
+				remove all signs named "<r>Plank" with lore "<light gray>Quest Item" from arg-1's inventory
+				message "%{_name}% Great! Now can I finally board up those windows." to arg-1
+				wait 20 tick
+				message "%{_name}% Take these health potions, as another thanks! I'll also heal you again." to arg-1
+				heal arg-1
+				if arg-1 can hold 2 potion of health named "Instant Health II":
+					give 2 potion of health named "Instant Health II" to the arg-1
+					message "{@prefix} You received two medium health potions!" to arg-1
+				else:
+					message "%{_name}% Looks like you don't have enough space for those potions.. I'll still heal you though!" to arg-1
+				wait 30 tick
+				message "%{_name}% There is a reason I haven't left this town." to arg-1
+				wait 40 tick 
+				#message "%{_name}% Not only because this is my house, but another physical reason." to arg-1
+				#wait 50 tick
+				message "%{_name}% To get to the other side of the wall you need to walk trough the sewers." to arg-1
+				wait 50 tick 
+				message "%{_name}% But to get down there you need to <gold>obtain the key from The Janitor<r>." to arg-1
+				wait 50 tick 
+				message "%{_name}% He's somewhere in the village, and is probaly wearing chain armour" to arg-1
+			else: 
+				message "%{_name}% You need to bring me 4 planks." to arg-1
+		else if {feu.quest.theThird.6.%uuid of arg-1%} is true:
+			if arg-1 has a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item":
+				message "%{_name}% You have the key. Go into the maintenance building left of the well." to arg-1
+			else:
+				message "%{_name}% To get down into the sewers you need to obtain the key, but only the janitor has it." to arg-1
+		else if {feu.quest.theThird.7.%uuid of arg-1%} is true:
+			message "%{_name}% Go into the maintenance building left of the well." to arg-1
+		else:
+			message "%{_name}% Hello." to arg-1
+			message "{@err2} Else triggered at %{_name}%<light red> for <r>%arg-1%<light red>, at quest theThird. See log for more info." to console
+			execute console command "dqv theThird %arg-1%"
+			
+command /theThird.KilledZombies1 <player>:
+	#action: Killed enough zombies
+	executable by: console
+	trigger:
+		set {_name} to "<green>Survivor<r>:<r>"
+		set {feu.quest.theThird.3.%uuid of arg-1%} to false
+		set {feu.quest.theThird.4.%uuid of arg-1%} to true
+		message "{@You} I think that's enough." to arg-1
+		
+command /theThird.signs <player>:
+	#action: On click on chest
+	executable by: console
+	trigger:
+		give arg-1 a sign named "<r>Plank" with lore "<light gray>Quest Item"
+		if size of {feu.quest.theThird.plankChests.%uuid of arg-1%::*} is 1:
+			message "{@You} Found a plank!" to arg-1
+			stop
+		if chance of 10%:
+			message "{@You} Another plank. NICE!" to arg-1
+		else if chance of 15%:
+			message "{@You} Found a plank." to arg-1
+		else if chance of 2%:
+			message "{@You} Oh look, a RARE plank." to arg-1
+		else:
+			message "{@You} Looks like I've got another plank." to arg-1
+			
+		if size of {feu.quest.theThird.plankChests.%uuid of arg-1%::*} is 4:
+			message "{@You} I've caught them all!" to arg-1
+	
+		
+command /theThird.finalDoor_movement <player>:
+	#action: On any movement
+	executable by: console
+	trigger:
+		if {feu.quest.theThird.7.%uuid of arg-1%} is true:
+			stop
+		else if {feu.quest.theThird.8.%uuid of arg-1%} is true:
+			stop
+		else if {feu.quest.theThird.%uuid of arg-1%} is "Completed":
+			stop
+		else:
+			teleport arg-1 to {feu.quest.theThird.finalDoor}
+			
+command /theThird.sewers_movement <player>:
+	#action: On any movement
+	executable by: console
+	trigger:
+		if {feu.quest.theThird.6.%uuid of arg-1%} is true:
+			#I'm too lazy.. ok?
+			set {feu.quest.theThird.7.%uuid of arg-1%} to true
+			stop
+		else if {feu.quest.theThird.7.%uuid of arg-1%} is true:
+			stop
+		else if {feu.quest.theThird.%uuid of arg-1%} is "Completed":
+			stop
+		else:
+			teleport arg-1 to {feu.quest.theThird.sewers_outdoor}
+		
+every 30 seconds:
+	loop players in radius 60 around location of {feu.boss.Janitor.spawnLoc}:
+		add 1 to {_players}
+	if {_players} is greater than 0:
+		execute console command "spawnboss janitor"
+		

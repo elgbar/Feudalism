@@ -29,6 +29,7 @@ command /resetPlayer <offline player> [<text="help">]:
 			if arg-1 is online:
 				message "{@prefix} <light red>You will be reset because of <red>hacking<light red>!" to arg-1
 				message "{@prefix} <light red>If you think this is a mistake apply for a pardon here:<gold> ""need-link.now""" to arg-1
+				#TODO Get a link
 				message "{@prefix} <light red>Because of this you will be kicked in 30 seconds." to arg-1
 				add arg-1 to {feu.resetPlayer::*}
 				wait 30 seconds
@@ -95,12 +96,13 @@ command /setup <player>:
 		set level progress of the arg-1 to 0
 		set {feu.maxXP.%uuid of arg-1%} to 80
 		set {feu.currXP.%uuid of arg-1%} to 0
+		set {feu.oldMaxXP.%uuid of arg-1%} to 0
 		set {feu.XPtoNextLevel.%uuid of arg-1%} to {feu.maxXP.%uuid of arg-1%}
-		set {feu.printXP.%uuid of arg-1%} to true
 		
 		#Quest
 		execute console command "quest starter %arg-1% true true"
 		execute console command "quest Crazy_house %arg-1% false true"
+		execute console command "quest theThird %arg-1% false true"
 		
 		#health
 		set max health of arg-1 to 30
@@ -117,7 +119,7 @@ every 30 seconds:
 	loop all players in "Feudalism_4":
 		loop-player is alive
 		health of loop-player is not max health of loop-player
-		add 2.5 to loop-player's health
+		add 5 to loop-player's health
 			
 on join:
 	loop {feu.resetPlayer::*}:
@@ -160,11 +162,12 @@ on join:
 		loop {feu.quest.Crazy_house.bossFighters.logedOff::*}:
 			if uuid of player is equal to {feu.quest.Crazy_house.bossFighters.logedOff::%loop-index%}:
 				#Teleport arg-1 to {feu.quest.Crazy_house.boss1}
+				teleport player to {feu.quest.Crazy_house.boss1}
+				wait 1 tick
 				remove uuid of player from {feu.quest.Crazy_house.bossFighters.logedOff::*}
 				add uuid of player to {feu.quest.Crazy_house.bossFighters::*}
 				message "<light red>Lazarus<r>: You will not escape me by logging off!"
 				execute console command "spawnBoss lazarus"
-				teleport player to {feu.quest.Crazy_house.boss1}
 			stop loop
 			
 	else if {_equal} is false:
