@@ -11,6 +11,9 @@ options:
 #Commands
 
 command /fhelp [<text>]:
+	#Tests show this need optimizing!
+	#Pct Total	Pct Tick	   Total	    Avg	        PerTick	       Count		Event
+	#0.00%	    23.07%	       0.05 s	    11.53 ms	  0.0	       0.0k	    Command: help
 	trigger:
 		if {feu.permission.%uuid of player%} is not "feu.player", "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
@@ -516,11 +519,10 @@ command /permission <text="help"> [<player=%player%>]:
 			message ""
 			message "<light red>Usable ranks: <yellow>Player, moderator (mod), technician (tech), administrator (admin) or operator (op)"
 			message "<light red>Player: <yellow>You have to choose an online player for this to work."
-			message "<light red>Help: <yellow>Displays this help screen."
 			stop
 			
 		if "%uuid of arg-2%" is "%uuid of executor%":
-			if "%uuid of player%" is not "<none>":
+			if "%uuid of player%" is not "<none>": #Enables console to change its own permission
 				message "{@err} You can not change your own permission"
 				stop
 		if arg-1 is "player":
@@ -574,7 +576,6 @@ command /loot.basic:
 		#message "%{feu.loot.basic::*}% are in Grandma's Basket"
 		
 #events
-
 on world load:
 	if the world is not "Feudalism_4":
 		message "{@err} You have the wrong name of the world! Use ""Feudalism_4""" to console
@@ -587,7 +588,7 @@ on skript load:
 		#DEVELOP : Finished with a feature, but needs debugging before it can be considered a STABLE build. (verify: Check that quests work and you can kill zombies properly)
 		#UNCERTAIN : Quick upload after finishing a session. Do not use builds which is in this state. Can be multiple UNCERTAIN builds in one day. (verify: Nothing)
 	set {feu.version} to "Build 30 - STABLE"
-	ban "<none>" due to "Can not have a player with that name, change it to play here" #<none> is the console, too bad for the one who has that name :P
+	ban "<none>" due to "Can not have a player with that name, change it to play here" #<none> is the console, too bad for the one who has that name. Not that anyone can have that name :P
 	set {feu.permission.<none>} to "feu.op" #makes the console use all commands
 	if {feu.mainSpawn} does not exist:
 		#teleport
@@ -698,7 +699,7 @@ on rightclick on andesite:
 			execute console command "addxp %{_5 percent}% %player% false"
 		else if {_ran} is 2:
 			set {_5precent} to {_5 percent}*2 #ups it to 10%
-			message "{@prefix} %{_5 percent}% XP!" 		
+			message "{@prefix} %{_5 percent}% XP!" 
 			execute console command "addxp %{_5 percent}% %player% false"
 		else if {_ran} is 3:
 			message "{@prefix} Sadly it is already looted."
@@ -728,3 +729,4 @@ on rightclick on andesite:
 		else:
 			message "{@prefix} <light red> An ERROR :S"
 			message "{@err} %uuid of player% found a bug with the andersite! Please report this."
+			

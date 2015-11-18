@@ -144,6 +144,7 @@ command /stats [<player=%player%>]:
 			message "{@prefix} Max health: <light green>%max health of arg-1%"
 			message "{@prefix} Current Location: <light green>%location of arg-1%"
 			message "{@prefix} Current gamemode: <light green>%gamemode of arg-1%"
+			message "{@prefix} Godmode: <light green>%{feu.godMode.%uuid of arg-1%}%"
 			
 command /setMaxHealth <player>:
 	executable by: console
@@ -174,7 +175,6 @@ on damage:
 	repair victim's boots
 	if attacker's tool isn't any potion:
 		repair attacker's tool
-	#</>
 	
 	victim is alive
 	attacker is alive #there is a bug where the player is revived this stops all this
@@ -436,7 +436,7 @@ on damage:
 	if name of attacker's tool contains "Dummy Sword":
 		message "" to {_fake}
 	else if {_damage} is 0:
-		message "<light red>You can not attack the zombie with this!" to attacker
+		#message "<light red>You can not attack with this!" to attacker
 		stop
 	else:
 		set {_total damage} to {_damage}*{_calcArmour} + ({_dmg percent Attacker} - {_dmg percent Victim})
@@ -516,7 +516,7 @@ on damage:
 				#TODO Maybe change this?
 				set {_xp} to 60
 				
-			#This makes you get more xp from zombies whit armour
+			#This makes you get more xp from zombies with armour
 			set {_armourToXPMultiplyer} to 1+({_addedArmour}/100)
 			set {_xp} to {_xp} * {_armourToXPMultiplyer}
 			
@@ -666,15 +666,15 @@ on damage:
 		if {_zombie ID} contains "Lazarus' minion":
 			set name of victim to "<light red>Minion <r> %round(health of victim)%/%max health of victim%"
 		else if {_zombie ID} is "SCZ":
-			set name of victim to "<light red>%{_zombieName}% <r> %round(health of victim)%/%max health of victim%"
+			set name of victim to "<light red>%{_zombieName}%<r> %round(health of victim)%/%max health of victim%"
 		else if {_zombie ID} is "The Janitor":
-			set name of victim to "<red>The Janitor <r> %round(health of victim)%/%max health of victim%"
+			set name of victim to "<red>The Janitor<r> %round(health of victim)%/%max health of victim%"
 		else if "%{_displayLevel}%" is "true":
-			set name of victim to "<light red>%{_zombieName}% LvL %{_zombie level}% <r>%round(health of victim)%/%max health of victim%"
+			set name of victim to "<light red>%{_zombieName}% LvL %{_zombie level}%<r> %round(health of victim)%/%max health of victim%"
 		else:
-			set name of victim to "<light red>%{_zombieName}% <r> %round(health of victim)%/%max health of victim%"
+			set name of victim to "<light red>%{_zombieName}%<r> %round(health of victim)%/%max health of victim%"
 	else if {_zombie ID} is "Lazarus":
-		set name of victim to "<red>Lazarus <r>%round(victim's health)%/%victim's max health%"
+		set name of victim to "<red>Lazarus<r> %round(victim's health)%/%victim's max health%"
 		
 	#Makes the entity push move the same way however fast it is originally moving
 	set {_still} to new vector  0, 0, 0
@@ -703,23 +703,25 @@ on damage:
 			message "{@debugPrefix} <white>Armour added together: %{_helmet}%+%{_chestplate}%+%{_leggings}%+%{_boots}% = %{_addedArmour}%" to console
 			message "{@debugPrefix} Armour: 1-((%{_addedArmour}%+%{_dmg percent Victim}%)/100) = %{_calcArmour}%" to console
 			if {_total damage} is less than 1:
-				message "{@debugPrefix} Total dmg < 1: %{_total damage}% (raw: %{_total damage2}%)" to console #total dmg is set to 0 when the attacker is a player and he/she damage less than 1
+				message "{@debugPrefix} <white>Total dmg < 1: %{_total damage}% (raw: %{_total damage2}%)" to console #total dmg is set to 0 when the attacker is a player and he/she damage less than 1
 			else:
-				message "{@debugPrefix} Total dmg: %{_damage}% * %{_calcArmour}% = %{_total damage}% (raw: %{_total damage2}%)" to console
+				message "{@debugPrefix} <white>Total dmg: %{_damage}% * %{_calcArmour}% = %{_total damage}% (raw: %{_total damage2}%)" to console
 		else if attacker is a zombie:
 			message "{@debugPrefix} <white>Attacker level: %{_zombie level}% || victim level: %{feu.level.%uuid of victim%}%" to console
 			if attacker is holding a sword:
-				message "{@debugPrefix} <white>Material: %{_material}%" to console
+				message "{@debugPrefix} Material: %{_material}%" to console
 				#zombie tool damage
-				message "{@debugPrefix} Z t dmg: 0.5 + %{_material}% + %{_zombie level}% = %{_damage}%" to console 
+				message "{@debugPrefix} <white>Z t dmg: 0.5 + %{_material}% + %{_zombie level}% = %{_damage}%" to console 
 			else:
+				message "{@debugPrefix} Material: Air" to console
 				#zombie no tool damage
-				message "{@debugPrefix} Z n t dmg: 2 + %{_zombie level}% + %{_dmg percent Attacker}% = %{_damage}%" to console 
+				message "{@debugPrefix} <white>Z n t dmg: 2 + %{_zombie level}% + %{_dmg percent Attacker}% = %{_damage}%" to console 
 			#Armour of victim
-			message "{@debugPrefix} <white>Armour: 1-(((%{_helmet}%+%{_chestplate}%+%{_leggings}%+%{_boots}%)+%{_dmg percent Victim}%)/100) = %{_calcArmour}%" to console
+			message "{@debugPrefix} Armour: 1-(((%{_helmet}%+%{_chestplate}%+%{_leggings}%+%{_boots}%)+%{_dmg percent Victim}%)/100) = %{_calcArmour}%" to console
 			#Final damage
-			message "{@debugPrefix} Total dmg: %{_damage}% * %{_calcArmour}% + (%{_dmg percent Attacker}% - %{_dmg percent Victim}%) = %{_total damage}% (raw: %{_total damage2}%)" to console
+			message "{@debugPrefix} <white>Total dmg: %{_damage}% * %{_calcArmour}% + (%{_dmg percent Attacker}% - %{_dmg percent Victim}%) = %{_total damage}% (raw: %{_total damage2}%)" to console
 		
 		if the victim is dead:
-			message "{@debugPrefix} <white>XP multiplyer: 1+(%{_addedArmour}%/100) = %{_armourToXPMultiplyer}%" to console
+			message "{@debugPrefix} XP multiplyer: 1+(%{_addedArmour}%/100) = %{_armourToXPMultiplyer}%" to console
+			message "{@debugPrefix} <white>XP Gained: {_xp} * %{_armourToXPMultiplyer}% = %{_xp}%" to console
 			message "{@debugPrefix} <light red>Victim died!" to console

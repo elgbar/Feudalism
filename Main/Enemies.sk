@@ -646,20 +646,23 @@ command /targetInfo:
 				set x coordinate of {_location} to ({_x}) parsed as number
 				set y coordinate of {_location} to ({_y}) parsed as number
 				set z coordinate of {_location} to ({_z}) parsed as number
-			if target is a villager:
+			else if target is a villager:
 				message "{@warn} Target is a villager, they have no info."
 				stop
 			else if {_victim ID} does not exist:
 				message "{@warn} Not a custom spawned/corrupt entity or a player!"
 				stop
-			if {_name} exists:
-				message "<yellow>----<gold>[<green>%{_name}%<green>'s values<gold>]<yellow>----"
+			else:
+				set {_name} to "%name of target entity%"
+				replace all "<light red>" and " %round(health of target entity)%/%max health of target entity%" with "" in {_name}
+				
+			message "<yellow>----<gold>[<green>%{_name}%<green>'s values<gold>]<yellow>----"
+			if {_int ID} exists:
 				message "{@prefix} Name: <light green>%{_Name}% <r>(Display level: &a%{_displayLevel}%<r>)"
 			else:
-				message "<yellow>----<gold>[<green>%name of target entity%<green>'s values<gold>]<yellow>----"
-			message "{@prefix} Level: <light green>%{_victim level}%"
+				message "{@prefix} Name: <light green>%{_Name}%"
 			message "{@prefix} ID: <light green>%{_victim ID}%"
-			message "{@prefix} Current Health / Max Health: <light green>%health of target entity% <r>/ &a%max health of target entity%"
+			message "{@prefix} Current Health / Max Health: <light green>%health of target entity%<r>/&a%max health of target entity%"
 			if {_int ID} exists:
 				message "{@prefix} X: <light green>%{_x}% <r>Y: <light green>%{_y}% <r>Z: <light green>%{_z}%"
 				message "{@prefix} Current Location: <light green>%target entity's location%"
@@ -676,6 +679,9 @@ command /targetInfo:
 #Events
 
 every 3 seconds in world "Feudalism_4":
+	#Tests show this need optimizing!
+	#Pct Total	Pct Tick	   Total	    Avg	        PerTick	       Count		Event
+	#0.06%	     3.98%	      3.74 s	  1.99 ms	     0.0	       1.9k	    Task: EvtPeriodical$2(interval 60)
 	{@debug}:
 		set {_1stTime} to now
 		{@hardDebugging} is false:
@@ -764,7 +770,10 @@ every 3 seconds in world "Feudalism_4":
 		set {_time} to difference between {_1stTime} and now
 		message "{@debugPrefix} Short periodical event took %{_time}%" to console
 	
-every 15 second in world "Feudalism_4":
+every 20 second in world "Feudalism_4":
+	#Tests show this need optimizing!
+	#Pct Total	Pct Tick	   Total	    Avg	        PerTick	       Count		Event
+	#0.16%	     49.29%	      9.34 s	  24.65 ms	      0.0	       0.4k	    Task: EvtPeriodical$2(interval 300)
 	if {feu.doZombiesSpawn} is false:
 		message "{@warn} Zombie Spawning disabled!" to console
 		stop
@@ -813,9 +822,9 @@ every 15 second in world "Feudalism_4":
 					set rf maximum health of {_entity} to {_health}*2
 					set health of {_entity} to {_health}
 					
-					#apparently this happens often! This should fix it, although this is temporary
+					#Apparently this happens often! This should fix it, although this is temporary
 					if the maximum health of {_entity} is not {_health}:
-						wait 5 tick
+						wait 5 tick #Can it be lower?
 						if {_entity} is alive:
 							{@debug}:
 								message "{@err2} Entity with ID %{feu.fixedspawn.ID.%loop-value-1%}% has wrong maximum health! Location: %loop-value-1%, Level:%{feu.fixedspawn.lvl.%loop-value-1%}%, Maximum health: %{_entity}'s maximum health%. And is still alive" to console
@@ -844,7 +853,7 @@ every 15 second in world "Feudalism_4":
 					else if {feu.fixedspawn.armour.%loop-value-1%} is "diamond":
 						equip {_entity} with all diamond armour
 					else if {feu.fixedspawn.armour.%loop-value-1%} is "none" or "air":
-						wait 2 tick
+						#wait 2 tick #Can it be lower?
 						delete helmet slot of {_entity}
 						delete chestplate slot of {_entity}
 						delete legs slot of {_entity}

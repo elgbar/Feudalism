@@ -45,7 +45,7 @@ on death of player:
 		if uuid of player is equal to {feu.quest.Crazy_house.bossFighters::*}:
 			remove uuid of player from {feu.quest.Crazy_house.bossFighters::*}
 			#add uuid of player to {feu.quest.Crazy_house.bossFighters.logedOff::*}
-			stop loop
+			#stop loop
 	if size of {feu.quest.Crazy_house.bossFighters::*} is 0:
 		execute console command "killLazarus"
 		
@@ -196,7 +196,7 @@ on click:
 			stop
 	if player is holding a stick named "Debug":
 		if player's target exists:
-			stop
+			execute player command "/targetinfo"
 		else if target block exists:
 			execute player command "/blockInfo"
 		else:
@@ -210,7 +210,7 @@ on click:
 			cancel event
 			
 on entity target:
-	if entity is xp orb:
+	if entity is xp orb: #They randomly spawn, cant be cancelled
 		delete entity
 	set {_Victim ID} to metadata value "ID" of entity
 	if target is a villager:
@@ -231,7 +231,7 @@ On consume:
 	if player's health is max health of player:
 		if name of tool contains "Instant Health":
 			cancel event
-	else if player is holding a potion of:
+	else if player is holding a potion of: #Skript is broken here
 		if name of tool is "Instant Health I":
 			add 10 to player's health
 		else if name of tool is "Instant Health II":

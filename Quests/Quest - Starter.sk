@@ -130,7 +130,6 @@ command /NPCBlacksmith_starter <player>:
 				
 		else if {feu.quest.starter.%uuid of arg-1%} is "Completed":
 			message "%{_name}% How can I help you?" to arg-1
-			#TODO make a shop here
 		else:
 			message "%{_name}% Hello." to arg-1
 			message "{@err2} Else triggered at %{_name}%<light red> for <r>%arg-1%" to console

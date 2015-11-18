@@ -24,8 +24,7 @@ every 10 real minutes:
 	else if {_num} is 2:
 		message "{@AnnouncementPrefix} Thank you for testing out Feudalism!" to all players in world "Feudalism_4"
 	else if {_num} is 3:
-		message "{@AnnouncementPrefix} We need Builders and skript coders! sign up here: http://goo.gl/forms/KFYvvMXT8j" to all players in world "Feudalism_4"
-		
+		message "{@AnnouncementPrefix} We need Builders and skript coders! sign up here: http://goo.gl/forms/KFYvvMXT8j" to all players in world "Feudalism_4"	
 	else if {_num} is 4:
 		message "{@TipPrefix} You're healed when you level up." to all players in world "Feudalism_4"
 	else if {_num} is 5:
