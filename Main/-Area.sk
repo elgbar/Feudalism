@@ -8,6 +8,7 @@ options:
 	enabledWorlds: "Feudalism_4" or "Feudalism_4_nether"
 	
 	buildingMaterials: stone, planks, wood or cobblestone
+	ignoreblocks: air, lava, water or snow layer
 	
 #script options:
 #    $ developer mode
@@ -66,9 +67,9 @@ command /testArea:
 		while {run.%player%} is true:
 			set {_dir%{_dir}%} to 1
 			message "<gold>%{_dir}%: corner @ %{_corner%{_dir}%}%"
-			block above {_corner%{_dir}%} is air or snow layer:
-				message "<green>%{_dir}%: org block set to cobble"						
-				while block {_dir%{_dir}%} blocks below {_corner%{_dir}%} is air or snow layer:
+			block above {_corner%{_dir}%} is {@ignoreblocks}:
+				message "<green>%{_dir}%: org block set to cobble"
+				while block {_dir%{_dir}%} blocks below {_corner%{_dir}%} is {@ignoreblocks}:
 					add 1 to {_dir%{_dir}%}
 				
 				set {_orgLoc} to location {_dir%{_dir}%} blocks below {_corner%{_dir}%}
@@ -84,7 +85,7 @@ command /testArea:
 				message "{_newDir} is %{_newDir}%"
 				while {_a} is true:
 					set {_newLocation} to location west of {_corner%{_dir}%}
-					if block {_newDir} blocks below {_newLocation} isn't air or snow layer:
+					if block {_newDir} blocks below {_newLocation} isn't {@ignoreblocks}:
 						remove 1 from {_newDir}
 						set block {_newDir} blocks below {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block west spotted!"
@@ -94,7 +95,7 @@ command /testArea:
 						set {_w} to true
 						
 					set {_newLocation} to location north of {_corner%{_dir}%}	
-					if block {_newDir} blocks below {_newLocation} isn't air or snow layer:
+					if block {_newDir} blocks below {_newLocation} isn't {@ignoreblocks}:
 						remove 1 from {_newDir}
 						set block {_newDir} blocks below {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block north spotted!"
@@ -104,7 +105,7 @@ command /testArea:
 						set {_n} to true
 						
 					set {_newLocation} to location south of {_corner%{_dir}%}			
-					if block {_newDir} blocks below {_newLocation} isn't air or snow layer:
+					if block {_newDir} blocks below {_newLocation} isn't {@ignoreblocks}:
 						remove 1 from {_newDir}
 						set block {_newDir} blocks below {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block south spotted!"
@@ -114,7 +115,7 @@ command /testArea:
 						set {_s} to true
 						
 					set {_newLocation} to location east of {_corner%{_dir}%}			
-					if block {_newDir} blocks below {_newLocation} isn't air or snow layer:
+					if block {_newDir} blocks below {_newLocation} isn't {@ignoreblocks}:
 						remove 1 from {_newDir}
 						set block {_newDir} blocks below {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block east spotted!"
@@ -131,7 +132,7 @@ command /testArea:
 						
 			else:
 				message "<red>{_corner%{_dir}%} is underground, trying to find the surface block"
-				while block {_dir%{_dir}%} blocks above {_corner%{_dir}%} isn't air or snow layer:
+				while block {_dir%{_dir}%} blocks above {_corner%{_dir}%} isn't {@ignoreblocks}:
 					add 1 to {_dir%{_dir}%}
 					message "<yellow>%{_dir}%: added 1 to {_dir%{_dir}%} (%{_dir%{_dir}%}%)"
 					
@@ -146,7 +147,7 @@ command /testArea:
 				message "{_newDir} is %{_newDir}%"
 				while {_a} is true:
 					set {_newLocation} to location west of {_corner%{_dir}%}
-					if block {_newDir} blocks above {_newLocation} isn't air or snow layer:
+					if block {_newDir} blocks above {_newLocation} isn't {@ignoreblocks}:
 						add 1 to {_newDir}
 						set block {_newDir} blocks above {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block west spotted!"
@@ -155,7 +156,7 @@ command /testArea:
 					else:
 						set {_w} to true
 					set {_newLocation} to location north of {_corner%{_dir}%}	
-					if block {_newDir} blocks above {_newLocation} isn't air or snow layer:
+					if block {_newDir} blocks above {_newLocation} isn't {@ignoreblocks}:
 						add 1 to {_newDir}
 						set block {_newDir} blocks above {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block north spotted!"
@@ -165,7 +166,7 @@ command /testArea:
 						set {_n} to true
 					
 					set {_newLocation} to location south of {_corner%{_dir}%}			
-					if block {_newDir} blocks above {_newLocation} isn't air or snow layer:
+					if block {_newDir} blocks above {_newLocation} isn't {@ignoreblocks}:
 						add 1 to {_newDir}
 						set block {_newDir} blocks above {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block south spotted!"
@@ -175,7 +176,7 @@ command /testArea:
 						set {_s} to true						
 					
 					set {_newLocation} to location east of {_corner%{_dir}%}			
-					if block {_newDir} blocks above {_newLocation} isn't air or snow layer:
+					if block {_newDir} blocks above {_newLocation} isn't {@ignoreblocks}:
 						add 1 to {_newDir}
 						set block {_newDir} blocks above {_corner%{_dir}%} to cobblestone
 						message "<yellow>%{_dir}%: A block east spotted!"
@@ -271,13 +272,13 @@ on place:
 			
 	else if {feu.setArea.%player%} is greater than {feu.maxArea.%player%}:
 		message "<red>You can only have <gold>%{feu.maxArea.%player%}%<red> regions!"
-		set block at block's location to air or snow layer
+		set block at block's location to {@ignoreblocks}
 		give player a sponge
 		stop
 		
 	else if {feu.setArea.%player%} is equal to {feu.maxArea.%player%}:
 		message "<red>You can only have <gold>%{feu.maxArea.%player%}%<red> regions!"
-		set block at block's location to air or snow layer
+		set block at block's location to {@ignoreblocks}
 		give player a sponge
 		stop
 		

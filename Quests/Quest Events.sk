@@ -1,24 +1,24 @@
 options:
 	debug: false
-	
+
 	prefix: <gold>[&aFeudalism<gold>]<r>
 	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
-	
+
 	warn: <gold>[<yellow>WARNING<gold>]:<r>
 	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
 	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
-	
+
 	NPC: <green>%entity's name%<r>:<r>
 	You: <light green>%player%<r>:<r>
-	
+
 #How Quests work:
 #There is a variable named {feu.quest.%uuid of quest%.%How much you have done, eg 1,2,3%.%uuid of player%}
 #where %text% is explanation
 
-#Check where you stand on a quest: {feu.quest.%uuid of quest%.%uuid of player%} 
+#Check where you stand on a quest: {feu.quest.%uuid of quest%.%uuid of player%}
 #Three stages of quests: "Not started", "In progress" and "Completed"
 #Events
-	
+
 on any movement:
 	#entity is a player
 	wait 1 tick
@@ -34,7 +34,7 @@ on any movement:
 			set z coordinate of {_round Coords} to floor({_z})
 			#Need to set yaw and pitch to 0 because on any movement is when you look around too and location of player includes player's yaw and pitch
 			set yaw of {_round Coords} to 0
-			set pitch of {_round Coords} to 0 
+			set pitch of {_round Coords} to 0
 			if {feu.lastBedrockWalked.%player%} is not {_round Coords}:
 				set {feu.lastBedrockWalked.%player%} to {_round Coords}
 				message "{@warn} No metadata check on walked block since you're in creative"
@@ -44,7 +44,7 @@ on any movement:
 		if {_BlockInfo} doesn't exist:
 			set {_BlockInfo} to metadata value "BlockInfo" of block 3 below player
 		#Not 100% but close enough (gates to castle walls)
-		
+
 		#1st quest
 		if "%{_BlockInfo}%" is equal to "Starter_house1":
 			execute console command "house1_door %player%"
@@ -52,7 +52,7 @@ on any movement:
 		else if "%{_BlockInfo}%" is equal to "starter.leaveCastle":
 			execute console command "starter.leaveCastle %player%"
 			stop
-			
+
 		#2nd quest
 		else if "%{_BlockInfo}%" is equal to "Crazy_house.house1":
 			execute console command "Crazy_house.house1 %player%"
@@ -72,7 +72,7 @@ on any movement:
 		else if "%{_BlockInfo}%" is equal to "Crazy_house.Boss.exitInnerRoom":
 			execute console command "Crazy_house.Boss.exitInnerRoom %player%"
 			stop
-			
+
 		#3rd quest
 		else if "%{_BlockInfo}%" is equal to "theThird.wall":
 			execute console command "theThird.wall %player%"
@@ -83,7 +83,7 @@ on any movement:
 		else if "%{_BlockInfo}%" is equal to "theThird.sewers_movement":
 			execute console command "theThird.sewers_movement %player%"
 			stop
-			
+
 on rightclick on button:
 	if player's gamemode is creative:
 		message "{@warn} Door opened because you're in creative."
@@ -98,22 +98,22 @@ on rightclick on button:
 			set {feu.quest.starter.4.%uuid of player%} to true
 			message "{@You} This must be the house" to player
 			uncancel event
-		else if {feu.quest.starter.5.%uuid of player%} is true:
+		else if {feu.quest.starter.4.%uuid of player%} is true:
 			uncancel event
 		else if {feu.quest.starter.5.%uuid of player%} is true:
 			message "{@You} Why would I do that? I barley survived!"
-		else if {feu.quest.starter.%uuid of player%} is "Completed": 
+		else if {feu.quest.starter.%uuid of player%} is "Completed":
 			message "{@You} I do not want to go inside there again.." to player
 		else:
 			message "{@You} That is a creepy place, I do not want to go in there without a sword!" to player
-			
+
 	else if "%{_BlockInfo}%" is equal to "Crazy_house.house1":
 		cancel event
 		if {feu.quest.Crazy_house.%uuid of player%} is "In progress":
 			uncancel event
 		else if {feu.quest.Crazy_house.%uuid of player%} is "Completed":
 			uncancel event
-			
+
 	else if "%{_BlockInfo}%" is equal to "theThird.sewers_indoor":
 		cancel event
 		if {feu.quest.theThird.%uuid of player%} is "Completed":
@@ -153,7 +153,7 @@ on rightclick on button:
 			uncancel event
 		else:
 			message "{@You} The button doesn't work.."
-			
+
 on rightclick on chest:
 	cancel event
 	set {_BlockInfo} to metadata value "BlockInfo" of clicked block
@@ -165,7 +165,7 @@ on rightclick on chest:
 		#cannot be a command because of "location of block"
 		if {feu.quest.Crazy_house.hasLootedChests.%uuid of player%} isn't true:
 			set {feu.quest.Crazy_house.hasLootedChests.%uuid of player%} to true
-			
+
 		set {_Crazy_house.getLoot} to true
 		loop {feu.quest.Crazy_house.lootChest.%uuid of player%::*}:
 			if location of clicked block is equal to {feu.quest.Crazy_house.lootChest.%uuid of player%::%loop-index%}:
@@ -174,10 +174,10 @@ on rightclick on chest:
 				stop
 		if {_Crazy_house.getLoot} is true:
 			if {feu.quest.Crazy_house.%uuid of player%} is "Completed":
-				add location of clicked block to {feu.quest.Crazy_house.lootChest.%uuid of player%::*} 
+				add location of clicked block to {feu.quest.Crazy_house.lootChest.%uuid of player%::*}
 				execute console command "Crazy_house.bossLoot %player%"
 				stop
-				
+
 	else if "%{_BlockInfo}%" is equal to "theThird.signs":
 		set {_theThird.getLoot} to true
 		loop {feu.quest.theThird.plankChests.%uuid of player%::*}:
@@ -196,7 +196,7 @@ on rightclick on chest:
 	#Has to be last
 	else if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "feu.op":
 		uncancel event
-			
+
 #on rightclick on entity:
 on Citizen right click:
 	target entity's name exists
@@ -229,22 +229,22 @@ on Citizen right click:
 			execute console command "NPCLordWilson_CrazyHouse %player%"
 		else:
 			execute console command "NPCLordWilson_starter %player%"
-		
+
 	#1st quest
 	else if "%target entity's name%" contains "Blacksmith":
 		execute console command "NPCBlacksmith_starter %player%"
-		
+
 	#2nd quest
 	else if "%target entity's name%" contains "House Guard":
 		execute console command "NPCHouseGuard_CrazyHouse %player%"
-		
+
 	#3rd quest
 	else if "%target entity's name%" contains "Wall Guard":
 		execute console command "NPCWallGuard %player% %event-number%"
-		
+
 	else if "%target entity's name%" contains "Survivor":
 		execute console command "NPCSurvivor %player%"
-		
+
 On Pick Up:
 	if event-item is tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item":
 		if {feu.quest.theThird.6.%uuid of player%} is not true:

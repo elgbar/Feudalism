@@ -177,3 +177,52 @@ on join:
 		stop 
 		
 	execute console command "setmaxhealth %player%"
+	
+on respawn:
+	wait 2 tick
+	set player's level to {feu.level.%uuid of player%}
+	
+	#You loose 5 percent for dying.
+	set level progress of the player to {feu.xpBar.%uuid of player%}
+	set {_5 percent} to ({feu.currXP.%uuid of player%}/{feu.maxXP.%uuid of player%})*5
+	
+	execute console command "addxp -%{_5 percent}% %player% false true"
+	if {feu.quest.Crazy_house.%uuid of player%} is "In progress":
+		if {feu.quest.Crazy_house.2.%uuid of player%} is true:
+			set {feu.godMode.%uuid of player%} to true
+			
+			if chance of 50%:
+				teleport player to {feu.quest.Crazy_house.roomExit1}
+			else:
+				teleport player to {feu.quest.Crazy_house.roomExit2}
+				
+			loop entities in radius 2 around player:
+				set {_ID} to metadata value "ID" of loop-entity
+				if {feu.fixedspawn.isSpawned.%{_ID}%} exists:
+					delete loop-entity
+					set {feu.fixedspawn.isSpawned.%{_ID}%} to false
+			set {feu.godMode.%uuid of player%} to false
+		else if {feu.quest.Crazy_house.3.%uuid of player%} is true: 
+			teleport player to {feu.quest.Crazy_house.bossExit1}
+		else if {feu.quest.Crazy_house.4.%uuid of player%} is true: 
+			teleport player to {feu.quest.Crazy_house.bossExit1}
+		else:
+			message "{@err} An error occured that caused the player %player% not to spawn at a location when doing quest Crazy_house! If you are a developer please look in \plugins\skript\logs\questdump.log to fix this quick!" to console
+			execute console command "dqv crazy_house %player%"
+		stop
+	else if {feu.quest.theThird.%uuid of player%} is "In progress":
+		if {feu.quest.theThird.1.%uuid of player%} is true:
+			teleport player to {feu.mainSpawn}
+		else if {feu.quest.theThird.7.%uuid of player%} is true:
+			teleport player to {feu.quest.theThird.sewers}
+		else if {feu.quest.theThird.8.%uuid of player%} is true:
+			teleport player to {feu.mainSpawn}
+		else:
+			teleport player to {feu.quest.theThird.SurvivorSpawn}
+		stop
+	else if {feu.quest.Crazy_house.hasLootedChests.%uuid of player%} is false:
+		teleport player to {feu.quest.Crazy_house.loot}
+		message "{@prefix} You have not finished looting these chests!"
+		stop
+	#If all fails, or player don't have an quest active
+	teleport player to {feu.mainSpawn}

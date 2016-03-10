@@ -36,10 +36,10 @@ command /NPCWallGuard <player> <integer>:
 		if {feu.quest.theThird.%uuid of arg-1%} is "Not started":
 			message "%{_name}% The town is under quarantine! You can not enter without Lord Wilson permission." to arg-1
 		else if {feu.quest.theThird.%uuid of arg-1%} is "In progress":
-			if arg-2 is 25:
+			if arg-2 is 25: #Hard coded ID in the world, download the world for this code to work
 				message "%{_name}% Jump over the barricade to enter the town" to arg-1
 			else if arg-2 is 26:
-				message "%{_name}% There is smoke coming out the chimney." to arg-1
+				message "%{_name}% There is smoke coming out a chimney." to arg-1
 			else if arg-2 is 27:
 				message "%{_name}% There might still be survivors remaining in the village." to arg-1
 		else if {feu.quest.theThird.%uuid of arg-1%} is "Completed":
@@ -117,8 +117,8 @@ command /NPCSurvivor <player>:
 				set {feu.quest.theThird.6.%uuid of arg-1%} to true
 				remove all signs named "<r>Plank" with lore "<light gray>Quest Item" from arg-1's inventory
 				message "%{_name}% Great! Now can I finally board up those windows." to arg-1
-				wait 20 tick
-				message "%{_name}% Take these health potions, as another thanks! I'll also heal you again." to arg-1
+				#wait 20 tick
+				#message "%{_name}% Take these health potions, as another thanks! I'll also heal you again." to arg-1
 				heal arg-1
 				if arg-1 can hold 2 potion of health named "Instant Health II":
 					give 2 potion of health named "Instant Health II" to the arg-1
@@ -126,15 +126,15 @@ command /NPCSurvivor <player>:
 				else:
 					message "%{_name}% Looks like you don't have enough space for those potions.. I'll still heal you though!" to arg-1
 				wait 30 tick
-				message "%{_name}% There is a reason I haven't left this town." to arg-1
-				wait 40 tick 
+				#message "%{_name}% There is a reason I haven't left this town." to arg-1
+				#wait 40 tick 
 				#message "%{_name}% Not only because this is my house, but another physical reason." to arg-1
 				#wait 50 tick
 				message "%{_name}% To get to the other side of the wall you need to walk trough the sewers." to arg-1
 				wait 50 tick 
 				message "%{_name}% But to get down there you need to <gold>obtain the key from The Janitor<r>." to arg-1
 				wait 50 tick 
-				message "%{_name}% He's somewhere in the village, and is probaly wearing chain armour" to arg-1
+				message "%{_name}% He's somewhere in the village, and is probaly wearing a unique set of armour" to arg-1 #He is wearing chain (all z'eds other none or leather)
 			else: 
 				message "%{_name}% You need to bring me 4 planks." to arg-1
 		else if {feu.quest.theThird.6.%uuid of arg-1%} is true:

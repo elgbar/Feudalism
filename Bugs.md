@@ -4,7 +4,11 @@ Bugs:
 +Sometimes NPCs (villages) won't respawn after executing /killall
 ++Temp fixed, now there is spam to the console when using the command -.-
 +Skript gives random errors after a while
-
++If you get killed when drinking a health potion you don't respawn (critical during lazarus' battle)
++Zombie AI ignores player when it runs away
++Zombie spawns too many
++Zombie teleporting is very visible
++Zombie spawn with armour
 
 Cannot reproduce bugs:
 
@@ -13,6 +17,8 @@ Cannot reproduce bugs:
 
 Fixed: 
 
++Takes too long to kill a basic zombie (my hand hurts now :/)
++ button on the first quest house only works once
 +Zombies fly way too far if you spam hit them
 +Zombie spawn without ID and Level
 ++Cases:

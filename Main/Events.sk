@@ -49,56 +49,6 @@ on death of player:
 	if size of {feu.quest.Crazy_house.bossFighters::*} is 0:
 		execute console command "killLazarus"
 		
-		
-on respawn:
-	wait 2 tick
-	set player's level to {feu.level.%uuid of player%}
-	
-	#You loose 5 percent for dying.
-	set level progress of the player to {feu.xpBar.%uuid of player%}
-	set {_5 percent} to ({feu.currXP.%uuid of player%}/{feu.maxXP.%uuid of player%})*5
-	
-	execute console command "addxp -%{_5 percent}% %player% false true"
-	if {feu.quest.Crazy_house.hasLootedChests.%uuid of player%} is false: 
-		teleport player to {feu.quest.Crazy_house.loot}
-		stop
-	if {feu.quest.Crazy_house.%uuid of player%} is "In progress":
-		if {feu.quest.Crazy_house.2.%uuid of player%} is true:
-			set {feu.godMode.%uuid of player%} to true
-			
-			if chance of 50%:
-				teleport player to {feu.quest.Crazy_house.roomExit1}
-			else:
-				teleport player to {feu.quest.Crazy_house.roomExit2}
-				
-			loop entities in radius 2 around player:
-				set {_ID} to metadata value "ID" of loop-entity
-				if {feu.fixedspawn.isSpawned.%{_ID}%} exists:
-					delete loop-entity
-					set {feu.fixedspawn.isSpawned.%{_ID}%} to false
-			set {feu.godMode.%uuid of player%} to false
-		else if {feu.quest.Crazy_house.3.%uuid of player%} is true: 
-			teleport player to {feu.quest.Crazy_house.bossExit1}
-		else if {feu.quest.Crazy_house.4.%uuid of player%} is true: 
-			teleport player to {feu.quest.Crazy_house.bossExit1}
-		else:
-			message "{@err} An error occured that caused the player %player% not to spawn at a location when doing quest Crazy_house! If you are a developer please look in \plugins\skript\logs\questdump.log to fix this quick!" to console
-			execute console command "dqv crazy_house %player%"
-		stop
-	if {feu.quest.theThird.%uuid of player%} is "In progress":
-		if {feu.quest.theThird.1.%uuid of player%} is true:
-			teleport player to {feu.mainSpawn}
-		else if {feu.quest.theThird.7.%uuid of player%} is true:
-			teleport player to {feu.quest.theThird.sewers}
-		else if {feu.quest.theThird.8.%uuid of player%} is true:
-			teleport player to {feu.mainSpawn}
-		else:
-			teleport player to {feu.quest.theThird.SurvivorSpawn}
-		stop
-		
-	#If all fails, or player don't have an quest active
-	teleport player to {feu.mainSpawn}
-		
 on teleport:
 	if {feu.quest.Crazy_house.4.%uuid of player%} is true:
 		remove uuid of player from {feu.quest.Crazy_house.bossFighters::*}
@@ -210,9 +160,6 @@ on click:
 			cancel event
 			
 on entity target:
-	if entity is xp orb: #They randomly spawn, cant be cancelled
-		delete entity
-	set {_Victim ID} to metadata value "ID" of entity
 	if target is a villager:
 		cancel event
 		stop
@@ -220,11 +167,14 @@ on entity target:
 		if name of target exists:
 			cancel event
 			stop
-	if {feu.canTarget.%{_Victim ID}%} is false:
-		cancel event
-		{@debug}:
-			message "{@debugPrefix} Cancelling target of player" to console
-			
+	else if entity is a zombie:
+		set {_Victim ID} to metadata value "ID" of entity
+		if {feu.fixedspawn.canTarget.%{_Victim ID}%} is false:
+			clear entity's target
+			cancel event
+			{@debug}:
+				message "{@debugPrefix} Cancelling target of player" to console
+				
 On consume:
 	cancel event
 	#This is a skript/minecraft bug:

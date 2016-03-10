@@ -149,11 +149,6 @@ command /sword <text> [<text>] [<player=%player%>]:
 			stop
 			
 		if arg-1 is "Basic", "Uncommon", "Rare", "Mythical" or "Legendary":
-			#Doesn't work
-			#set {_first char Upper} to the first character of arg-1 
-			#set {_first char Upper} to all characters of {_first char Upper} converted to uppercase
-			#set {_last chars lower} to subtext of arg-1 from characters 2 to (the length of arg-1)
-			#set {_last chars lower} to all characters of {_last chars lower} converted to lowercase
 			if arg-2 is "wood" or "wildwood":
 				give arg-3 a wooden sword named "%arg-1% Wildwood Sword" with no nbt with lore "<gold>Spawned sword" 
 			else if arg-2 is "stone" or "rock":
@@ -237,7 +232,7 @@ command /loop <integer> <text> <text>:
 		
 command /fixNamesZombie:
 	trigger:
-		if {feu.permission.%uuid of player%} is not "feu.admin" or "feu.op":
+		if {feu.permission.%uuid of player%} is not "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
 		else if {feu.permission.%uuid of player%} does not exist:

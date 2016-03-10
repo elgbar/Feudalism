@@ -1,14 +1,18 @@
 options:
 	debug: false
+	damageDebug: false
 	hardDebugging: false #Do not set to true unless you want spam in the console
-	
+
 	prefix: <gold>[&aFeudalism<gold>]<r>
 	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
-	
+
 	warn: <gold>[<yellow>WARNING<gold>]:<r>
 	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
 	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
-	
+
+	You: <light green>%attacker%<r>:<r>
+	DoubleXP: false
+
 #Commands
 command /spawnCostumZombies <integer> <text="Zombie"> [<text="default">] [<text="default">]:
 	usage: scz <level> <name (use '_' for space)> [<leather|chain|iron|gold|diamond|none>]  [<wooden|stone|iron|gold|diamond|none>] #arg-2 is what type of armour should be equipped AND arg-3 is weapon type
@@ -23,26 +27,26 @@ command /spawnCostumZombies <integer> <text="Zombie"> [<text="default">] [<text=
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-			
+
 		if arg-1 is less than 1:
 			message "{@err} Invalid level"
 			stop
 		else if arg-1 is greater than 1000:
 			message "{@err} Too high level"
 			stop
-			
+
 		#General
 		spawn a zombie 2 in front of player
 		push the last spawned entity 0.5 up
 		set metadata value "ID" of last spawned entity to "SCZ"
 		set metadata value "Level" of last spawned entity to "%arg-1%"
-		
+
 		set {_name} to arg-2
 		replace all "_" with " " in {_name}
 		set metadata value "Name" of last spawned entity to "%{_name}%"
 		set metadata value "displayLevel" of {_entity} to "false"
 		set the name of last spawned entity to "%{_name}%"
-		
+
 		#Armour
 		if arg-3 is "leather":
 			equip last spawned entity with all leather armour
@@ -67,7 +71,7 @@ command /spawnCostumZombies <integer> <text="Zombie"> [<text="default">] [<text=
 			delete last spawned entity
 			stop
 		#Weapon
-			
+
 		if arg-4 is "wooden":
 			set tool of the last spawned entity to a wooden sword
 		else if arg-4 is "stone":
@@ -86,7 +90,7 @@ command /spawnCostumZombies <integer> <text="Zombie"> [<text="default">] [<text=
 			message "{@err} Argument 4 (arms) is wrong!"
 			delete last spawned entity
 			stop
-			
+
 		#Health
 		wait 1 tick
 		set age of last spawned entity to adult
@@ -95,14 +99,14 @@ command /spawnCostumZombies <integer> <text="Zombie"> [<text="default">] [<text=
 		#The times two is here because skRayFall count health differently
 		set rf maximum health of the last spawned entity to ({_health}*2)
 		heal last spawned entity
-		
+
 		if the maximum health of {_entity} is not {_health}:
 			wait 5 tick
 			if {_entity} is alive:
 				message "{@err2} An error occurred, the zombie will spawn automatic within a few seconds" to console
 				delete last spawned entity
 				execute player command "/SCZ %arg-1% %arg-2% %arg-3% %arg-4%"
-			
+
 command /deleteBossSpawn <text="help">:
 	aliases: dbs
 	usage: /dbs <Boss name>
@@ -115,7 +119,7 @@ command /deleteBossSpawn <text="help">:
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-			
+
 		if arg-1 is "Lazarus" or "janitor":
 			clear {feu.boss.%arg-1%.spawnLoc}
 			set {feu.boss.%arg-1%.isSpawned} to true
@@ -123,7 +127,7 @@ command /deleteBossSpawn <text="help">:
 			message "Usage: /dbs <Boss name>"
 			stop
 		message "{@prefix} Boss spawn deleted"
-		
+
 command /setBossSpawn <text="help">:
 	aliases: sbs
 	usage: /sbs <Boss name>
@@ -137,11 +141,11 @@ command /setBossSpawn <text="help">:
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-			
+
 		if block below player is air:
 			message "{@err} can not spawn bosses in the air!"
 			stop
-			
+
 		if arg-1 is "Lazarus" or "janitor":
 			set {_round Coords} to location of player
 			set {_x} to x coordinate of {_round Coords}
@@ -150,7 +154,7 @@ command /setBossSpawn <text="help">:
 			set x coordinate of {_round Coords} to floor({_x})+0.5
 			set y coordinate of {_round Coords} to floor({_y})+0.5
 			set z coordinate of {_round Coords} to floor({_z})+0.5
-			
+
 		if arg-1 is "Lazarus":
 			set {feu.boss.Lazarus.spawnLoc} to {_round Coords}
 			set {feu.boss.Lazarus.isSpawned} to false
@@ -164,21 +168,21 @@ command /setBossSpawn <text="help">:
 				set {_laz} to true
 			else:
 				set {_laz} to false
-				
+
 			if {feu.boss.Janitor.spawnLoc} exists:
 				set {_Janitor} to true
 			else:
 				set {_Janitor} to false
-				
+
 			message "<yellow>------<gold>[&aFeudalism Boss Spawn Location<gold>]<yellow>------"
 			message "<green>Boss name<gold>: <yellow>Lazarus <r>| <green>Quest<gold>: <yellow>Crazy House <r>| <green>Exists<gold>: <yellow>%{_laz}%"
 			message "<green>Boss name<gold>: <yellow>The Janitor <r>| <green>Quest<gold>: <yellow>The Third <r>| <green>Exists<gold>: <yellow>%{_Janitor}%"
 			#yes I used way too long on this help screen
 			stop
 		make player see block below player as gold block
-		
+
 command /spawnBoss <text> [<boolean=false>] [<boolean=false>]: #3rd: silent or not
-	Usage: /spawnBoss <Boss name | List> [<fix d=false>] 
+	Usage: /spawnBoss <Boss name | List> [<fix d=false>]
 	aliases: sb
 	trigger:
 		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
@@ -189,7 +193,7 @@ command /spawnBoss <text> [<boolean=false>] [<boolean=false>]: #3rd: silent or n
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-			
+
 		if arg-1 is "Lazarus":
 			if arg-2 is true:
 				set {feu.boss.Lazarus.isSpawned} to false
@@ -235,7 +239,7 @@ command /spawnBoss <text> [<boolean=false>] [<boolean=false>]: #3rd: silent or n
 				set rf maximum health of the last spawned entity to 252
 				heal last spawned entity
 				set {feu.boss.Janitor.isSpawned} to true
-				
+
 				if the maximum health of {_entity} is not {_health}:
 					delete last spawned entity
 					wait 2 tick
@@ -248,7 +252,7 @@ command /spawnBoss <text> [<boolean=false>] [<boolean=false>]: #3rd: silent or n
 			message "Set second variable to true to fix never spawning bosses."
 		else:
 			message "Correct usage: /spawnBoss <Boss name | List> [<fix d=false>]"
-			
+
 command /setFixedZombieSpawn <integer> <text> <text> [<integer=5>] [<text="Zombie">] [<text="true">]:# [<integer=0.2>]:
 	usage: /sfzs <level> <Armour> <weapon> [<return to spawn distance d=5>] [<Name d=Zombie>] [<display level d=true>]#[<speed (from -1 to 1>]
 	aliases: sfzs
@@ -262,7 +266,7 @@ command /setFixedZombieSpawn <integer> <text> <text> [<integer=5>] [<text="Zombi
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-			
+
 		if block below player is air:
 			message "{@err} Cannot spawn zombies in air!"
 			stop
@@ -275,34 +279,34 @@ command /setFixedZombieSpawn <integer> <text> <text> [<integer=5>] [<text="Zombi
 		else if arg-1 is greater than 1000:
 			message "{@err} An entity can not be higher than level 1000!"
 			stop
-			
+
 		if arg-2 is not "leather", "chain", "iron", "gold", "diamond", "none" or "air":
 			message "{@err} An entity can not equip that type of armour!"
 			stop
-			
+
 		if arg-3 is not "wood", "wooden", "stone", "iron", "gold", "diamond", "air" or "none":
 			message "{@err} The entity can not hold that kind of weapon!"
 			stop
-			
+
 		if arg-4 is less than 1:
 			message "{@err} You can not set that to negative or zero."
 			stop
 		else if arg-4 is greater than 10:
 			message "{@err} Too high! Valid numbers are 1-10"
 			stop
-			
+
 		if arg-5 doesn't exist:
 			message "{@err} The name cannot be 0 in size!"
 			stop
 		else:
 			set {_arg-5} to arg-5
 			replace all "_" with " " in {_arg-5}
-		
+
 		if arg-6 isn't "true":
 			if arg-6 isn't "false":
 				message "{@err} Argument 6 isn't a boolean! (true/false)"
 				stop
-				
+
 		set {_round Coords} to location of player
 		set {_x} to x coordinate of {_round Coords}
 		set {_y} to y coordinate of {_round Coords}
@@ -314,15 +318,16 @@ command /setFixedZombieSpawn <integer> <text> <text> [<integer=5>] [<text="Zombi
 			delete {feu.fixedspawn.isSpawned.<none>}
 		if "%{feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%{_round Coords}%}%}%" is not "<none>":
 			message "{@err} A spawnpoint already exists here!"
-			stop 
+			stop
+
 		add 1 to {feu.fixedspawnID}
 		set {feu.fixedspawn.ID.%{_round Coords}%} to {feu.fixedspawnID}
 		add {_round Coords} to {feu.fixedspawn::*}
 		if "%{feu.fixedspawn::%{feu.fixedspawn.ID.%{_round Coords}%}%}%" is not "%{_round Coords}%":
 			message "{@err2} The ID location and the player's location does not match! ID loc: %{feu.fixedspawn::%{feu.fixedspawn.ID.%{_round Coords}%}%}% and Location of player: %location of player%" to console
-			
+
 			message "{@prefix} Attempting to fix..." to console
-			set {feu.fixedspawnID} to size of {feu.fixedspawn::*} - 1 
+			set {feu.fixedspawnID} to size of {feu.fixedspawn::*} - 1
 			set {feu.fixedspawn.ID.%{_round Coords}%} to {feu.fixedspawnID}
 			if "%{feu.fixedspawn::%{feu.fixedspawn.ID.%{_round Coords}%}%}%" is "%{_round Coords}%":
 				message "{@prefix} Fix succeeded!" to console
@@ -333,17 +338,20 @@ command /setFixedZombieSpawn <integer> <text> <text> [<integer=5>] [<text="Zombi
 				set {feu.fixedspawn::%{feu.fixedspawn.ID.%{_round Coords}%}%} to "Deleted"
 				stop
 		make player see block below player as iron block
-		
+
 		set {feu.fixedspawn.lvl.%{_round Coords}%} to arg-1
 		set {feu.fixedspawn.armour.%{_round Coords}%} to arg-2
 		set {feu.fixedspawn.weapon.%{_round Coords}%} to arg-3
 		set {feu.fixedspawn.returnToSpawn.%{_round Coords}%} to arg-4
 		set {feu.fixedspawn.name.%{_round Coords}%} to {_arg-5}
 		set {feu.fixedspawn.displayLevel.%{_round Coords}%} to arg-6
-		
+		set {feu.fixedspawn.goingHome.%{feu.fixedspawnID}%} to false
+		set {feu.fixedspawn.canTarget.%{feu.fixedspawnID}%} to false
+		set {feu.fixedspawn.goingHome.nrOfTimes.%{_ID}%} to 0
+
 		set {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%{_round Coords}%}%} to false
 		message "{@prefix} A LvL &a%arg-1%<r> (ID: &a%{feu.fixedspawn.ID.%{_round Coords}%}%<r>) zombie named <gold>%{_arg-5}% <r>(Will display level: <gold>%arg-6%<r>) with <gold>%arg-2% armour<r> and <gold>%arg-3% sword<r> will spawn here!"
-		
+
 command /removeAllFixedSpawns:
 	aliases: rafs
 	executable by: console
@@ -358,11 +366,11 @@ command /removeAllFixedSpawns:
 			delete {feu.fixedspawn.name.%loop-value%}
 			delete {feu.fixedspawn.displayLevel.%loop-value%}
 		delete {feu.fixedspawn::*}
-		
+
 		execute console command "killall true"
-		
+
 		message "{@prefix} Removed all fixed spawn points!"
-		
+
 command /removeFixedSpawn:
 	aliases: rfs
 	executable by: player
@@ -382,8 +390,8 @@ command /removeFixedSpawn:
 		set x coordinate of {_round Coords} to floor({_x})+0.5
 		set y coordinate of {_round Coords} to floor({_y})+0.5
 		set z coordinate of {_round Coords} to floor({_z})+0.5
-		
-		if {feu.fixedspawn.ID.%{_round Coords}%} exists:  
+
+		if {feu.fixedspawn.ID.%{_round Coords}%} exists:
 			#The number in the fixed spawn list is the same as the ID
 			set {feu.fixedspawn::%{feu.fixedspawn.ID.%{_round Coords}%}%} to "Deleted"
 			delete {feu.fixedspawn.lvl.%{_round Coords}%}
@@ -410,13 +418,13 @@ command /fixAllZombieSpawns:
 			log "%executor%'s permission is wrong (%{feu.permission.%uuid of player%}%)" to "players.log"
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
-			
+
 		loop size of {feu.fixedspawn::*} times:
 			if {feu.fixedspawn::%loop-number%} is not "Deleted", "false" or "<none>":
 				set {feu.fixedspawn.isSpawned.%loop-number%} to false
-				
+
 		message "{@prefix} All custom spawned entities will now spawn!"
-		
+
 command /fixZombie <String>:
 	usage: fz <ID (of zombie)>
 	aliases: fz
@@ -433,13 +441,13 @@ command /fixZombie <String>:
 		if arg-1 doesn't exist:
 			message "{@err} You need to specify an ID"
 			stop
-			
+
 		if {feu.fixedspawn.isSpawned.%arg-1%} exists:
 			set {feu.fixedspawn.isSpawned.%arg-1%} to false
 			message "{@prefix} Fixed the entity spawning with ID %arg-1%!"
 		else:
 			message "{@err} No Entity with that ID!"
-			
+
 command /changeZombie <String> <string>:
 	usage: cz <Level/armour/weapon/name(use '_' for space)/display level(CL)/RTSD(Return to spawn distance)> <new variable>
 	aliases: cz
@@ -511,7 +519,7 @@ command /changeZombie <String> <string>:
 						else if {_convert} is greater than 10:
 							message "{@err} Too high!. valid numbers are 1-10"
 							stop
-							
+
 						if {feu.fixedspawn.returnToSpawn.%{_round Coords}%} exists:
 							set {feu.fixedspawn.returnToSpawn.%{_round Coords}%} to {_convert}
 						else:
@@ -538,15 +546,15 @@ command /changeZombie <String> <string>:
 					else:
 						message "{@err} Not at boolean (true/false)!"
 						stop
-						
+
 					if {feu.fixedspawn.displayLevel.%{_round Coords}%} exists:
 						set {feu.fixedspawn.displayLevel.%{_round Coords}%} to arg-2
 					else:
 						set {_no go} to true
-						
+
 					message "{@prefix} The entity spawned at <yellow>%{_round Coords}%<r> <gold>will %{_bool}%<r>display it's level."
 					stop
-					
+
 				if {_no go} is true:
 					message "{@err} No entity spawns here!"
 					stop
@@ -557,7 +565,7 @@ command /changeZombie <String> <string>:
 		else:
 			message "{@err} You need to have a first variable!"
 		message "Correct usage: cz <Level/armour/weapon/RTSD (Return to spawn distance)> <new variable>"
-	
+
 command /blockInfo:
 	aliases: bi
 	executable by: player
@@ -586,7 +594,7 @@ command /blockInfo:
 				message "{@err} No metadata on this bedrock"
 			stop
 		set x coordinate of {_round Coords} to floor({_x})+0.5
-		set y coordinate of {_round Coords} to floor({_y})+1.5 #This because of location is set at feet when you use the /sfzs command
+		set y coordinate of {_round Coords} to floor({_y})+1.5 #This because of location exists at feet when you use the /sfzs command
 		set z coordinate of {_round Coords} to floor({_z})+0.5
 		if "%{feu.fixedspawn::%{feu.fixedspawn.ID.%{_round Coords}%}%}%" is not "<none>" or "Deleted":
 			if "%{feu.fixedspawn::%{feu.fixedspawn.ID.%{_round Coords}%}%}%" is not "%{_round Coords}%":
@@ -615,7 +623,7 @@ command /blockInfo:
 		else:
 			message "{@err} Could not find any information on this block."
 			stop
-		
+
 command /targetInfo:
 	aliases: ti
 	executable by: player
@@ -634,18 +642,20 @@ command /targetInfo:
 			#	stop
 			set {_victim level} to metadata value "Level" of target entity
 			set {_Victim ID} to metadata value "ID" of target entity
-			set {_int ID} to ({_Victim ID}) parsed as number
+			set {_int ID} to {_Victim ID} parsed as number
 			if {_int ID} exists:
 				set {_x} to metadata value "X" of target entity
 				set {_y} to metadata value "Y" of target entity
 				set {_z} to metadata value "Z" of target entity
 				set {_name} to metadata value "Name" of target entity
 				set {_displayLevel} to metadata value "displayLevel" of target entity
-				
+
+				#Get the zombies home location
 				set {_location} to player's location
 				set x coordinate of {_location} to ({_x}) parsed as number
 				set y coordinate of {_location} to ({_y}) parsed as number
 				set z coordinate of {_location} to ({_z}) parsed as number
+
 			else if target is a villager:
 				message "{@warn} Target is a villager, they have no info."
 				stop
@@ -655,7 +665,7 @@ command /targetInfo:
 			else:
 				set {_name} to "%name of target entity%"
 				replace all "<light red>" and " %round(health of target entity)%/%max health of target entity%" with "" in {_name}
-				
+
 			message "<yellow>----<gold>[<green>%{_name}%<green>'s values<gold>]<yellow>----"
 			if {_int ID} exists:
 				message "{@prefix} Name: <light green>%{_Name}% <r>(Display level: &a%{_displayLevel}%<r>)"
@@ -666,16 +676,16 @@ command /targetInfo:
 			if {_int ID} exists:
 				message "{@prefix} X: <light green>%{_x}% <r>Y: <light green>%{_y}% <r>Z: <light green>%{_z}%"
 				message "{@prefix} Current Location: <light green>%target entity's location%"
-				message "{@prefix} Is Going Home: <light green>%{feu.goingHome.%{feu.fixedspawn.ID.%{_location}%}%}%"
-				message "{@prefix} Can Target: <light green>%{feu.canTarget.%{feu.fixedspawn.ID.%{_location}%}%}%"
+				message "{@prefix} Is Going Home: <light green>%{feu.fixedspawn.goingHome.%{feu.fixedspawn.ID.%{_location}%}%}%"
+				message "{@prefix} Can Target: <light green>%{feu.fixedspawn.canTarget.%{feu.fixedspawn.ID.%{_location}%}%}%"
 				message "{@prefix} <yellow>Entity spawned automatically"
 			else:
 				message "{@prefix} <yellow>Entity spawned using commands or by CONSOLE"
-			
+
 		else:
 			message "{@err} No entity targeted"
 			stop
-	
+
 #Events
 
 every 3 seconds in world "Feudalism_4":
@@ -694,17 +704,18 @@ every 3 seconds in world "Feudalism_4":
 			message "{@debugPrefix} %{_ID}% | loop-entity is a zombie" to console
 		set {_ID} to metadata value "ID" of loop-entity
 		set {_Level} to metadata value "Level" of loop-entity
-		#needs to be a location
+
+		#needs to be a knownlocation
 		set {_location} to spawn of "Feudalism_4"
-		
-		set {_x} to metadata value "X" of loop-entity 
-		set {_y} to metadata value "Y" of loop-entity 
+		set {_x} to metadata value "X" of loop-entity
+		set {_y} to metadata value "Y" of loop-entity
 		set {_z} to metadata value "Z" of loop-entity
 		set x coordinate of {_location} to ({_x}) parsed as number
 		set y coordinate of {_location} to ({_y}) parsed as number
 		set z coordinate of {_location} to ({_z}) parsed as number
-		
+
 		if "%{_ID}%" contains "Lazarus' minion", "The Janitor" or "SCZ":
+			#Makes the entities with ID from above not walking anywhere
 			message "" to {_fake}
 		else if "%{_ID}%" is not "<none>":
 			#needs optimizing
@@ -717,46 +728,68 @@ every 3 seconds in world "Feudalism_4":
 				delete loop-entity
 				set {feu.fixedspawn.isSpawned.%{_ID}%} to false
 				{@debug}:
-					message "{@err2} Rouge entity found!" to console
-			{@hardDebugging} is true:
-				message "{@debugPrefix} %{_ID}% | Selected the right zombie." to console
+					message "{@err2} Rouge entity found! (ID: %{_ID}%)" to console
 			if distance between loop-entity and {_location} is greater than {_RTSD}*4:
+				#teleport the loop-entity home
 				teleport loop-entity to {_location}
+				set {feu.fixedspawn.goingHome.%{_ID}%} to false
+				set {feu.fixedspawn.canTarget.%{_ID}%} to true
+				clear loop-entity's target
 				{@debug}:
 					message "{@debugPrefix} %{_ID}% | <gold>Way too far home! Teleporting entity. (%{_location}%)" to console
-			if {feu.goingHome.%{_ID}%} is true:
+			else if {feu.fixedspawn.goingHome.%{_ID}%} is true:
 				if distance between loop-entity and {_location} is smaller than {_RTSD}:
-					set {feu.goingHome.%{_ID}%} to false
-					set {feu.canTarget.%{_ID}%} to true
+					if {feu.fixedspawn.goingHome.%{_ID}%} is true:
+						set {feu.fixedspawn.goingHome.%{_ID}%} to false
+
+					if {feu.fixedspawn.canTarget.%{_ID}%} is false:
+						set {feu.fixedspawn.canTarget.%{_ID}%} to true
 					{@debug}:
-						message "{@debugPrefix} %{_ID}% | <green>Entity is now home." to console
+						message "{@debugPrefix} %{_ID}% | <green>Entity is home." to console
 				else:
-					make loop-entity pathfind to {_location} with speed 1.5
-					{@debug}:
-						message "{@debugPrefix} %{_ID}% | <yellow>Now running home..." to console
-				#stop loop
-					
+					#Go faster if entity is not home within 3 seconds
+					if {feu.fixedspawn.goingHome.nrOfTimes.%{_ID}%} doesn't exist:
+						set {feu.fixedspawn.goingHome.nrOfTimes.%{_ID}%} to 1
+						make loop-entity pathfind to {_location} with speed 1.5
+						{@debug}:
+							message "{@debugPrefix} %{_ID}% | <light green>First time running." to console
+					else if {feu.fixedspawn.goingHome.nrOfTimes.%{_ID}%} is greater than 3: #tweak
+						teleport loop-entity to {_location}
+						set {feu.fixedspawn.goingHome.%{_ID}%} to false
+						set {feu.fixedspawn.canTarget.%{_ID}%} to true
+						clear loop-entity's target
+						set {feu.fixedspawn.goingHome.nrOfTimes.%{_ID}%} to 0
+						{@debug}:
+							message "{@debugPrefix} %{_ID}% | <gold>Enitity wasn't fast enough home, teleporting" to console
+					else:
+						add 1 to {feu.fixedspawn.goingHome.nrOfTimes.%{_ID}%}
+						make loop-entity pathfind to {_location} with speed 1.5
+						{@debug}:
+							message "{@debugPrefix} %{_ID}% | <yellow>Now running home..." to console
+							#message "{@debugPrefix} %{_ID}% | <white>nr of times %{feu.fixedspawn.goingHome.nrOfTimes.%{_ID}%}%" to console
+							#message "{@debugPrefix} %{_ID}% | <white>target %loop-entity's target%" to console
+
 			else if loop-entity's target is a player:
 				distance between loop-entity and {_location} is greater than {_RTSD}*3
+				#Force loop-entity on a path home
 				clear loop-entity's target
-				wait 2 tick
 				make loop-entity pathfind to {_location} with speed 1.5
-				set {feu.canTarget.%{_ID}%} to false
-				set {feu.goingHome.%{_ID}%} to true
+				set {feu.fixedspawn.canTarget.%{_ID}%} to false
+				set {feu.fixedspawn.goingHome.%{_ID}%} to true
 				{@debug}:
 					message "{@debugPrefix} %{_ID}% | <purple>Breaking off pursuit of player." to console
-				#stop
+
 			else if distance between loop-entity and {_location} is greater than {_RTSD}*2:
+				loop-entity's target doesn't exist
 				make loop-entity pathfind to {_location} with speed 1
-				set {feu.goingHome.%{_ID}%} to true
+				set {feu.fixedspawn.goingHome.%{_ID}%} to true
+				set {feu.fixedspawn.canTarget.%{_ID}%} to false
 				{@debug}:
 					message "{@debugPrefix} %{_ID}% | <yellow>Too far from home, walking home." to console
 			else:
 				{@hardDebugging} is true:
 					message "{@debugPrefix} %{_ID}% | <green>Nothing to report on %{_ID}%." to console
-		#else:
-		#	message "{@err2} Unknown ID of zombie!" to console #SHOULDN'T happen, other safeguards are in place
-		
+
 		if {_Level} does not exist:
 			wait 4 tick #no lower, fully tested
 			set {_ID} to metadata value "ID" of loop-entity
@@ -769,7 +802,7 @@ every 3 seconds in world "Feudalism_4":
 	{@debug}:
 		set {_time} to difference between {_1stTime} and now
 		message "{@debugPrefix} Short periodical event took %{_time}%" to console
-	
+
 every 20 second in world "Feudalism_4":
 	#Tests show this need optimizing!
 	#Pct Total	Pct Tick	   Total	    Avg	        PerTick	       Count		Event
@@ -805,8 +838,8 @@ every 20 second in world "Feudalism_4":
 					set {_entity} to last spawned entity
 					wait 3 ticks #Main lag when spawning, but can not be lower..
 					set {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%loop-value-1%}%} to true
-					
-					
+
+
 					set metadata value "Name" of {_entity} to "%{feu.fixedspawn.name.%loop-value-1%}%"
 					set metadata value "displayLevel" of {_entity} to "%{feu.fixedspawn.displayLevel.%loop-value-1%}%"
 					if "%{feu.fixedspawn.displayLevel.%loop-value-1%}%" is "true":
@@ -814,14 +847,14 @@ every 20 second in world "Feudalism_4":
 						set the name of last spawned entity to "<light red>%{feu.fixedspawn.name.%loop-value-1%}% LvL %{feu.fixedspawn.lvl.%loop-value-1%}%"
 					else:
 						set the name of last spawned entity to "<light red>%{feu.fixedspawn.name.%loop-value-1%}%"
-						
+
 					set age of {_entity} to adult
 					set {_health} to floor(2.16 * {feu.fixedspawn.lvl.%loop-value-1%} + 18.58)
 					#set {_health} to floor(16.09*{feu.fixedspawn.lvl.%loop-value-1%}^0.38) #old
 					#The times two is here because skRayFall count health differently
 					set rf maximum health of {_entity} to {_health}*2
 					set health of {_entity} to {_health}
-					
+
 					#Apparently this happens often! This should fix it, although this is temporary
 					if the maximum health of {_entity} is not {_health}:
 						wait 5 tick #Can it be lower?
@@ -833,7 +866,7 @@ every 20 second in world "Feudalism_4":
 							{@debug}:
 								message "{@err2} Entity with ID %{feu.fixedspawn.ID.%loop-value-1%}% has wrong maximum health! Location: %loop-value-1%, Level:%{feu.fixedspawn.lvl.%loop-value-1%}%, Maximum health: %{_entity}'s maximum health%" to console
 						set {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%loop-value-1%}%} to false
-						
+
 					set metadata value "ID" of {_entity} to "%{feu.fixedspawn.ID.%loop-value-1%}%"
 					set metadata value "Level" of {_entity} to "%{feu.fixedspawn.lvl.%loop-value-1%}%"
 					set metadata value "X" of {_entity} to "%x-coordinate of loop-value-1%"
@@ -841,7 +874,7 @@ every 20 second in world "Feudalism_4":
 					set metadata value "Z" of {_entity} to "%z-coordinate of loop-value-1%"
 					set metadata value "Name" of {_entity} to "%{feu.fixedspawn.name.%loop-value-1%}%"
 					set metadata value "displayLevel" of {_entity} to "%{feu.fixedspawn.displayLevel.%loop-value-1%}%"
-					
+
 					if {feu.fixedspawn.armour.%loop-value-1%} is "leather":
 						equip {_entity} with all leather armour
 					else if {feu.fixedspawn.armour.%loop-value-1%} is "chain":
@@ -853,16 +886,16 @@ every 20 second in world "Feudalism_4":
 					else if {feu.fixedspawn.armour.%loop-value-1%} is "diamond":
 						equip {_entity} with all diamond armour
 					else if {feu.fixedspawn.armour.%loop-value-1%} is "none" or "air":
-						#wait 2 tick #Can it be lower?
+						wait 1 tick #Can it be lower?
 						delete helmet slot of {_entity}
 						delete chestplate slot of {_entity}
 						delete legs slot of {_entity}
 						delete boots slot of {_entity}
 					else:
 						message "{@err2} An error was retuned from auto spawn at %loop-value-1%: <yellow>Wrong argument! <light red>The entity is spawned with its default armour! " to console
-					
+
 					#Weapon
-					
+
 					if {feu.fixedspawn.weapon.%loop-value-1%} is "wooden" or "wood":
 						set tool of {_entity} to a wooden sword
 					else if {feu.fixedspawn.weapon.%loop-value-1%} is "stone":
@@ -885,8 +918,8 @@ every 20 second in world "Feudalism_4":
 						#wait a tick
 						delete loop-entity
 						set {feu.fixedspawn.isSpawned.%{feu.fixedspawn.ID.%{_location}%}%} to false
-						set {feu.goingHome.%{feu.fixedspawn.ID.%{_location}%}%} to false
-						set {feu.canTarget.%{feu.fixedspawn.ID.%{_location}%}%} to true
+						set {feu.fixedspawn.goingHome.%{feu.fixedspawn.ID.%{_location}%}%} to false
+						set {feu.fixedspawn.canTarget.%{feu.fixedspawn.ID.%{_location}%}%} to true
 						{@debug}:
 							message "{@debugPrefix} <white>%{_ID}% | No player in sight! Killing zombie." to console
 						stop loop
@@ -894,3 +927,571 @@ every 20 second in world "Feudalism_4":
 		set {_time} to difference between {_1stTime} and now
 		message "{@debugPrefix} <white>Long periodical event took %{_time}%" to console
 
+on damage:
+	#From events.sk
+	if damage cause is fall:
+		cancel event
+		stop
+	repair victim's helmet
+	repair victim's chestplate
+	repair victim's leggings
+	repair victim's boots
+	if attacker's tool isn't any potion:
+		repair attacker's tool
+
+	victim is alive
+	attacker is alive #there is a bug where the player is revived this stops all this
+	cancel event
+	{@damageDebug}:
+	#Used to difference between two attacks
+		if {feu.godMode.%uuid of victim%} is not true:
+		#Stop spamming when in godmode
+			message "---" to console
+	if attacker is holding a stick named "Debug":
+		attacker's target exists
+		execute attacker command "/targetinfo"
+		stop
+	if victim is a player:
+		if {feu.godMode.%uuid of victim%} is true:
+		#makes godmode work
+			cancel event
+			wait 1 tick
+			heal victim
+			cure victim
+			stop
+		else if attacker is a player:
+		#No pvp
+			stop
+		else if attacker is not a zombie:
+		#make only zombies able to damage you
+			stop
+
+		set {_zombie ID} to metadata value "ID" of attacker
+		set {_zombie ID} to "%{_zombie ID}%" parsed as a number
+		set {_zombie level} to metadata value "Level" of attacker
+		set {_zombie level} to "%{_zombie level}%" parsed as a number
+		if {_zombie ID} does not exist:
+			delete victim
+			stop
+		set {_dmg percent Victim} to 1+({feu.level.%uuid of victim%}/10)
+		set {_dmg percent Attacker} to 1+({_zombie level}/10)
+
+	else if victim is a zombie:
+		#Final fix to the wrong health issue, as this check if zombies have a whole number for health
+		set {_mod1} to max health of victim mod 1
+		if {_mod1} is not equal to 0:
+			delete victim
+			if {_zombie ID} contains "Lazarus' minion":
+				set {_minion nr} to "%{_zombie ID}%"
+				replace all "Lazarus' minion nr " with "" in {_minion nr}
+				set {feu.boss.Lazarus.minions.spawned.%{_minion nr}%} to false
+			else:
+				set {feu.fixedspawn.isSpawned.%{_zombie ID}%} to false
+			#stop
+		set {_zombie ID} to metadata value "ID" of victim
+		set {_zombie ID} to "%{_zombie ID}%" parsed as a number
+		if {_zombie ID} does not exist:
+			delete victim
+			stop
+		set {_zombie level} to metadata value "Level" of victim
+		set {_zombie level} to "%{_zombie level}%" parsed as a number
+		if {_zombie level} is not an integer:
+			delete victim
+			set {feu.fixedspawn.lvl.%{_zombie ID}%} to round({_zombie level})
+			message "{@warn} Zombie with ID %{_zombie ID}% didn't have an integer as it's level! This has been fixed" to console
+		set {_dmg percent Victim} to 1+({_zombie level}/10)
+		set {_dmg percent Attacker} to 1+({feu.level.%uuid of attacker%}/10)
+		if {_zombie level} does not exist:
+			set {feu.fixedspawn.isSpawned.%{_zombie ID}%} to false
+			delete victim
+			stop
+		if {feu.fixedspawn.goingHome.nrOfTimes.%{_zombie ID}%} is greater than 2: # 3 or moew
+			if {feu.fixedspawn.canTarget.%{_zombie ID}%} is true:
+				clear victim's target
+				set {feu.fixedspawn.canTarget.%{_zombie ID}%} to false
+		else if {feu.fixedspawn.canTarget.%{_zombie ID}%} is true:
+			if victim's target is not attacker:
+				set victim's target to attacker
+		else if {feu.fixedspawn.goingHome.nrOfTimes.%{_zombie ID}%} is less than 3: #2 or lower
+			set {feu.fixedspawn.canTarget.%{_zombie ID}%} to true
+			wait 1 tick
+			set victim's target to attacker
+		set {_zombieName} to metadata value "Name" of victim
+		set {_displayLevel} to metadata value "displayLevel" of victim
+	else if victim is a witch:
+		attacker is holding a sword
+		name of tool of attacker contains "Basic", "Uncommon", "Rare", "Mythical" or "Legendary"
+		if name of victim contains "Lazarus":
+			set {_zombie level} to metadata value "Level" of victim
+			set {_dmg percent Victim} to 0.1
+			set {_dmg percent Attacker} to 1+({feu.level.%uuid of attacker%}/10)
+			set {_zombie ID} to "Lazarus"
+			set {_lazarus} to victim's location
+			if {feu.boss.Lazarus.minions.time} does not exist:
+				set {feu.boss.Lazarus.minions.time} to now
+			set {_time} to difference between {feu.boss.Lazarus.minions.time} and now
+			{@damageDebug}:
+				message "{@debugPrefix} time lazarus: %{_time}%" to console
+			if {_time} is greater than 25 seconds:
+				#set {feu.boss.Lazarus.minions.time} to now
+				loop 4 times:
+					set {_spawnZeds} to false
+					if {feu.boss.Lazarus.minions.spawned.%loop-number%} is false:
+						set {_spawnZeds} to true
+					if {_spawnZeds} is true:
+						set {feu.boss.Lazarus.minions.spawned.%loop-number%} to true
+						spawn a zombie at {_lazarus}
+						set {_entity} to last spawned entity
+						set metadata value "ID" of {_entity} to "Lazarus' minion nr %loop-number%"
+						set metadata value "Level" of {_entity} to "3"
+						set name of last spawned entity to "<light red>Minion <r> %round(health of {_entity})%/%max health of {_entity}%"
+						wait 2 tick
+						set age of {_entity} to baby
+						set rf maximum health of {_entity} to 40
+						heal {_entity}
+						set helmet slot of {_entity} to air
+						set chestplate slot of {_entity} to air
+						set legging slot of {_entity} to air
+						set boots slot of {_entity} to air
+						set tool of {_entity} to air
+						wait 2 tick
+						if the maximum health of {_entity} is not 20:
+							delete {_entity}
+							set {feu.boss.Lazarus.minions.spawned.%loop-number%} to false
+							{@damageDebug}:
+								message "{@err2} Lazarus' minion nr %loop-number% does not have 30 as max health" to console
+
+	if victim is wearing a helmet:
+		if victim is wearing a leather helmet:
+			set {_helmet} to 5
+		else if victim is wearing a chain helmet:
+			set {_helmet} to 7.5
+		else if victim is wearing an iron helmet:
+			set {_helmet} to 10
+		else if victim is wearing a gold helmet:
+			set {_helmet} to 13.75
+		else if victim is wearing a diamond helmet:
+			set {_helmet} to 17.5
+		else:
+			message "{@err2} Unknown material on entity's helmet. In ""on damage"" under ""victim is wearing an X helmet""" to console
+	else:
+		set {_helmet} to 1
+
+	if victim is wearing a chestplate:
+		if victim is wearing an leather chestplate:
+			set {_chestplate} to 7.5
+		else if victim is wearing an chain chestplate:
+			set {_chestplate} to 10
+		else if victim is wearing an iron chestplate:
+			set {_chestplate} to 12.25
+		else if victim is wearing an gold chestplate:
+			set {_chestplate} to 16.25
+		else if victim is wearing an diamond chestplate:
+			set {_chestplate} to 20
+		else:
+			message "{@err2} Unknown material on entity's chestplate. In ""on damage"" under ""victim is wearing an X chestplate""" to console
+	else:
+		set {_chestplate} to 1
+
+	if victim is wearing leggings:
+		if victim is wearing an leather leggings:
+			set {_leggings} to 5
+		else if victim is wearing an chain leggings:
+			set {_leggings} to 7.5
+		else if victim is wearing an iron leggings:
+			set {_leggings} to 10
+		else if victim is wearing an gold leggings:
+			set {_leggings} to 13.75
+		else if victim is wearing an diamond leggings:
+			set {_leggings} to 17.5
+		else:
+			message "{@err2} Unknown material on entity's leggings. In ""on damage"" under ""victim is wearing an X leggings""" to console
+	else:
+		set {_leggings} to 1
+
+	if victim is wearing boots:
+		if victim is wearing leather boots:
+			set {_boots} to 2.5
+		else if victim is wearing chain boots:
+			set {_boots} to 5
+		else if victim is wearing iron boots:
+			set {_boots} to 7.5
+		else if victim is wearing gold boots:
+			set {_boots} to 11.25
+		else if victim is wearing diamond boots:
+			set {_boots} to 15
+		else:
+			message "{@err2} Unknown material on entity's boots. In ""on damage"" under ""victim is wearing an X boots""" to console
+	else:
+		set {_boots} to 1
+	set {_addedArmour} to {_helmet}+{_chestplate}+{_leggings}+{_boots}
+	set {_calcArmour} to 1-(({_addedArmour}+{_dmg percent Victim})/100)
+
+	if attacker is holding a sword:
+		#Wildwood
+		if attacker is holding a wooden sword:
+			set {_material} to 1
+		#Rock
+		else if attacker is holding a stone sword:
+			if attacker is a player:
+				if {feu.level.%uuid of attacker%} is higher than 9:
+					set {_material} to 1.5
+				else:
+					message "<light red>You need to be a higher level to wield this material" to attacker
+					stop
+			else:
+				set {_material} to 2.25
+		#Steel
+		else if attacker is holding a iron sword:
+			if attacker is a player:
+				if {feu.level.%uuid of attacker%} is higher than 19: #not tested
+					set {_material} to 2
+				else:
+					message "<light red>You need to be a higher level to wield this material" to attacker
+					stop
+			else:
+				set {_material} to 3.8
+		#Dwemler
+		else if attacker is holding a gold sword:
+			if attacker is a player:
+				if {feu.level.%uuid of attacker%} is higher than 29: #not tested
+					set {_material} to 2.5
+				else:
+					message "<light red>You need to be a higher level to wield this material" to attacker
+					stop
+			else:
+				set {_material} to 7
+		#Crystal
+		else if attacker is holding a diamond sword:
+			if attacker is a player:
+				if {feu.level.%uuid of attacker%} is higher than 39: #not tested
+					set {_material} to 3.5
+				else:
+					message "<light red>You need to be a higher level to wield this material" to attacker
+					stop
+			else:
+				set {_material} to 12
+		else:
+			message "{@err2} Unknown material on sword. In ""on damage"" under ""attacker is holding a""" to console
+
+		if attacker is a player:
+			if name of tool of attacker contains "Basic":
+				set {_condition} to 1.1
+			else if name of tool of attacker contains "Uncommon":
+				set {_condition} to 1.5
+			else if name of tool of attacker contains "Rare":
+				set {_condition} to 2.5
+			else if name of tool of attacker contains "Mythical":
+				set {_condition} to 3.5
+			else if name of tool of attacker contains "Legendary":
+				set {_condition} to 4.5
+			else if name of attacker's tool contains "Dummy Sword":
+				message "" to {_fake}
+			else:
+				message "{@err2} No known condition on %attacker%'s tool. In ""on damage"" under ""name of tool of attacker contains""" to console
+
+		if attacker is a player:
+			set {_damage} to 2+{_material}*{_condition}*{_dmg percent Attacker}
+
+		else if attacker is a zombie:
+			set {_damage} to 1+{_material}+{_zombie level}+{_dmg percent Attacker}
+
+	#unarmed zombie
+	else if attacker is a zombie:
+		set {_damage} to 2+{_zombie level}+{_dmg percent Attacker} #test this
+
+	else:
+		set {_damage} to 0
+	if name of attacker's tool contains "Dummy Sword":
+		message "" to {_fake}
+	else if {_damage} is 0:
+		#message "<light red>You can not attack with this!" to attacker
+		stop
+	else:
+		set {_total damage} to {_damage}*{_calcArmour} + ({_dmg percent Attacker} - {_dmg percent Victim})
+		if {_total damage} is less than 1:
+			if attacker is a player:
+				set {_total damage} to 0
+			else:
+				set {_total damage} to 0.2
+
+	if victim is blocking:
+		set {_total damage} to {_total damage} * 0.9
+		{@damageDebug}:
+			message "{@debugPrefix} <white>Victim is blocking" to console
+	damage the victim by {_total damage} hearts
+
+	if the health of the victim is less than 1:
+	#When an victim dies (not including players) it will give xp to the player whom killed it and display it as its name before despawning.
+		kill the victim
+		if victim is player:
+			#Clean up when a player dies, then stop.
+			if {feu.quest.Crazy_house.4.%uuid of victim%} is true:
+				loop {feu.quest.Crazy_house.bossFighters::*}:
+					if uuid of victim is equal to {feu.quest.Crazy_house.bossFighters::%loop-index%}:
+						#If the player dies when fighting lazarus, they'll get removed from the fighting list
+						remove uuid of victim from {feu.quest.Crazy_house.bossFighters::*}
+						if size of {feu.quest.Crazy_house.bossFighters::*} is 0:
+							execute console command "killLazarus"
+			stop
+		if {_zombie ID} is "Lazarus":
+		#Special scenario, player just finished the second quest.
+			set name of victim to "<light gray>[<r>+150 xp<light gray>]"
+			set {feu.boss.Lazarus.isSpawned} to false
+			loop entities in radius 35 around the victim:
+				loop-entity is a zombie
+				set {_minion nr} to metadata value "ID" of loop-entity
+				set {_minion nr} to "%{_minion nr}%"
+				if {_minion nr} contains "Lazarus' minion":
+					kill loop-entity
+					#{feu.boss.Lazarus.minions.spawned.%{_minion nr}%} exists to false when Lazarus spawn again
+			heal attacker
+			cure attacker
+			execute console command "Crazy_house.Boss.finish %name of attacker%"
+			wait 4 seconds
+			execute console command "addxp 150 %name of attacker%"
+			stop
+		else if {_zombie ID} contains "Lazarus' minion":
+			#Special case for special zombies
+			set name of victim to "<light gray>[<r>+3 xp<light gray>]"
+			set {_minion nr} to "%{_zombie ID}%"
+			replace all "Lazarus' minion nr " with "" in {_minion nr}
+			execute console command "addxp 3 %name of attacker%"
+			set {feu.boss.Lazarus.minions.spawned.%{_minion nr}%} to false
+			stop
+		else if {_zombie ID} is "The Janitor":
+			set name of victim to "<light gray>[<r>+43 xp<light gray>]"
+			execute console command "addxp 43 %name of attacker%"
+			set {feu.boss.janitor.isSpawned} to false
+			if {feu.quest.theThird.6.%uuid of attacker%} is true:
+				if attacker has a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item":
+					#using "doesn't have a" instead of "has a" doesn't work...
+					message "" to {_fake}
+				else:
+					if attacker can hold a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item":
+						give attacker a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item"
+					else:
+						message "{@You} I don't have any more space for his key..." to attacker
+						drop a tripwire hook named "<dark gray>Sewers key" with lore "<light gray>Quest Item" above victim
+
+			stop
+		else:
+			#There are three different curves, 1-30, 31-100 and greater than 100.
+			if {_zombie level} is less than 31:
+				set {_xp} to 1+{_zombie level}
+			else if {_zombie level} is less than 101:
+				set {_xp} to round(0.4 * {_zombie level} + 18.5)
+			else if {_zombie level} is greater than 100:
+				#This means that fighting a level 120 enemy is pointless since you wont get any more xp.
+				#TODO Maybe change this?
+				set {_xp} to 60
+			else:
+				set {_xp} to 0
+				message "{@err2} could not find any valid zombie level! In ""on damage"" under ELSE ""{_zombie Level}"" less/greater than X" to console
+
+			#This makes you get more xp from zombies with armour
+			set {_armourToXPMultiplyer} to 1+({_addedArmour}/100)
+			set {_orgXP} to {_xp}
+			set {_xp} to {_xp} * {_armourToXPMultiplyer}
+
+			{@DoubleXP}:
+				set {_xp} to {_xp} * 2
+
+			set name of victim to "<light gray>[<r>+%round({_xp})% xp<light gray>]"
+			set {_location} to spawn of "Feudalism_4"
+			set {_x} to metadata value "X" of victim
+			set {_y} to metadata value "Y" of victim
+			set {_z} to metadata value "Z" of victim
+			set x coordinate of {_location} to ({_x}) parsed as number
+			set y coordinate of {_location} to ({_y}) parsed as number
+			set z coordinate of {_location} to ({_z}) parsed as number
+
+			set {feu.fixedspawn.goingHome.%{feu.fixedspawn.ID.%{_location}%}%} to false
+			set {feu.fixedspawn.canTarget.%{feu.fixedspawn.ID.%{_location}%}%} to true
+
+		#Check if the odds are in your favour, and if so give you a sword
+		if chance of 5%:
+			if chance of 0.1%: #% #Legendary
+				#What type of sword is based on the zombies level
+				if {_zombie level} is higher than 39:
+					give attacker a diamond sword named "<light red>Legendary Crystal Sword" with no nbt with lore "Damage: 54"
+
+				else if {_zombie level} is higher than 29:
+					give attacker a gold sword named "<light red>Legendary Dwemler Sword" with no nbt with lore "Damage: 41.5"
+
+				else if {_zombie level} is higher than 19:
+					give attacker a iron sword named "<light red>Legendary Steel Sword" with no nbt with lore "Damage: 17"
+
+				else if {_zombie level} is higher than 9:
+					give attacker a stone sword named "<light red>Legendary Rock Sword" with no nbt with lore "Damage: 10"
+
+				else:
+					give attacker a wood sword named "<light red>Legendary Wildwood Sword" with no nbt with lore "Damage: 4.5"
+
+			else if chance of 0.5%: #% #Mythical
+				if {_zombie level} is higher than 39:
+					give attacker a diamond sword named "<purple>Mythical Crystal Sword" with no nbt with lore "Damage: 42"
+
+				else if {_zombie level} is higher than 29:
+					give attacker a gold sword named "<purple>Mythical Dwemler Sword" with no nbt with lore "Damage: 24.5"
+
+				else if {_zombie level} is higher than 19:
+					give attacker a iron sword named "<purple>Mythical Steel Sword" with no nbt with lore "Damage: 13.5"
+
+				else if {_zombie level} is higher than 9:
+					give attacker a stone sword named "<purple>Mythical Rock Sword" with no nbt with lore "Damage: 8"
+
+				else:
+					give attacker a wood sword named "<purple>Mythical Wildwood Sword" with no nbt with lore "Damage: 3.5"
+
+			else if chance of 2%: #% #Rare
+				if {_zombie level} is higher than 39:
+					give attacker a diamond sword named "<light blue>Rare Crystal Sword" with no nbt with lore "Damage: 30"
+
+				else if {_zombie level} is higher than 29:
+					give attacker a gold sword named "<light blue>Rare Dwemler Sword" with no nbt with lore "Damage: 17.5"
+
+				else if {_zombie level} is higher than 19:
+					give attacker a iron sword named "<light blue>Rare Steel Sword" with no nbt with lore "Damage: 9.5"
+
+				else if {_zombie level} is higher than 9:
+					give attacker a stone sword named "<light blue>Rare Rock Sword" with no nbt with lore "Damage: 5.5"
+
+				else:
+					give attacker a wood sword named "<light blue>Rare Wildwood Sword" with no nbt with lore "Damage: 2.5"
+
+			else if chance of 10%: #% #Uncommon
+				if {_zombie level} is higher than 39:
+					give attacker a diamond sword named "<light green>Uncommon Crystal Sword" with no nbt with lore "Damage: 18"
+
+				else if {_zombie level} is higher than 29:
+					give attacker a gold sword named "<light green>Uncommon Dwemler Sword" with no nbt with lore "Damage: 10.5"
+
+				else if {_zombie level} is higher than 19:
+					give attacker a iron sword named "<light green>Uncommon Steel Sword" with no nbt with lore "Damage: 5.5"
+
+				else if {_zombie level} is higher than 9:
+					give attacker a stone sword named "<light green>Uncommon Rock Sword" with no nbt with lore "Damage: 3.5"
+
+				else:
+					give attacker a wood sword named "<light green>Uncommon Wildwood Sword" with no nbt with lore "Damage: 1.5"
+
+			else if chance of 20%: #% #Basic sword
+				if {_zombie level} is higher than 39:
+					give attacker a diamond sword named "<yellow>Basic Crystal Sword" with no nbt with lore "Damage: 13"
+
+				else if {_zombie level} is higher than 29:
+					give attacker a gold sword named "<yellow>Basic Dwemler Sword" with no nbt with lore "Damage: 7.5"
+
+				else if {_zombie level} is higher than 19:
+					give attacker a iron sword named "<yellow>Basic Steel Sword" with no nbt with lore "Damage: 4"
+
+				else if {_zombie level} is higher than 9:
+					give attacker a stone sword named "<yellow>Basic Rock Sword" with no nbt with lore "Damage: 2.5"
+
+				else:
+					give attacker a wood sword named "<yellow>Basic Wildwood Sword" with no nbt with lore "Damage: 1"
+		#
+		# <Quests> See how many zombies you have killed
+		#
+		if  {feu.quest.zombiesKilled.%uuid of attacker%} does not exist:
+			set {feu.quest.zombiesKilled.%uuid of attacker%} to 0
+
+		if {feu.quest.starter.4.%uuid of attacker%} is true:
+			if {feu.quest.zombiesKilled.%uuid of attacker%} is less than 3:
+				add 1 to {feu.quest.zombiesKilled.%uuid of attacker%}
+				if {feu.quest.zombiesKilled.%uuid of attacker%} is 3:
+					message "{@You} It seems clear enough. I should search the chest before more arrive." to attacker
+
+		else if {feu.quest.Crazy_house.2.%uuid of attacker%} is true:
+			if {feu.quest.zombiesKilled.%uuid of attacker%} is less than 6:
+				add 1 to {feu.quest.zombiesKilled.%uuid of attacker%}
+			if {feu.quest.zombiesKilled.%uuid of attacker%} is 6:
+				execute console command "Crazy_house.KilledZombies1 %name of attacker%"
+
+		else if {feu.quest.theThird.3.%uuid of attacker%} is true:
+			if {feu.quest.zombiesKilled.%uuid of attacker%} is less than 7:
+				add 1 to {feu.quest.zombiesKilled.%uuid of attacker%}
+			if {feu.quest.zombiesKilled.%uuid of attacker%} is 7:
+				execute console command "theThird.KilledZombies1 %name of attacker%"
+
+		#
+		# </Quest>
+		#
+
+		if "%{_zombie ID}%" is "<none>":
+			Message "{@warn} Didn't find any ID on the zombie. In ""on damage"" under ""{_zombie ID}"" is equal to ""<none>""" to console
+		else if {_zombie ID} is "SCZ":
+			#ignore this, just a cheap hack... so zombies can spawn without being spawned from skript
+			message "" to {_fake}
+		else if {feu.fixedspawn.isSpawned.%{_zombie ID}%} exists:
+			set {feu.fixedspawn.isSpawned.%{_zombie ID}%} to false
+		else:
+			message "{@err2} could not find any valid variable! In ""on damage"" under ELSE ""{_zombie ID}"" is equal to ""<none>""" to console
+
+		execute console command "addxp %{_xp}% %name of attacker%"
+
+	else if victim is a zombie:
+		if {_zombie ID} contains "Lazarus' minion":
+			set name of victim to "<light red>Minion <r> %round(health of victim)%/%max health of victim%"
+		else if {_zombie ID} is "SCZ":
+			set name of victim to "<light red>%{_zombieName}%<r> %round(health of victim)%/%max health of victim%"
+		else if {_zombie ID} is "The Janitor":
+			set name of victim to "<red>The Janitor<r> %round(health of victim)%/%max health of victim%"
+		else if "%{_displayLevel}%" is "true":
+			set name of victim to "<light red>%{_zombieName}% LvL %{_zombie level}%<r> %round(health of victim)%/%max health of victim%"
+		else:
+			set name of victim to "<light red>%{_zombieName}%<r> %round(health of victim)%/%max health of victim%"
+	else if {_zombie ID} is "Lazarus":
+		set name of victim to "<red>Lazarus<r> %round(victim's health)%/%victim's max health%"
+
+	#Makes the entity push move the same way however fast it is originally moving
+	set {_still} to new vector  0, 0, 0
+	set velocity of victim to {_still}
+
+	push the victim in horizontal direction of attacker with speed 0.4
+	#if victim is on ground:
+	#	push the victim up with speed 0.1
+	{@damageDebug}:
+		#Print out debug info
+		message "{@debugPrefix} Attacker is %attacker%" to console
+		message "{@debugPrefix} <white>victim is %victim%" to console
+		message "{@debugPrefix} Dmg percent Attacker: %{_dmg percent Attacker}% | Dmg percent Victim: %{_dmg percent Victim}%" to console
+		#Calculate the damage if no special case scenarios change it, like when attacking with a dummy sword
+		set {_total damage2} to {_damage}*{_calcArmour} + ({_dmg percent Attacker} - {_dmg percent Victim})
+		if attacker is a player:
+			message "{@debugPrefix} <white>Attacker level: %{feu.level.%uuid of attacker%}% || victim level: %{_zombie level}%" to console
+			if name of attacker's tool contains "Dummy Sword":
+				#Dummy sword, does no damage
+				message "{@debugPrefix} D s dmg: 0 " to console
+				set {_total damage} to 0
+			else:
+				#player damage
+				message "{@debugPrefix} P dmg: 2 + %{_material}% * %{_condition}% * %{_dmg percent Attacker}% = %{_damage}%" to console
+
+			message "{@debugPrefix} <white>Armour added together: %{_helmet}%+%{_chestplate}%+%{_leggings}%+%{_boots}% = %{_addedArmour}%" to console
+			message "{@debugPrefix} Armour: 1-((%{_addedArmour}%+%{_dmg percent Victim}%)/100) = %{_calcArmour}%" to console
+			if {_total damage} is less than 1:
+				message "{@debugPrefix} <white>Total dmg < 1: %{_total damage}% (raw: %{_total damage2}%)" to console #total dmg exists to 0 when the attacker is a player and he/she damage less than 1
+			else:
+
+				message "{@debugPrefix} <white>Total dmg: %{_damage}% * %{_calcArmour}% = %{_total damage}% (raw: %{_total damage2}%)" to console
+		else if attacker is a zombie:
+			message "{@debugPrefix} <white>Attacker level: %{_zombie level}% || victim level: %{feu.level.%uuid of victim%}%" to console
+			if attacker is holding a sword:
+				message "{@debugPrefix} Material: %{_material}%" to console
+				#zombie tool damage
+				message "{@debugPrefix} <white>Z t dmg: 0.5 + %{_material}% + %{_zombie level}% = %{_damage}%" to console
+			else:
+				message "{@debugPrefix} Material: Air" to console
+				#zombie no tool damage
+				message "{@debugPrefix} <white>Z n t dmg: 2 + %{_zombie level}% + %{_dmg percent Attacker}% = %{_damage}%" to console
+			#Armour of victim
+			message "{@debugPrefix} Armour: 1-(((%{_helmet}%+%{_chestplate}%+%{_leggings}%+%{_boots}%)+%{_dmg percent Victim}%)/100) = %{_calcArmour}%" to console
+			#Final damage
+			message "{@debugPrefix} <white>Total dmg: %{_damage}% * %{_calcArmour}% + (%{_dmg percent Attacker}% - %{_dmg percent Victim}%) = %{_total damage}% (raw: %{_total damage2}%)" to console
+
+		if the victim is dead:
+			message "{@debugPrefix} XP multiplyer: 1+(%{_addedArmour}%/100) = %{_armourToXPMultiplyer}%" to console
+			message "{@debugPrefix} <white>XP Gained: %{_orgXP}% * %{_armourToXPMultiplyer}% = %{_xp}%" to console
+			message "{@debugPrefix} <light red>Victim died!" to console
