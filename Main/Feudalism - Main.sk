@@ -243,7 +243,7 @@ command /saveItem <text>:
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 
-		if player is holding air:
+		if player's tool is air:
 			message "{@err} You need to hold something!"
 			stop
 		if arg-1 is "name":
@@ -276,7 +276,7 @@ command /deleteItem <text>:
 			set {feu.permission.%uuid of player%} to "feu.player"
 			stop
 
-		if player is holding air:
+		if player's tool is air:
 			message "{@err} You need to hold something!"
 			stop
 		if arg-1 is "name":
@@ -550,11 +550,12 @@ command /loot.basic:
 		#message "%{feu.loot.basic::*}% are in Grandma's Basket"
 
 #events
-on world load:
-	if the world is not "Feudalism_4":
-		message "{@err} You have the wrong name of the world! Use ""Feudalism_4""" to console
-	else if {@debug}:
-		message "{@debugPrefix} Loading the right world" to console
+#!Find a way to see what world is loading
+#on world load:
+#	if world's name is not "Feudalism_4":
+#		message "{@err} You have the wrong name of the world! Use ""Feudalism_4""" to console
+#	else if {@debug}:
+#		message "{@debugPrefix} Loading the right world" to console
 
 on skript load:
 	#Three states:
@@ -680,7 +681,7 @@ on rightclick on andesite:
 		else if {_ran} is 4:
 			message "{@prefix} But you can not find anything."
 		else if {_ran} is 5:
-			message "{@prefix} it is all a hoax, nothing here!"
+			message "{@prefix} it is all a hoax, nothings here!"
 		else if {_ran} is 6:
 			message "{@prefix} A poem:"
 			wait 20 tick
@@ -702,4 +703,4 @@ on rightclick on andesite:
 			message "{@prefix} A hug!"
 		else:
 			message "{@prefix} <light red> An ERROR :S"
-			message "{@err} %uuid of player% found a bug with the andersite! Please report this."
+			message "{@err} %name of player% found a bug with the andersite! Please report this." to console

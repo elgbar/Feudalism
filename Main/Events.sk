@@ -1,20 +1,20 @@
 options:
 	debug: false
-	
+
 	prefix: <gold>[&aFeudalism<gold>]<r>
 	debugPrefix: <gold>[<yellow>Debug<gold>]<r>
-	
+
 	warn: <gold>[<yellow>WARNING<gold>]:<r>
 	err: <gold>[<light red>ERROR<gold>]:<r> #User error (like wrong argument)
 	err2: <gold>[<red>ERROR<gold>]:<light red> #Critical error
-	
+
 	allowedMobs: zombie, witch or villager
 	non-interactiveMobs: villager #Mobs without ID
 	You: <light green>%player%<r>:<r>
-	
+
 on crop trample:
 	cancel event
-	
+
 on spawn:
 	if entity is not {@allowedMobs}:
 		cancel event
@@ -29,14 +29,14 @@ on spawn:
 		delete event-entity
 		{@debug}:
 			message "{@debugPrefix} Unknown Zombie spawned, and killed" to console
-	
+
 On Level Change:
 	wait 20 tick
 	player's level is not equal to {feu.level.%uuid of player%}:
 		message "{@warn} Something went wrong! Your level shifted unexpectedly!"
 		message "{@warn} %player%'s level just changed unexpectedly" to console
 		set player's level to {feu.level.%uuid of player%}
-		
+
 on death of player:
 	set death message to ""
 	#force the player to respawn #TODO fix this
@@ -48,11 +48,11 @@ on death of player:
 			#stop loop
 	if size of {feu.quest.Crazy_house.bossFighters::*} is 0:
 		execute console command "killLazarus"
-		
+
 on teleport:
 	if {feu.quest.Crazy_house.4.%uuid of player%} is true:
 		remove uuid of player from {feu.quest.Crazy_house.bossFighters::*}
-		
+
 on command:
 	cancel event
 	if "%command%" is "help":
@@ -70,7 +70,7 @@ on command:
 		else if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
 			message "{@err} You do not have permission for this command!"
 			stop
-			
+
 		set {feu.godMode.%uuid of player%} to true
 		message "{@prefix} Godmode enabled"
 		stop
@@ -109,7 +109,7 @@ on break:
 	if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "feu.op":
 		stop
 	cancel event
-	
+
 on place:
 	if block is glowstone:
 		cancel event
@@ -120,7 +120,7 @@ on place:
 	if {feu.permission.%uuid of player%} is "feu.tech", "feu.admin" or "feu.op":
 		stop
 	cancel event
-	
+
 on drop:
 	if lore of event-item is "<light gray>Quest Item" or "<gold>Spawned sword":
 		if {feu.permission.%uuid of player%} is "feu.op":
@@ -130,10 +130,10 @@ on drop:
 	else if event-item is xp orb:
 		cancel event
 	else if event-item is any sword:
-		number of any sword in player's inventory is 0 #this 
+		number of any sword in player's inventory is 0 #this
 		cancel event
 		message "{@You} I should not throw away my only sword.." to player
-		
+
 on click:
 	if target block is anvil, crafting table, furnace, jukebox, chest, ender chest, trapped chest, enchantment table, dispenser, note block or hopper:
 		if {feu.permission.%uuid of player%} is not "feu.mod", "feu.tech", "feu.admin" or "feu.op":
@@ -144,7 +144,7 @@ on click:
 			set {feu.permission.%uuid of player%} to "feu.player"
 			cancel event
 			stop
-	if player is holding a stick named "Debug":
+	if player's tool is a stick named "Debug":
 		if player's target exists:
 			execute player command "/targetinfo"
 		else if target block exists:
@@ -158,7 +158,7 @@ on click:
 			if event-block is any wooden door:
 				message "{@You} The door is locked. Maybe a button could work..." to player
 			cancel event
-			
+
 on entity target:
 	if target is a villager:
 		cancel event
@@ -174,14 +174,14 @@ on entity target:
 			cancel event
 			{@debug}:
 				message "{@debugPrefix} Cancelling target of player" to console
-				
+
 On consume:
 	cancel event
 	#This is a skript/minecraft bug:
 	if player's health is max health of player:
 		if name of tool contains "Instant Health":
 			cancel event
-	else if player is holding a potion of: #Skript is broken here
+	else if player's tool is a potion of: #Skript is broken here
 		if name of tool is "Instant Health I":
 			add 10 to player's health
 		else if name of tool is "Instant Health II":
@@ -209,14 +209,14 @@ on item break:
 			else if {feu.fixedspawn.armour.%{_location}%} is "iron":
 				equip event-entity with all iron armour
 			else if {feu.fixedspawn.armour.%{_location}%} is "gold":
-				equip event-entity with all gold armour	
+				equip event-entity with all gold armour
 			else if {feu.fixedspawn.armour.%{_location}%} is "diamond":
 				equip event-entity with all diamond armour
 			else:
 				message "{@err2} Unknown variable in replace item for entities" to console
 			message "Unknown variable in replace item for entities" to console
 			stop
-			
+
 on quit:
 	set leave message to ""
 	set {feu.godMode.%uuid of player%} to false
@@ -224,11 +224,11 @@ on quit:
 	set gamemode of player to adventure
 	execute console command "seespawns false %player%"
 	set the player's flying speed to 0.1
-	
+
 	if {feu.quest.starter.lookingForRing.%uuid of player%} is true:
 		add a gold nugget named "<gold><gold>Old gold ring" with lore "<light gray>Quest Item" to player's inventory
 		set {feu.quest.starter.lookingForRing.%uuid of player%} to false
-				
+
 	loop {feu.quest.Crazy_house.bossFighters::*}:
 		if uuid of player is equal to {feu.quest.Crazy_house.bossFighters::%loop-index%}:
 			remove uuid of player from {feu.quest.Crazy_house.bossFighters::*}
@@ -237,14 +237,14 @@ on quit:
 	wait 1 tick
 	if size of {feu.quest.Crazy_house.bossFighters::*} is 0:
 		execute console command "killLazarus"
-		
-		
+
+
 #
 #One liners & cancel events
 #
 On Item Spawning of any button:
 	cancel event
-	
+
 #On Item Spawn
 #	if {feu.permission.%uuid of player%} is "feu.player":
 #		wait 5 tick
@@ -252,47 +252,47 @@ On Item Spawning of any button:
 
 on heal:
 	cancel event
-	
+
 on zombie break door:
 	cancel event
-	
+
 on weather change:
 	set weather to sun
-	
+
 on spread:
 	cancel event
-	
+
 On Burn:
 	cancel event
 
 on ignition:
 	cancel event
-	
+
 On Fade:
 	cancel event
-	
+
 On Form:
 	cancel event
-	
+
 on Explode:
 	cancel event
-	
+
 on death:
 	clear drops
-	
+
 on combust:
 	entity is zombie
 	cancel event
-	
+
 On Leaves Decay:
 	cancel event
-	
+
 on xp spawn:
 	clear xp
 	cancel event
 
 on hunger meter change:
 	set hunger of player to 10
-	
+
 on skript stop:
 	set {feu.disable.enemies} to true
